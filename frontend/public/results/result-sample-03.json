@@ -1,0 +1,946 @@
+{
+  "schemaVersion": "1.0.0",
+  "report": {
+    "reportId": "sample-03",
+    "title": "实验报告：读者—写者问题",
+    "course": "操作系统原理",
+    "studentCode": "学生C"
+  },
+  "rubricVersion": "1.0.0",
+  "rubric": {
+    "id": "rubric-cs-lab-report-generic",
+    "version": "1.0.0",
+    "title": "高校计算机专业实验报告通用 Rubric（进程线程同步 / Socket 网络编程 / 排序算法性能对比）",
+    "items": [
+      {
+        "id": "R1",
+        "name": "实验目的理解",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text。要求报告「实验目的」章节中明确列出本次实验要验证/实现的 2 条以上目标，且目标动词具体（如「验证信号量对临界区的保护作用」「对比三种排序在 10 万级数据下的耗时」），能与后文实验内容与结论一一对应。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "列出 3 条以上具体目标，覆盖知识目标（要懂什么）与能力目标（要做出什么），且后文每个目标都有对应结果与结论回应",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "列出 2–3 条目标，表述基本清晰，与后文内容大体对应，但个别目标缺少结果回应",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 条笼统目标（如「学习多线程编程」），或目标抄自实验指导书而无个人化表述",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验目的章节，或目的与本次实验主题明显无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "在档位基础上浮动：目标条目数达标但存在 1 条与后文无对应，降一档处理（如优秀降达标）；出现与实验主题无关的目标，每条再扣 0.5 分（最低降至未达标）。"
+      },
+      {
+        "id": "R2",
+        "name": "原理阐述",
+        "weight": 12,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告「实验原理」章节正确阐述核心概念（如临界区与互斥、TCP 三次握手与粘包、排序复杂度与主存访问局部性），术语使用准确，能结合本次实验的关键数据结构或系统调用说明机制；原理中提到的机制须能在后文代码中找到对应实现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "概念定义准确且完整，能说明机制「为什么成立」（如信号量 PV 操作为何能保证互斥、TCP 为何是字节流），并结合代码/数据结构给出具体说明，无科学性错误",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "核心概念表述正确，覆盖了主要机制，但停留在定义复述层面，未深入解释成因或与代码的对应关系偏弱",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅零散提及术语，存在概念混淆（如把进程与线程混为一谈、把互斥与同步混为一谈、错误描述平均/最坏时间复杂度），篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全缺失原理阐述，或阐述存在原则性科学错误（如认为信号量可以解决一切死锁、认为 TCP 天然保证消息边界）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每出现一处科学性错误在档位基础上再扣 2 分，出现原则性错误直接判未达标；原理与实现完全脱节（阐述 A 机制却实现 B）扣 3 分；整段照抄教材且无任何自己的归纳表述扣 1 分。"
+      },
+      {
+        "id": "R3",
+        "name": "实验环境配置",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告给出可复现的环境信息：操作系统与版本、编译器/解释器与版本、关键依赖库或内核头文件版本、编译命令或运行命令；建议以表格或截图形式呈现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "OS、语言/编译器版本、依赖库版本、编译与运行命令四要素齐全，并给出关键版本号（如 gcc 11.4.0、Python 3.11.6、glibc 2.35），他人可据此复现",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "给出了 OS 与主要工具版本，缺少个别次要信息（如未给依赖库版本或未给编译命令），基本可复现",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只写了工具名称而无版本号（如仅写「Ubuntu + gcc」），或只给了一张无法辨识版本信息的截图",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未交代环境信息",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺版本号每处扣 1 分；缺编译/运行命令扣 1 分；版本号与实际代码语法明显矛盾（如写 Python 2 却用 f-string）扣 2 分；仅以截图呈现且图中文字不可辨识，降一档处理。"
+      },
+      {
+        "id": "R4",
+        "name": "实验步骤完整性",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告给出可操作的步骤序列：环境准备 → 代码编写 → 编译/构建 → 运行与参数 → 观察记录 → 结果导出，步骤顺序合理、有编号，关键步骤附命令或截图。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "步骤编号完整且与实验流程一致，覆盖准备、实现、编译、运行、记录、导出六个环节，关键步骤给出具体命令与参数，他人可按步骤复现实验",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "步骤基本完整且顺序合理，覆盖主要环节，但个别环节无命令或参数说明，缺少结果导出/归档环节",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只有粗略的几步（如「写代码→运行」），缺少编译、参数、记录等关键环节，或步骤顺序混乱",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验步骤章节，或步骤与本次实验内容无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个关键环节（编译/运行参数/结果记录）扣 2 分；步骤编号缺失或顺序颠倒扣 1 分；步骤中出现与代码不一致的命令（如源文件名对不上）每处扣 1 分。"
+      },
+      {
+        "id": "R5",
+        "name": "核心代码正确性",
+        "weight": 20,
+        "maxScore": 20,
+        "evidenceRequirement": "证据类型：code、text。要求报告给出核心实现的代码块（带语言标注），代码能完成实验要求的核心功能且逻辑正确：临界区保护无遗漏、套接字收发与关闭正确、排序结果有序且稳定；须关注边界条件（空输入、单元素、并发冲突、连接异常断开）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "核心功能完全正确，边界条件处理完备（如空输入/单元素/连接异常/并发极端情况），无资源泄漏（锁必然释放、fd 必然关闭、内存必然回收），并有错误处理与返回值检查",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "主要功能正确，常规输入下结果正确，但边界条件或异常处理有遗漏（如未检查系统调用返回值、未处理连接断开），不影响主流程",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "代码存在可指出的明确缺陷（如锁的粒度错误、未加锁保护共享变量、recv 返回值未处理导致粘包、排序比较逻辑有误），在部分输入下会产生错误结果",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无核心代码块，或代码无法通过编译/运行，或核心逻辑完全错误（如根本未使用实验要求的机制）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处明确 bug 扣 3 分（资源泄漏每处额外扣 2 分）；代码无法编译直接判未达标；仅贴出运行结果而无代码，判未达标；核心代码与实验要求机制不符（如要求用信号量却用忙等）扣 5 分。"
+      },
+      {
+        "id": "R6",
+        "name": "关键 API / 算法使用",
+        "weight": 10,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code、text。要求报告正确使用了本实验的关键 API 或算法：如 pthread_mutex_lock/unlock、sem_wait/sem_post、socket/bind/listen/accept/send/recv、快排分区与递归、归并合并等；调用参数与惯用法正确，并在正文中说明为何选用该 API/算法。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "关键 API/算法选用恰当且调用惯用法完全正确，参数与返回值处理规范，并说明了选型理由与替代方案对比",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "使用了正确的关键 API/算法，调用基本规范，但未说明选型理由，或个别参数使用不够地道（如未复用地址、未设置超时）",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "使用了实验要求的 API/算法但用法有误（如互斥锁与条件变量配合错误、忘记 setsockopt、递归终止条件写错），或回避了关键 API 而用简化替代实现",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未使用实验要求的关键 API/算法（如要求用 socket 却直接用现成框架、要求实现快排却直接调用库排序且未作说明）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "关键 API 参数错误每处扣 2 分；调用了被废弃/不安全的接口（如 strcpy、gets）每处扣 2 分；使用了库函数但明确说明并对比了自实现版本，不扣分。"
+      },
+      {
+        "id": "R7",
+        "name": "实验结果与截图",
+        "weight": 11,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：figure、table、text。要求报告提供支撑结论的原始结果：终端运行输出截图、程序界面/输出窗口截图、性能数据表格等；每张图须有编号与图题，图题说明该图展示了什么，图中关键数据可辨识，并在正文中被引用（如「如图 3-2 所示」）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "提供 3 张以上结果截图/表格，覆盖主要实验场景（如并发前后对比、多组规模数据），每张有编号与图题，图中关键数据清晰可辨识，且正文逐一引用并解读",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "提供了 2 张左右结果截图，编号与图题基本齐全，能支撑主要结论，但个别场景缺少截图或图中部分数据不可辨识",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 张截图，或截图缺少编号/图题，或截图与实验内容不匹配（如只截了代码编辑界面而无运行结果），不足以支撑结论",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有结果截图或结果数据，结论无证据支撑",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "截图无编号或图题每张扣 1 分；截图未被正文引用每张扣 1 分；截图为伪造/明显与实验无关（如网络图片、仅截代码）判部分达标并扣 3 分；结果数据未以表格呈现导致难以比对，扣 2 分。"
+      },
+      {
+        "id": "R8",
+        "name": "数据分析与讨论",
+        "weight": 13,
+        "maxScore": 15,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告对结果数据做量化分析而非现象罗列：给出具体数值与对比（如加速比、耗时增长率、并发下错误计数差值），解释数据背后的成因（如缓存局部性、锁竞争开销、Nagle 算法影响），并能与理论预期做对照，说明偏差原因。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "给出多组量化数据对比与计算（如加速比、增长率、相对误差），结合原理深入解释成因，明确指出与理论预期的偏差并给出可信解释，讨论有个人见解",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "有量化数据对比与基本解释，能说明主要趋势（如规模增大耗时上升、加锁后吞吐下降），但归因较浅或未与理论值对照",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只罗列现象而无量化分析（如「加了锁之后变慢了」却不给数值），或仅有结论无数据支撑，分析泛泛而谈",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有数据分析与讨论，直接跳到总结",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "数据存在明显矛盾（图表数值与正文描述不一致）每处扣 3 分；仅重复描述截图内容而无分析，降一档；量化样本量过少（仅 1 组数据即下结论）扣 3 分；结论超出数据支持范围（过度外推）扣 2 分。"
+      },
+      {
+        "id": "R9",
+        "name": "问题排查与反思",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告记录实验过程中遇到的真实问题（编译报错、死锁、结果不稳定、性能异常等），给出排查过程与解决办法，并反思方案局限与改进方向；问题须具体可复现，而非泛泛而谈。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "记录 2 个以上具体问题，含现象、定位过程（用了什么手段定位）、根因与解决办法，并给出方案局限与至少 1 条可执行的改进方向",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "记录了 1–2 个问题并给出解决办法，但排查过程描述简略，或反思偏套话、缺乏可执行改进方向",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅笼统提到「遇到了一些困难」而未说明具体问题与解决办法，或只写了反思而无问题记录",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全无问题排查与反思内容",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "问题已提出但未给出解决办法，每个扣 2 分；解决办法与问题不匹配（如把编译错误当成逻辑错误处理）扣 3 分；反思内容空洞套话（如「以后要更加努力」）扣 2 分。"
+      },
+      {
+        "id": "R10",
+        "name": "代码规范",
+        "weight": 5,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code。要求代码块带语言标注，命名有意义且风格统一，缩进一致，关键分支与函数有注释说明意图，无魔法数字（或已定义为常量），无调试残留（printf 调试语句、注释掉的大段代码）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "命名规范统一，缩进与空行一致，关键函数与复杂逻辑有注释说明「为什么」，常量已提取命名，无调试残留，代码块均带语言标注",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体可读，命名与缩进基本规范，但注释偏少或仅描述「做了什么」，存在个别魔法数字或少量调试残留",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "命名随意（a、b、tmp1）或缩进混乱，几乎无注释，代码块缺少语言标注，存在大段注释掉的代码",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "代码以截图形式给出无法复制、或代码完全无法辨认、或未给出任何代码块",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处无意义命名扣 0.5 分；每处调试残留（调试打印、注释掉的整段代码）扣 1 分；代码块缺语言标注每处扣 1 分；代码以图片代替文本直接降一档。"
+      },
+      {
+        "id": "R11",
+        "name": "格式规范",
+        "weight": 3,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、figure、table。要求报告具备完整结构（目的/原理/环境/步骤/代码/结果/分析/总结），标题层级清晰，图表有编号与题注，参考文献（如教材、RFC、官方文档）标注规范，无大面积空白或排版错乱。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "章节结构完整，标题层级清晰，图表编号连续且题注规范，引用标注规范，排版整洁",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "结构基本完整，图表有编号，但存在个别章节缺失、编号不连续或参考文献格式不统一",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "缺少 2 个以上必要章节，或标题层级混乱，图表无编号，篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "结构严重缺失（如只有代码没有正文），或全文无标题层级、无法辨识章节",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个必要章节扣 2 分；图表编号缺失或不连续每处扣 0.5 分；篇幅低于本实验规定下限（如优档 < 1500 字）扣 2 分；复制他人排版模板未改（出现其他实验的残留标题）扣 2 分。"
+      },
+      {
+        "id": "R12",
+        "name": "原创性",
+        "weight": 2,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、code。要求报告体现个人独立完成痕迹：参数选取、测试用例设计、数据表格由本人实验产生，核心代码非整段照抄网络或同学；引用他人代码或资料须注明出处。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "参数与测试用例有个人设计痕迹（如自行设定的并发规模、数据集构造方式），数据与代码一致，引用处均注明出处",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体为独立完成，个别片段参考公开资料但未注明出处，或参数完全照搬实验指导书默认值",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "存在明显照抄痕迹（代码风格与正文描述割裂、数据与他人雷同），但未发现直接复制的整段内容",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "确认存在整段抄袭（代码或正文与他人完全一致且无引用标注）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "发现未标注引用的参考内容每段扣 1 分；数据明显伪造（如性能数据违背基本规律）扣 2 分；确认抄袭直接判未达标并按课程学术规范另行处理，本项不得分。"
+      }
+    ]
+  },
+  "scores": [
+    {
+      "rubricItemId": "R1",
+      "itemName": "实验目的理解",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "列出 2 条目标，表述基本清晰，且与后文第 5 节代码、第 2 节原理大体对应；但第 2 条承诺的「观察运行结果」在第 6 节只有「程序编译通过并可以运行」一句，没有任何运行数据或输出片段回应，属个别目标缺少结果回应。按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E1",
+          "kind": "text",
+          "location": {
+            "section": "1 实验目的",
+            "lineStart": 12,
+            "lineEnd": 13
+          },
+          "quote": "1. 理解读者—写者问题中\"读共享、写独占\"的约束。\n2. 用互斥量与信号量实现读者优先的同步方案，并观察运行结果。",
+          "confidence": 0.85,
+          "note": "两条目标本身具体，但未覆盖「要懂什么 + 要做出什么」的双层结构，且第 2 条无结果回应"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R2",
+      "itemName": "原理阐述",
+      "weight": 12,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "核心概念表述正确、覆盖面完整（读共享写独占、读计数协议、读计数自身需互斥保护、读者优先与写者优先的取舍及饿死风险），但整体停留在「正确复述标准方案」的层面：只说了「读计数本身也是共享变量，所以需要另一把互斥量保护它」，没有进一步说明若不加这把锁会出现何种交错、为何首读者加锁/末读者解锁能挡住写者，也完全没有引用第 5 节的代码（而第 5 节的实现恰恰没有那把互斥量）。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E2",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 17,
+            "lineEnd": 17
+          },
+          "quote": "读者—写者问题允许多个读者同时读取共享数据，但写者必须与所有读者和其他写者互斥。实现时通常维护一个读计数 `readcount`：第一个进入的读者负责加锁（阻止写者），最后一个退出的读者负责解锁；写者则直接竞争这把锁。读计数本身也是共享变量，所以需要另一把互斥量保护它。只要保证对共享资源的读改写在临界区内完成，就能避免数据不一致。",
+          "confidence": 0.86,
+          "note": "协议描述准确，且点明了「读计数自身也需保护」这一关键前提"
+        },
+        {
+          "id": "E3",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 19,
+            "lineEnd": 19
+          },
+          "quote": "读者优先的策略是：只要还有读者在读，新来的读者就可以直接进入，写者必须等到所有读者都退出之后才能写，这种策略下写者可能会出现长时间等待。写者优先的策略则相反：一旦有写者在等待，新来的读者就要先阻塞，等写者写完再放行，这种策略下读者可能被饿死。两种策略各有取舍，本实验采用的是读者优先。",
+          "confidence": 0.84,
+          "note": "正确指出了两种策略的饿死风险，并声明本实验采用读者优先"
+        },
+        {
+          "id": "E4",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 46,
+            "lineEnd": 54
+          },
+          "quote": "void *reader(void *arg) {\n    int id = *(int*)arg;\n    readcount++;\n    if (readcount == 1) sem_wait(&wsem);\n    printf(\"reader %d read data=%d\\n\", id, data);\n    readcount--;\n    if (readcount == 0) sem_post(&wsem);\n    return NULL;\n}",
+          "confidence": 0.82,
+          "note": "原理声明「需要另一把互斥量保护读计数」，但该实现中 readcount 的自增/自减完全未见任何互斥量，原理与实现存在明确不一致（该不一致已在 R5、R6 中计分）"
+        }
+      ],
+      "confidence": 0.84,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R3",
+      "itemName": "实验环境配置",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 2.5,
+      "deductionReason": "第 3 节只写了工具名称而无任何版本号（操作系统只写 Ubuntu、编译器只写 gcc、开发工具写 VS Code），既不满足「OS、语言/编译器版本、依赖库版本、编译与运行命令四要素齐全」的达标要求，也没有给出依赖库信息；第 4 节虽有 `gcc -o rw rw.c -lpthread`，但未标注 gcc 版本。按部分达标档（满分 5 × 0.5）计 2.5 分。",
+      "evidence": [
+        {
+          "id": "E5",
+          "kind": "text",
+          "location": {
+            "section": "3 实验环境",
+            "lineStart": 23,
+            "lineEnd": 25
+          },
+          "quote": "- 操作系统：Ubuntu\n- 编译器：gcc\n- 开发工具：VS Code",
+          "confidence": 0.92,
+          "note": "三项均只有名称、无版本号，他人无法据此复现环境"
+        }
+      ],
+      "confidence": 0.92,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R4",
+      "itemName": "实验步骤完整性",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "五步编号连续、顺序合理，覆盖编写、编译、运行、变量扫描与记录环节，并给出了可直接执行的编译命令；但第 3、4 步给出的运行参数在代码中无法生效——第 5 节的 `int main()` 不接收命令行参数、线程数硬编码为 3 与 2，因此 `./rw 3 2`、`./rw 5 1`、`./rw 1 5` 实际都会以同样的线程数运行，属「步骤中出现与代码不一致的命令」；此外缺少结果导出/归档环节（第 5 步只写「记录运行结果并截图」）。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E6",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 29,
+            "lineEnd": 33
+          },
+          "quote": "1. 编写 `rw.c`，实现读者线程与写者线程，主线程负责创建线程并等待结束。\n2. 编译程序：`gcc -o rw rw.c -lpthread`。\n3. 运行 `./rw 3 2`，即创建 3 个读者线程和 2 个写者线程，观察终端输出。\n4. 改变读者和写者的数量再运行几次，比如 `./rw 5 1` 和 `./rw 1 5`。\n5. 记录运行结果并截图。",
+          "confidence": 0.84,
+          "note": "第 3、4 步的命令行参数与第 5 节的 main 签名（无 argc/argv）及硬编码线程数矛盾"
+        }
+      ],
+      "confidence": 0.84,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R5",
+      "itemName": "核心代码正确性",
+      "weight": 20,
+      "maxScore": 20,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 10,
+      "deductionReason": "代码可编译，且确实使用了实验要求的机制（以信号量 wsem 充当写锁、以 readcount 实现首读者加锁/末读者解锁），但存在两处可指出的明确缺陷：其一，§5 中 readcount 的自增与 `if (readcount == 1)` 判断之间、自减与 `if (readcount == 0)` 判断之间完全没有互斥保护，两个读者可能同时读到 readcount == 1 而重复 sem_wait，或同时读到 0 而提前 sem_post——而第 2 节自己已声明「读计数本身也是共享变量，所以需要另一把互斥量保护它」；其二，main 中 `sem_init(&wsem, 0, 0)` 把写锁初值设为 0（应为 1），第一个读者执行 sem_wait 便会永久阻塞，写者同样阻塞，程序在任何输入下都只能死锁，这与第 6 节「程序编译通过并可以运行，终端输出了读者与写者的读写记录」的描述直接矛盾。另有 main 不接收命令行参数、线程数硬编码、sem_init 与 pthread_create/pthread_join 返回值未检查、未调用 sem_destroy 等问题。鉴于代码可编译且使用了实验要求的核心机制，未达到「未达标」档所需的「根本未使用实验要求的机制」，按部分达标档（满分 20 × 0.5）计 10 分。",
+      "evidence": [
+        {
+          "id": "E7",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 65,
+            "lineEnd": 73
+          },
+          "quote": "int main() {\n    sem_init(&wsem, 0, 0);\n    pthread_t r[3], w[2];\n    int ids[5] = {1,2,3,4,5};\n    for (int i = 0; i < 3; i++) pthread_create(&r[i], NULL, reader, &ids[i]);\n    for (int i = 0; i < 2; i++) pthread_create(&w[i], NULL, writer, &ids[i+3]);\n    for (int i = 0; i < 3; i++) pthread_join(r[i], NULL);\n    for (int i = 0; i < 2; i++) pthread_join(w[i], NULL);\n    return 0;\n}",
+          "confidence": 0.9,
+          "note": "sem_init 初值为 0 使写锁从一开始就不可获取；main 无参数、线程数硬编码；返回值均未检查、未调用 sem_destroy"
+        },
+        {
+          "id": "E8",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 48,
+            "lineEnd": 52
+          },
+          "quote": "    readcount++;\n    if (readcount == 1) sem_wait(&wsem);\n    printf(\"reader %d read data=%d\\n\", id, data);\n    readcount--;\n    if (readcount == 0) sem_post(&wsem);",
+          "confidence": 0.88,
+          "note": "readcount 的「读—改—写」序列与随后的相等判断均裸露在临界区之外，属未加锁保护共享变量"
+        },
+        {
+          "id": "E9",
+          "kind": "text",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 79,
+            "lineEnd": 79
+          },
+          "quote": "程序编译通过并可以运行，终端输出了读者与写者的读写记录，`data` 的值随着写者的写入递增。",
+          "confidence": 0.85,
+          "note": "该描述与 §5 代码不符：wsem 初值为 0 时程序会在第一次 sem_wait 处死锁、不产生任何输出，据此无法确认所贴代码即为实际运行的程序"
+        }
+      ],
+      "confidence": 0.62,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R6",
+      "itemName": "关键 API / 算法使用",
+      "weight": 10,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "关键 API 使用存在明确问题：其一，`sem_init(&wsem, 0, 0)` 的参数错误——pshared=0 正确，但初值应为 1（表示写锁可用），写成 0 使信号量一开始就不可获取，属关键 API 参数错误；其二，读者—写者方案中用于保护 readcount 的互斥量被整体回避，全篇未出现 `pthread_mutex_t` 的声明与使用，而第 2 节正文恰恰写明需要「另一把互斥量保护」它，属「回避了关键 API」；其三，sem_init / pthread_create / pthread_join 的返回值均未检查。此外正文虽说明了信号量控制进入权限、互斥量保护共享变量，但实现的 API 集合与这段选型说明不一致，也无替代方案对比。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E10",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 66,
+            "lineEnd": 66
+          },
+          "quote": "    sem_init(&wsem, 0, 0);",
+          "confidence": 0.9,
+          "note": "sem_init 的第三个参数（初值）写成 0；作为互斥用途的写锁应为 1"
+        },
+        {
+          "id": "E11",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 42,
+            "lineEnd": 49
+          },
+          "quote": "int readcount = 0;\nint data = 0;\nsem_t wsem;\n\nvoid *reader(void *arg) {\n    int id = *(int*)arg;\n    readcount++;\n    if (readcount == 1) sem_wait(&wsem);",
+          "confidence": 0.86,
+          "note": "全文只声明了一个信号量 wsem，没有互斥量：保护 readcount 所需的 pthread_mutex_t 被整体回避，正文所述的「互斥量」在代码中不存在"
+        },
+        {
+          "id": "E12",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 19,
+            "lineEnd": 19
+          },
+          "quote": "信号量在这里的作用是控制进入权限，互斥量的作用是保护共享变量，两者配合起来可以表达比较复杂的同步条件。",
+          "confidence": 0.82,
+          "note": "正文说明了两种原语的分工，但实现中完全没有互斥量，选型说明与实现脱节"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R7",
+      "itemName": "实验结果与截图",
+      "weight": 11,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "仅有 1 张结果图（图 6-1），图题自述为「（示意图）」而非真实终端截图，图片资源也未随仓库提供；第 6 节除一句「程序编译通过并可以运行」外没有任何数据（无终端输出片段、无 data 终值、无耗时或等待次数表格），唯一的结论性描述还与第 5 节代码逻辑相矛盾。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E13",
+          "kind": "figure",
+          "location": {
+            "section": "6 实验结果",
+            "figureNo": "图6-1"
+          },
+          "quote": "图题原文：图6-1 程序运行结果截图（示意图）",
+          "confidence": 0.6,
+          "note": "图题即有「示意图」标记，图片资源为相对路径 figures/os-03-fig1.png，仓库中未随附该文件，无法判读终端原始输出"
+        },
+        {
+          "id": "E14",
+          "kind": "text",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 79,
+            "lineEnd": 79
+          },
+          "quote": "程序编译通过并可以运行，终端输出了读者与写者的读写记录，`data` 的值随着写者的写入递增。",
+          "confidence": 0.85,
+          "note": "全节仅此一句；既无终端输出片段也无数值表格，结论缺少可核对的数据支撑"
+        }
+      ],
+      "confidence": 0.78,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R8",
+      "itemName": "数据分析与讨论",
+      "weight": 13,
+      "maxScore": 15,
+      "level": "notMet",
+      "levelScoreRatio": 0,
+      "score": 0,
+      "deductionReason": "未找到相关证据：报告没有数据分析章节（第 7 节标题为「问题与总结」），第 6 节只有一句「程序编译通过并可以运行，终端输出了读者与写者的读写记录，`data` 的值随着写者的写入递增」，全文不存在任何可供分析的量化结果（无耗时、无吞吐、无读者/写者等待次数、连 data 终值也未给出），因此既无数据可比对也无现象可归因。按契约「未找到证据不得编造」处理，置未达标档、0 分。",
+      "evidence": [],
+      "confidence": 0.9,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R9",
+      "itemName": "问题排查与反思",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "第 7 节只笼统地说「遇到了一些问题」（编译不过、输出顺序不太对），既没有给出编译报错内容，也没有任何定位手段与解决办法，属「仅笼统提到遇到困难而未说明具体问题与解决办法」；总结部分未指出方案局限，反思停留在「以后会继续加强对这部分内容的学习」这类套话，无任何可执行的改进方向。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E15",
+          "kind": "text",
+          "location": {
+            "section": "7 问题与总结",
+            "lineStart": 85,
+            "lineEnd": 85
+          },
+          "quote": "实验过程中遇到了一些问题，比如一开始程序编译不过，后来改了一下就好了，运行时也出现过输出顺序不太对的情况，多跑几次又正常了。总的来说同步这块比较难，需要多练习。",
+          "confidence": 0.9,
+          "note": "「后来改了一下就好了」未提供任何可复现信息；「输出顺序不太对、多跑几次又正常」更接近竞态或未定义行为的征兆，但报告未作任何排查"
+        },
+        {
+          "id": "E16",
+          "kind": "text",
+          "location": {
+            "section": "7 问题与总结",
+            "lineStart": 87,
+            "lineEnd": 87
+          },
+          "quote": "本次实验完成了读者—写者程序的基本实现，程序可以运行并输出读写记录。通过实验我对互斥与同步有了更直观的了解，收获比较大，以后会继续加强对这部分内容的学习。",
+          "confidence": 0.9,
+          "note": "反思为套话，未指出方案局限，也无任何可执行的改进方向"
+        }
+      ],
+      "confidence": 0.9,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R10",
+      "itemName": "代码规范",
+      "weight": 5,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "代码块带 ```c 语言标注，命名（readcount / data / wsem / reader / writer）有意义、缩进一致、可见范围合理，未见调试残留；但唯一一个代码块中注释数为 0（未写一行注释），线程数量 3、2 与数组长度 5 均为硬编码魔法数字，未提炼为具名常量，而第 4 节又声称线程数可以改变。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E17",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 46,
+            "lineEnd": 54
+          },
+          "quote": "void *reader(void *arg) {\n    int id = *(int*)arg;\n    readcount++;\n    if (readcount == 1) sem_wait(&wsem);\n    printf(\"reader %d read data=%d\\n\", id, data);\n    readcount--;\n    if (readcount == 0) sem_post(&wsem);\n    return NULL;\n}",
+          "confidence": 0.85,
+          "note": "整段读者协议没有任何注释，尤其是首读者加锁、末读者解锁这两处最需要说明意图的位置"
+        },
+        {
+          "id": "E18",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 67,
+            "lineEnd": 68
+          },
+          "quote": "    pthread_t r[3], w[2];\n    int ids[5] = {1,2,3,4,5};",
+          "confidence": 0.86,
+          "note": "3、2、5 三个数字硬编码，未写成具名常量，也无法由命令行参数改变"
+        }
+      ],
+      "confidence": 0.84,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R11",
+      "itemName": "格式规范",
+      "weight": 3,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "章节体系不完整：全篇没有独立的「结果分析」章节（第 7 节把「问题」与「总结」合并），并且完全没有「参考文献」章节；正文篇幅约 850 字，明显低于同类实验报告的常规下限（不足 sample-01 的四分之一）；图表方面图 6-1 有编号与题注，但全篇仅此一张图、没有任何表格。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E19",
+          "kind": "text",
+          "location": {
+            "section": "7 问题与总结",
+            "lineStart": 83,
+            "lineEnd": 87
+          },
+          "quote": "## 7 问题与总结\n\n实验过程中遇到了一些问题，比如一开始程序编译不过，后来改了一下就好了，运行时也出现过输出顺序不太对的情况，多跑几次又正常了。总的来说同步这块比较难，需要多练习。\n\n本次实验完成了读者—写者程序的基本实现，程序可以运行并输出读写记录。通过实验我对互斥与同步有了更直观的了解，收获比较大，以后会继续加强对这部分内容的学习。",
+          "confidence": 0.86,
+          "note": "该章节之后全文结束，没有参考文献章节；第 7 节同时承担「问题」与「总结」，未设独立的结果分析章节"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R12",
+      "itemName": "原创性",
+      "weight": 2,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "未发现整段抄袭的直接证据，按「整体为独立完成」的达标档处理；但报告缺乏可核验的个人设计痕迹：第 4 节声称「改变读者和写者的数量再运行几次」，而 §5 把线程数硬编码为 3 与 2、main 也不接收参数，无法证明这些参数曾真实生效；第 6 节没有任何由本人实验产生的数据表；代码为操作系统教材中读者—写者问题的经典写法，未见个人化改写；参考文献章节缺失，正文亦无任何出处标注。按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E20",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 32,
+            "lineEnd": 33
+          },
+          "quote": "4. 改变读者和写者的数量再运行几次，比如 `./rw 5 1` 和 `./rw 1 5`。\n5. 记录运行结果并截图。",
+          "confidence": 0.76,
+          "note": "声称扫描了两组参数组合，但第 6 节无任何数据、代码也不支持参数化，个人实验痕迹不可核验"
+        },
+        {
+          "id": "E21",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 46,
+            "lineEnd": 54
+          },
+          "quote": "void *reader(void *arg) {\n    int id = *(int*)arg;\n    readcount++;\n    if (readcount == 1) sem_wait(&wsem);\n    printf(\"reader %d read data=%d\\n\", id, data);\n    readcount--;\n    if (readcount == 0) sem_post(&wsem);\n    return NULL;\n}",
+          "confidence": 0.72,
+          "note": "与教材中读者—写者问题的经典写法高度一致（readcount 计数 + 首读者加锁/末读者解锁），无个人化改写（如未加入统计、超时或调试输出）；未发现可直接比对的整段复制来源，故不判抄袭，置信度 0.72"
+        }
+      ],
+      "confidence": 0.72,
+      "needsReview": true
+    }
+  ],
+  "totalScore": 52.8,
+  "review": {
+    "triggered": true,
+    "triggerReason": "R5（0.62）、R7（0.78）、R12（0.72）三项置信度低于复核阈值 0.80；R8 因证据数组为空亦置 needsReview（契约第三节触发条件），但其置信度 0.90 无需上调。",
+    "opinion": "本轮复核的重点是 R5 的档位边界：该程序可编译、且确实使用了信号量与 readcount 协议，但 sem_init 把写锁初值设为 0 使程序在任何输入下都会死锁，与第 6 节声称的运行输出直接矛盾。依契约「核心逻辑完全错误方判未达标」且代码并未回避实验要求的机制，维持部分达标档，但仍建议教师人工确认所贴代码与实际运行的程序是否一致。R7 维持原档：全篇只有一张自述为「示意图」的结果图，第 6 节无任何数据。R12 维持原档：缺乏可核验的个人实验痕迹，但无抄袭实证。R8 经复核确认为证据缺失项，依契约处理为未达标、0 分，不得编造证据。三项复核均只上调置信度、不改动档位与得分。",
+    "adjustments": [
+      {
+        "rubricItemId": "R5",
+        "opinion": "逐行核对 §5：readcount 的自增与 `if (readcount == 1)` 判断之间确无任何互斥保护，main 的 `sem_init(&wsem, 0, 0)` 也确为初值 0，两处缺陷成立。维持部分达标档；因「部分达标 / 未达标」边界本身存在争议，置信度 0.62 → 0.70，仍低于 0.80，保留复核标记但未跌破 0.60，故不触发「待教师人工确认」的显著标注。",
+        "confidenceBefore": 0.62,
+        "confidenceAfter": 0.7,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      },
+      {
+        "rubricItemId": "R7",
+        "opinion": "核对图题与正文：图 6-1 有编号与题注，但图题自述为「（示意图）」，正文也没有「如图所示」的引用；第 6 节全文仅一句描述且与代码逻辑矛盾，全篇没有任何数据表格。维持部分达标档，置信度 0.78 → 0.82，建议教师批阅时人工核验截图真实性。",
+        "confidenceBefore": 0.78,
+        "confidenceAfter": 0.82,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      },
+      {
+        "rubricItemId": "R12",
+        "opinion": "复核第 4 节与第 5、6 节：报告声称扫描了两组线程参数，但代码不支持参数且无数据留存；代码与教材经典写法一致但未发现可指认的复制来源，按「证据不足不得编造」维持达标档，置信度 0.72 → 0.78。",
+        "confidenceBefore": 0.72,
+        "confidenceAfter": 0.78,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      }
+    ],
+    "overallConfidenceBefore": 0.82,
+    "overallConfidenceAfter": 0.84
+  },
+  "feedback": {
+    "overall": "同步方案的思路是对的：用 readcount 实现「首读者加锁、末读者解锁」，第 2 节也把读者优先与写者优先的取舍讲清楚了。但核心代码有两个硬伤：一是 readcount 的自增/自减与它的判断之间完全没有互斥保护——而你在第 2 节自己就写了「读计数本身也是共享变量，所以需要另一把互斥量保护它」；二是 main 里 `sem_init(&wsem, 0, 0)` 把写锁初值设成了 0，第一个读者执行 sem_wait 就会永久阻塞，程序在任何参数下都只能死锁，这使第 6 节「程序可以运行并输出读写记录」的描述与所贴代码对不上。此外全文没有任何结果数据，第 7 节的「问题」只有「编译不过，后来改了一下就好了」，无法据此复盘。请优先修好这两处代码问题并补齐数据。",
+    "strengths": [
+      "第 2 节把两种策略的取舍讲清楚了：读者优先会让写者长时间等待、写者优先会让读者饿死，并明确声明本实验采用读者优先（见 2 实验原理）",
+      "核心机制选型正确：用读计数实现「首个读者加锁、最后一个读者解锁」、写者直接竞争同一把写锁，这正是读者优先方案的标准骨架（见 5 核心代码）",
+      "第 4 节给出了可直接执行的编译命令 `gcc -o rw rw.c -lpthread` 与运行命令示例，步骤编号连续、顺序合理（见 4 实验步骤）"
+    ],
+    "improvements": [
+      "把 `sem_init(&wsem, 0, 0)` 的初值改为 1，并新增一个 `pthread_mutex_t` 专门保护 readcount：在 `readcount++` 与其后的 `if (readcount == 1)` 之间、以及 `readcount--` 与 `if (readcount == 0)` 之间都要加锁，否则两个读者可能同时读到 readcount == 1 而重复 sem_wait，也可能同时读到 0 而提前 sem_post",
+      "让 main 接收命令行参数（改为 `int main(int argc, char *argv[])`，线程数取 argv[1]、argv[2]），并在启动前校验参数范围，使第 4 节的 `./rw 5 1`、`./rw 1 5` 真正生效；同时检查 sem_init、pthread_create、pthread_join 的返回值，退出前调用 sem_destroy",
+      "重做第 6 节：给出一次完整运行的终端输出片段、data 的终值，以及读者/写者数量变化时的耗时或等待次数表格；如果图 6-1 只是示意图，请换成能辨识输出的真实终端截图",
+      "第 7 节把问题写具体：编译报错的原文是什么、如何定位、改动了哪一行；「输出顺序不太对、多跑几次又正常」很可能是 readcount 未加锁引起的竞态，建议按这个假设做验证并写进报告；改进方向请写成可执行的动作，并补上参考文献章节"
+    ],
+    "tone": "critical"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "agent": "parser",
+      "inputSummary": "demo/sample-reports/sample-03.md 全文（88 行 / 3,601 字节，Markdown 源稿）",
+      "outputSummary": "切分出 7 个编号章节（无参考文献章节），定位 1 段 C 代码块（§5，39 行）、1 处图片引用（图6-1）与 0 张数据表，正文约 850 字",
+      "confidence": 0.95,
+      "note": "篇幅不足 sample-01 的四分之一；第 6 节仅一段文字，无任何数值"
+    },
+    {
+      "step": 2,
+      "agent": "evidence",
+      "inputSummary": "章节树 + Rubric v1.0.0 的 12 个评分点及其证据要求",
+      "outputSummary": "为 R1–R12 定位证据 21 条：text 12 条、code 8 条、figure 1 条、table 0 条；R8 未找到任何有效证据，按契约保留空数组不编造",
+      "confidence": 0.84,
+      "note": "R5、R6、R7 的部分证据互为交叉引用（同一段代码同时说明加锁缺失与 API 用法问题），已在各自 note 中标注"
+    },
+    {
+      "step": 3,
+      "agent": "grader",
+      "inputSummary": "21 条证据 + Rubric v1.0.0 的 12 个评分点档位标准与扣分梯度",
+      "outputSummary": "逐项判定：优秀 0 项、达标 5 项（R1、R2、R4、R10、R12）、部分达标 6 项（R3、R5、R6、R7、R9、R11）、未达标 1 项（R8，证据缺失）；加权总分 52.80",
+      "confidence": 0.84,
+      "note": "R5、R7、R12 置信度低于 0.80 转交 Reviewer；R8 因证据数组为空置 needsReview"
+    },
+    {
+      "step": 4,
+      "agent": "reviewer",
+      "inputSummary": "R5、R7、R12 的判定与全部证据原文，以及 R8 的证据缺失情况",
+      "outputSummary": "维持全部档位与得分不变，仅上调置信度：R5 0.62 → 0.70，R7 0.78 → 0.82，R12 0.72 → 0.78；整体置信度 0.82 → 0.84",
+      "confidence": 0.84,
+      "note": "R5 处于「部分达标 / 未达标」边界，复核后仍建议教师人工确认所贴代码与实际运行的程序是否一致"
+    },
+    {
+      "step": 5,
+      "agent": "feedback",
+      "inputSummary": "12 项评分明细、3 条复核意见与 21 条证据摘要",
+      "outputSummary": "生成总体评价 1 段、亮点 3 条、改进建议 4 条，语气为严格指出问题；每条建议均指向具体代码行或章节",
+      "confidence": 0.86,
+      "note": "第 1、2 条建议分别针对 sem_init 初值与 readcount 缺锁这两个具体硬伤，第 3 条给出第 6 节缺失数据的补齐清单"
+    }
+  ],
+  "provenance": {
+    "generatorAgent": "LearnBuddy AutoGrader 评阅流水线",
+    "generatedAt": "2026-09-20T06:29:50+08:00",
+    "sourceConversationId": "wave3-grading-A",
+    "resultFingerprint": "sha256:abaef774a31ada789382655673dffe69db3cc3a7c76b13d5e8ddd539a2fa758e",
+    "schemaVersion": "1.0.0"
+  }
+}

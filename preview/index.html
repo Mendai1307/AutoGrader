@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoGrader · 智能评阅平台</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #FAFAF8; color: #1F1F1D; line-height: 1.7;
+    display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 20px;
+  }
+  .wrap { max-width: 620px; }
+  .badge {
+    display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 20px;
+    background: #EEEDFE; color: #3C3489; font-weight: 600; margin-bottom: 18px;
+  }
+  h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+  .en { font-size: 13px; color: #888780; margin-top: 6px; letter-spacing: 0.02em; }
+  .desc { font-size: 15px; color: #5F5E5A; margin-top: 20px; }
+  .card {
+    margin-top: 28px; background: #fff; border: 1px solid #E9E8E3;
+    border-radius: 12px; padding: 20px 24px;
+  }
+  .card h2 { font-size: 13px; font-weight: 600; color: #888780; margin-bottom: 12px; }
+  ul { list-style: none; font-size: 14px; }
+  ul li { padding: 5px 0 5px 18px; position: relative; }
+  ul li::before {
+    content: ""; position: absolute; left: 0; top: 13px;
+    width: 5px; height: 5px; border-radius: 50%; background: #7F77DD;
+  }
+  .note {
+    margin-top: 24px; font-size: 12.5px; color: #888780;
+    border-top: 1px solid #E9E8E3; padding-top: 16px;
+  }
+  code { background: #F1EFE8; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">部署链路验证</span>
+  <h1>AutoGrader 智能评阅平台</h1>
+  <div class="en">AI-assisted grading for computer science lab reports</div>
+
+  <p class="desc">
+    面向高校计算机实验课的智能评阅助手。教师用自然语言定义评分点，系统自动解析实验报告中的文字、代码与实验截图，
+    逐项提取证据、完成核查与复核，并生成个性化评语。
+  </p>
+
+  <div class="card">
+    <h2>评阅流水线</h2>
+    <ul>
+      <li>Parser — 解析报告结构，分离正文、代码块与截图</li>
+      <li>Evidence — 逐项定位评分点对应的证据原文</li>
+      <li>Grader — 依据 Rubric 逐项判定与扣分</li>
+      <li>Reviewer — 对低置信度结果二次复核</li>
+      <li>Feedback — 生成面向学生的个性化评语</li>
+    </ul>
+  </div>
+
+  <p class="note">
+    本页面用于验证「作品须部署至浏览器环境、提供可直接访问的在线链接」这一要求的技术可达性。
+    AI 评阅能力由 LearnBuddy 评阅专家智能体提供，Web 端负责确定性呈现。
+    正式版本随 <code>frontend/</code> 静态构建产物更新。
+  </p>
+</div>
+</body>
+</html>

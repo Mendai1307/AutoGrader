@@ -1,0 +1,891 @@
+{
+  "schemaVersion": "1.0.0",
+  "report": {
+    "reportId": "sample-08",
+    "title": "实验报告：网络程序",
+    "course": "计算机网络",
+    "studentCode": "学生H"
+  },
+  "rubricVersion": "1.0.0",
+  "rubric": {
+    "id": "rubric-cs-lab-report-generic",
+    "version": "1.0.0",
+    "title": "高校计算机专业实验报告通用 Rubric（进程线程同步 / Socket 网络编程 / 排序算法性能对比）",
+    "items": [
+      {
+        "id": "R1",
+        "name": "实验目的理解",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text。要求报告「实验目的」章节中明确列出本次实验要验证/实现的 2 条以上目标，且目标动词具体（如「验证信号量对临界区的保护作用」「对比三种排序在 10 万级数据下的耗时」），能与后文实验内容与结论一一对应。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "列出 3 条以上具体目标，覆盖知识目标（要懂什么）与能力目标（要做出什么），且后文每个目标都有对应结果与结论回应",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "列出 2–3 条目标，表述基本清晰，与后文内容大体对应，但个别目标缺少结果回应",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 条笼统目标（如「学习多线程编程」），或目标抄自实验指导书而无个人化表述",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验目的章节，或目的与本次实验主题明显无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "在档位基础上浮动：目标条目数达标但存在 1 条与后文无对应，降一档处理（如优秀降达标）；出现与实验主题无关的目标，每条再扣 0.5 分（最低降至未达标）。"
+      },
+      {
+        "id": "R2",
+        "name": "原理阐述",
+        "weight": 12,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告「实验原理」章节正确阐述核心概念（如临界区与互斥、TCP 三次握手与粘包、排序复杂度与主存访问局部性），术语使用准确，能结合本次实验的关键数据结构或系统调用说明机制；原理中提到的机制须能在后文代码中找到对应实现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "概念定义准确且完整，能说明机制「为什么成立」（如信号量 PV 操作为何能保证互斥、TCP 为何是字节流），并结合代码/数据结构给出具体说明，无科学性错误",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "核心概念表述正确，覆盖了主要机制，但停留在定义复述层面，未深入解释成因或与代码的对应关系偏弱",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅零散提及术语，存在概念混淆（如把进程与线程混为一谈、把互斥与同步混为一谈、错误描述平均/最坏时间复杂度），篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全缺失原理阐述，或阐述存在原则性科学错误（如认为信号量可以解决一切死锁、认为 TCP 天然保证消息边界）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每出现一处科学性错误在档位基础上再扣 2 分，出现原则性错误直接判未达标；原理与实现完全脱节（阐述 A 机制却实现 B）扣 3 分；整段照抄教材且无任何自己的归纳表述扣 1 分。"
+      },
+      {
+        "id": "R3",
+        "name": "实验环境配置",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告给出可复现的环境信息：操作系统与版本、编译器/解释器与版本、关键依赖库或内核头文件版本、编译命令或运行命令；建议以表格或截图形式呈现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "OS、语言/编译器版本、依赖库版本、编译与运行命令四要素齐全，并给出关键版本号（如 gcc 11.4.0、Python 3.11.6、glibc 2.35），他人可据此复现",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "给出了 OS 与主要工具版本，缺少个别次要信息（如未给依赖库版本或未给编译命令），基本可复现",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只写了工具名称而无版本号（如仅写「Ubuntu + gcc」），或只给了一张无法辨识版本信息的截图",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未交代环境信息",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺版本号每处扣 1 分；缺编译/运行命令扣 1 分；版本号与实际代码语法明显矛盾（如写 Python 2 却用 f-string）扣 2 分；仅以截图呈现且图中文字不可辨识，降一档处理。"
+      },
+      {
+        "id": "R4",
+        "name": "实验步骤完整性",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告给出可操作的步骤序列：环境准备 → 代码编写 → 编译/构建 → 运行与参数 → 观察记录 → 结果导出，步骤顺序合理、有编号，关键步骤附命令或截图。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "步骤编号完整且与实验流程一致，覆盖准备、实现、编译、运行、记录、导出六个环节，关键步骤给出具体命令与参数，他人可按步骤复现实验",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "步骤基本完整且顺序合理，覆盖主要环节，但个别环节无命令或参数说明，缺少结果导出/归档环节",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只有粗略的几步（如「写代码→运行」），缺少编译、参数、记录等关键环节，或步骤顺序混乱",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验步骤章节，或步骤与本次实验内容无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个关键环节（编译/运行参数/结果记录）扣 2 分；步骤编号缺失或顺序颠倒扣 1 分；步骤中出现与代码不一致的命令（如源文件名对不上）每处扣 1 分。"
+      },
+      {
+        "id": "R5",
+        "name": "核心代码正确性",
+        "weight": 20,
+        "maxScore": 20,
+        "evidenceRequirement": "证据类型：code、text。要求报告给出核心实现的代码块（带语言标注），代码能完成实验要求的核心功能且逻辑正确：临界区保护无遗漏、套接字收发与关闭正确、排序结果有序且稳定；须关注边界条件（空输入、单元素、并发冲突、连接异常断开）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "核心功能完全正确，边界条件处理完备（如空输入/单元素/连接异常/并发极端情况），无资源泄漏（锁必然释放、fd 必然关闭、内存必然回收），并有错误处理与返回值检查",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "主要功能正确，常规输入下结果正确，但边界条件或异常处理有遗漏（如未检查系统调用返回值、未处理连接断开），不影响主流程",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "代码存在可指出的明确缺陷（如锁的粒度错误、未加锁保护共享变量、recv 返回值未处理导致粘包、排序比较逻辑有误），在部分输入下会产生错误结果",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无核心代码块，或代码无法通过编译/运行，或核心逻辑完全错误（如根本未使用实验要求的机制）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处明确 bug 扣 3 分（资源泄漏每处额外扣 2 分）；代码无法编译直接判未达标；仅贴出运行结果而无代码，判未达标；核心代码与实验要求机制不符（如要求用信号量却用忙等）扣 5 分。"
+      },
+      {
+        "id": "R6",
+        "name": "关键 API / 算法使用",
+        "weight": 10,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code、text。要求报告正确使用了本实验的关键 API 或算法：如 pthread_mutex_lock/unlock、sem_wait/sem_post、socket/bind/listen/accept/send/recv、快排分区与递归、归并合并等；调用参数与惯用法正确，并在正文中说明为何选用该 API/算法。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "关键 API/算法选用恰当且调用惯用法完全正确，参数与返回值处理规范，并说明了选型理由与替代方案对比",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "使用了正确的关键 API/算法，调用基本规范，但未说明选型理由，或个别参数使用不够地道（如未复用地址、未设置超时）",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "使用了实验要求的 API/算法但用法有误（如互斥锁与条件变量配合错误、忘记 setsockopt、递归终止条件写错），或回避了关键 API 而用简化替代实现",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未使用实验要求的关键 API/算法（如要求用 socket 却直接用现成框架、要求实现快排却直接调用库排序且未作说明）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "关键 API 参数错误每处扣 2 分；调用了被废弃/不安全的接口（如 strcpy、gets）每处扣 2 分；使用了库函数但明确说明并对比了自实现版本，不扣分。"
+      },
+      {
+        "id": "R7",
+        "name": "实验结果与截图",
+        "weight": 11,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：figure、table、text。要求报告提供支撑结论的原始结果：终端运行输出截图、程序界面/输出窗口截图、性能数据表格等；每张图须有编号与图题，图题说明该图展示了什么，图中关键数据可辨识，并在正文中被引用（如「如图 3-2 所示」）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "提供 3 张以上结果截图/表格，覆盖主要实验场景（如并发前后对比、多组规模数据），每张有编号与图题，图中关键数据清晰可辨识，且正文逐一引用并解读",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "提供了 2 张左右结果截图，编号与图题基本齐全，能支撑主要结论，但个别场景缺少截图或图中部分数据不可辨识",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 张截图，或截图缺少编号/图题，或截图与实验内容不匹配（如只截了代码编辑界面而无运行结果），不足以支撑结论",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有结果截图或结果数据，结论无证据支撑",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "截图无编号或图题每张扣 1 分；截图未被正文引用每张扣 1 分；截图为伪造/明显与实验无关（如网络图片、仅截代码）判部分达标并扣 3 分；结果数据未以表格呈现导致难以比对，扣 2 分。"
+      },
+      {
+        "id": "R8",
+        "name": "数据分析与讨论",
+        "weight": 13,
+        "maxScore": 15,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告对结果数据做量化分析而非现象罗列：给出具体数值与对比（如加速比、耗时增长率、并发下错误计数差值），解释数据背后的成因（如缓存局部性、锁竞争开销、Nagle 算法影响），并能与理论预期做对照，说明偏差原因。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "给出多组量化数据对比与计算（如加速比、增长率、相对误差），结合原理深入解释成因，明确指出与理论预期的偏差并给出可信解释，讨论有个人见解",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "有量化数据对比与基本解释，能说明主要趋势（如规模增大耗时上升、加锁后吞吐下降），但归因较浅或未与理论值对照",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只罗列现象而无量化分析（如「加了锁之后变慢了」却不给数值），或仅有结论无数据支撑，分析泛泛而谈",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有数据分析与讨论，直接跳到总结",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "数据存在明显矛盾（图表数值与正文描述不一致）每处扣 3 分；仅重复描述截图内容而无分析，降一档；量化样本量过少（仅 1 组数据即下结论）扣 3 分；结论超出数据支持范围（过度外推）扣 2 分。"
+      },
+      {
+        "id": "R9",
+        "name": "问题排查与反思",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告记录实验过程中遇到的真实问题（编译报错、死锁、结果不稳定、性能异常等），给出排查过程与解决办法，并反思方案局限与改进方向；问题须具体可复现，而非泛泛而谈。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "记录 2 个以上具体问题，含现象、定位过程（用了什么手段定位）、根因与解决办法，并给出方案局限与至少 1 条可执行的改进方向",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "记录了 1–2 个问题并给出解决办法，但排查过程描述简略，或反思偏套话、缺乏可执行改进方向",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅笼统提到「遇到了一些困难」而未说明具体问题与解决办法，或只写了反思而无问题记录",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全无问题排查与反思内容",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "问题已提出但未给出解决办法，每个扣 2 分；解决办法与问题不匹配（如把编译错误当成逻辑错误处理）扣 3 分；反思内容空洞套话（如「以后要更加努力」）扣 2 分。"
+      },
+      {
+        "id": "R10",
+        "name": "代码规范",
+        "weight": 5,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code。要求代码块带语言标注，命名有意义且风格统一，缩进一致，关键分支与函数有注释说明意图，无魔法数字（或已定义为常量），无调试残留（printf 调试语句、注释掉的大段代码）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "命名规范统一，缩进与空行一致，关键函数与复杂逻辑有注释说明「为什么」，常量已提取命名，无调试残留，代码块均带语言标注",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体可读，命名与缩进基本规范，但注释偏少或仅描述「做了什么」，存在个别魔法数字或少量调试残留",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "命名随意（a、b、tmp1）或缩进混乱，几乎无注释，代码块缺少语言标注，存在大段注释掉的代码",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "代码以截图形式给出无法复制、或代码完全无法辨认、或未给出任何代码块",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处无意义命名扣 0.5 分；每处调试残留（调试打印、注释掉的整段代码）扣 1 分；代码块缺语言标注每处扣 1 分；代码以图片代替文本直接降一档。"
+      },
+      {
+        "id": "R11",
+        "name": "格式规范",
+        "weight": 3,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、figure、table。要求报告具备完整结构（目的/原理/环境/步骤/代码/结果/分析/总结），标题层级清晰，图表有编号与题注，参考文献（如教材、RFC、官方文档）标注规范，无大面积空白或排版错乱。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "章节结构完整，标题层级清晰，图表编号连续且题注规范，引用标注规范，排版整洁",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "结构基本完整，图表有编号，但存在个别章节缺失、编号不连续或参考文献格式不统一",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "缺少 2 个以上必要章节，或标题层级混乱，图表无编号，篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "结构严重缺失（如只有代码没有正文），或全文无标题层级、无法辨识章节",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个必要章节扣 2 分；图表编号缺失或不连续每处扣 0.5 分；篇幅低于本实验规定下限（如优档 < 1500 字）扣 2 分；复制他人排版模板未改（出现其他实验的残留标题）扣 2 分。"
+      },
+      {
+        "id": "R12",
+        "name": "原创性",
+        "weight": 2,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、code。要求报告体现个人独立完成痕迹：参数选取、测试用例设计、数据表格由本人实验产生，核心代码非整段照抄网络或同学；引用他人代码或资料须注明出处。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "参数与测试用例有个人设计痕迹（如自行设定的并发规模、数据集构造方式），数据与代码一致，引用处均注明出处",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体为独立完成，个别片段参考公开资料但未注明出处，或参数完全照搬实验指导书默认值",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "存在明显照抄痕迹（代码风格与正文描述割裂、数据与他人雷同），但未发现直接复制的整段内容",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "确认存在整段抄袭（代码或正文与他人完全一致且无引用标注）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "发现未标注引用的参考内容每段扣 1 分；数据明显伪造（如性能数据违背基本规律）扣 2 分；确认抄袭直接判未达标并按课程学术规范另行处理，本项不得分。"
+      }
+    ]
+  },
+  "scores": [
+    {
+      "rubricItemId": "R1",
+      "itemName": "实验目的理解",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "notMet",
+      "levelScoreRatio": 0,
+      "score": 0,
+      "deductionReason": "报告没有「实验目的」章节，全文仅一句任务陈述「本次实验要做一个能传数据的网络程序」，既未列出任何可验证的目标（也没有知识目标/能力目标的划分），也与本次实验要求的套接字编程主题不对应，判未达标档，记 0 分。",
+      "evidence": [
+        {
+          "id": "E1",
+          "kind": "text",
+          "location": {
+            "section": "正文首段（无章节编号）",
+            "lineStart": 7,
+            "lineEnd": 7
+          },
+          "quote": "本次实验要做一个能传数据的网络程序，老师说要用 socket，我找了一下发现 Python 有现成的模块可以直接用",
+          "confidence": 0.9,
+          "note": "全文无实验目的章节；该句为任务陈述而非目标列表，且作者由此转向现成模块，与实验要求背离"
+        }
+      ],
+      "confidence": 0.9,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R2",
+      "itemName": "原理阐述",
+      "weight": 12,
+      "maxScore": 10,
+      "level": "notMet",
+      "levelScoreRatio": 0,
+      "score": 0,
+      "deductionReason": "报告没有「实验原理」章节，仅有两处零散表述，且存在原则性错误：作者认为「用现成模块」与「自己写 bind、listen、accept」效果应该是一样的，从而完全回避了套接字编程的机制阐释（未涉及字节流、消息边界、连接建立、地址与端口在网络字节序上的表示等任何核心概念）。属「阐述存在原则性科学错误」，判未达标档，记 0 分。",
+      "evidence": [
+        {
+          "id": "E2",
+          "kind": "text",
+          "location": {
+            "section": "正文首段（无章节编号）",
+            "lineStart": 7,
+            "lineEnd": 7
+          },
+          "quote": "网络程序大概就是本机发出去对方收，收不到就是地址或者端口写错了，重试一下就好，感觉原理上不复杂。",
+          "confidence": 0.88,
+          "note": "「收不到就是地址或端口写错、重试一下就好」属过于简化且不准确的表述"
+        },
+        {
+          "id": "E3",
+          "kind": "text",
+          "location": {
+            "section": "正文第三段（无章节编号）",
+            "lineStart": 11,
+            "lineEnd": 11
+          },
+          "quote": "据说用 socket 编程要自己写 bind、listen、accept 这些，比较麻烦，用现成模块就省事多了，效果应该是一样的。",
+          "confidence": 0.88,
+          "note": "原则性错误：把使用 http.server/urllib 与套接字编程视为等价，回避了本实验要求的机制"
+        }
+      ],
+      "confidence": 0.88,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R3",
+      "itemName": "实验环境配置",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 2.5,
+      "deductionReason": "环境信息只有一句话，仅给出工具名称而无任何版本号（未写 Ubuntu 版本、Python 版本），也没有依赖库、编译或运行命令，属「只写了工具名称而无版本号」的情形，按部分达标档（满分 5 × 0.5）计 2.5 分。",
+      "evidence": [
+        {
+          "id": "E4",
+          "kind": "text",
+          "location": {
+            "section": "环境段（无章节编号）",
+            "lineStart": 9,
+            "lineEnd": 9
+          },
+          "quote": "环境是 Ubuntu，用 Python 写代码，编辑器是 VS Code。",
+          "confidence": 0.85,
+          "note": "无 Ubuntu/Python 版本号，无第三方依赖说明，无编译或运行命令"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R4",
+      "itemName": "实验步骤完整性",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "实验步骤以一句话概述（写服务端脚本 → 写客户端脚本 → 先起服务端再跑客户端 → 看输出），无编号、无命令与参数、无观察记录与结果导出环节，属「只有粗略的几步」的情形，按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E5",
+          "kind": "text",
+          "location": {
+            "section": "环境段（无章节编号）",
+            "lineStart": 9,
+            "lineEnd": 9
+          },
+          "quote": "步骤就是先写一个服务端脚本，再写一个客户端脚本，先起服务端再跑客户端，然后看输出。",
+          "confidence": 0.85,
+          "note": "无步骤编号，无端口/参数说明，无记录与导出环节"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R5",
+      "itemName": "核心代码正确性",
+      "weight": 20,
+      "maxScore": 20,
+      "level": "notMet",
+      "levelScoreRatio": 0,
+      "score": 0,
+      "deductionReason": "报告给出的代码根本没有实现本次实验要求的套接字收发逻辑：服务端直接用 Python 标准库 http.server 起一个 HTTPServer，客户端用 urllib.request.urlopen 取数据，全文未出现 socket / bind / listen / accept / send / recv 任一调用。此外贴出的一段代码本身无法运行——run_server() 内的 serve_forever() 永不返回，第 29 行的 run_client() 实际不可达，作者自述「后面我把两个函数分开到两个文件里跑」才拿到内容。属「核心逻辑完全错误（根本未使用实验要求的机制）」，判未达标档，记 0 分。",
+      "evidence": [
+        {
+          "id": "E6",
+          "kind": "code",
+          "location": {
+            "section": "代码段（无章节编号）",
+            "lineStart": 13,
+            "lineEnd": 30
+          },
+          "quote": "import http.server",
+          "confidence": 0.88,
+          "note": "核心实现为 http.server + urllib.request，未使用套接字系列调用；run_server 与 run_client 写在同一脚本中，后者不可达"
+        },
+        {
+          "id": "E7",
+          "kind": "text",
+          "location": {
+            "section": "运行记录段（无章节编号）",
+            "lineStart": 32,
+            "lineEnd": 32
+          },
+          "quote": "后面我把两个函数分开到两个文件里跑，客户端能取到内容了，说明程序是可以工作的。",
+          "confidence": 0.85,
+          "note": "作者自述报告中所贴代码需要拆分到两个文件才跑通"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R6",
+      "itemName": "关键 API / 算法使用",
+      "weight": 10,
+      "maxScore": 10,
+      "level": "notMet",
+      "levelScoreRatio": 0,
+      "score": 0,
+      "deductionReason": "报告明确回避了本实验要求的关键 API：作者自述「用 socket 编程要自己写 bind、listen、accept 这些，比较麻烦，用现成模块就省事多了」，最终以 http.server / urllib.request 代替，全文未出现任何 socket、bind、listen、accept、send、recv 调用。属「完全未使用实验要求的关键 API」的典型情形，判未达标档，记 0 分。",
+      "evidence": [
+        {
+          "id": "E8",
+          "kind": "text",
+          "location": {
+            "section": "正文第三段（无章节编号）",
+            "lineStart": 11,
+            "lineEnd": 11
+          },
+          "quote": "据说用 socket 编程要自己写 bind、listen、accept 这些，比较麻烦，用现成模块就省事多了",
+          "confidence": 0.9,
+          "note": "作者明确知悉要求却选择回避关键 API，无任何选型对比说明"
+        }
+      ],
+      "confidence": 0.9,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R7",
+      "itemName": "实验结果与截图",
+      "weight": 11,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "全文仅有 1 张截图，且没有编号与图题，截的还是代码编辑界面而非程序运行结果；运行结果只有文字描述（「客户端能取到内容了」），没有任何运行输出数据或表格。按 rubric 明示的「截图与实验内容不匹配（如只截了代码编辑界面而无运行结果）」情形，降档为部分达标（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E9",
+          "kind": "figure",
+          "location": {
+            "section": "运行记录段（无章节编号）",
+            "lineStart": 34,
+            "lineEnd": 34
+          },
+          "quote": "![代码界面截图（示意图）](figures/net-08-fig1.png)",
+          "confidence": 0.82,
+          "note": "仅 1 张图，无编号与图题；截图为代码编辑界面，非运行结果"
+        },
+        {
+          "id": "E10",
+          "kind": "text",
+          "location": {
+            "section": "运行记录段（无章节编号）",
+            "lineStart": 32,
+            "lineEnd": 32
+          },
+          "quote": "跑的时候服务端起来了，客户端那边报了个错，好像是连不上",
+          "confidence": 0.85,
+          "note": "运行结果仅以文字概述，无输出数据、无表格"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R8",
+      "itemName": "数据分析与讨论",
+      "weight": 13,
+      "maxScore": 15,
+      "level": "notMet",
+      "levelScoreRatio": 0,
+      "score": 0,
+      "deductionReason": "全文没有任何实验数据，也没有任何分析：既无数据量、耗时、字节数等量化结果，也无现象解释与理论对照，报告直接以一句「这次实验基本做完了，网络编程这块还需要多练」收尾。属「完全没有数据分析与讨论」，判未达标档，记 0 分。",
+      "evidence": [
+        {
+          "id": "E11",
+          "kind": "text",
+          "location": {
+            "section": "结尾段（无章节编号）",
+            "lineStart": 36,
+            "lineEnd": 36
+          },
+          "quote": "这次实验基本做完了，网络编程这块还需要多练。",
+          "confidence": 0.92,
+          "note": "全文未出现任何数值型实验数据，无对比、无归因、无讨论"
+        }
+      ],
+      "confidence": 0.92,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R9",
+      "itemName": "问题排查与反思",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "报告记录了一处问题（客户端连不上），但定位过程全部是猜测（「好像是连不上」「可能是顺序的问题」「还是不行」），没有给出根因，也没有说明最终是如何定位的；随后的处理是把两个函数拆到两个文件里跑，属于绕过问题而非解决问题（真正原因是 serve_forever() 阻塞导致 urlopen 永不执行）。反思也仅一句套话。整体属只笼统提到遇到困难而未说明具体问题与解决办法，按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E12",
+          "kind": "text",
+          "location": {
+            "section": "运行记录段（无章节编号）",
+            "lineStart": 32,
+            "lineEnd": 32
+          },
+          "quote": "客户端那边报了个错，好像是连不上，我把端口改成 8000 之后还是不行，可能是顺序的问题。",
+          "confidence": 0.82,
+          "note": "全程无定位手段与根因，仅凭猜测调整端口；最终以拆分文件绕过"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R10",
+      "itemName": "代码规范",
+      "weight": 5,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "代码块带 python 语言标注，端口已提取为具名常量 PORT，函数命名为 run_server / run_client，缩进一致，无调试残留，整体可读，未落到「命名随意（a、b、tmp1）」的部分达标档。但全文零注释，且 8000 之外未再定义任何常量，按达标档（满分 10 × 0.8）计 8 分。本项只评代码风格，是否使用套接字已在 R5、R6 中扣分，不在此重复扣。",
+      "evidence": [
+        {
+          "id": "E13",
+          "kind": "code",
+          "location": {
+            "section": "代码段（无章节编号）",
+            "lineStart": 17,
+            "lineEnd": 17
+          },
+          "quote": "PORT = 8000",
+          "confidence": 0.85,
+          "note": "端口提取为具名常量，无魔法数字"
+        },
+        {
+          "id": "E14",
+          "kind": "code",
+          "location": {
+            "section": "代码段（无章节编号）",
+            "lineStart": 19,
+            "lineEnd": 26
+          },
+          "quote": "def run_server():",
+          "confidence": 0.85,
+          "note": "函数命名有意义、风格统一，缩进一致；唯一不足是全文无注释"
+        }
+      ],
+      "confidence": 0.8,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R11",
+      "itemName": "格式规范",
+      "weight": 3,
+      "maxScore": 10,
+      "level": "notMet",
+      "levelScoreRatio": 0,
+      "score": 0,
+      "deductionReason": "报告除一级标题「实验报告：网络程序」外没有任何章节标题，实验目的、实验原理、实验环境、实验步骤、实验结果、数据分析、实验总结等必要章节全部缺失，正文为连续段落，无法辨识章节结构；唯一的插图也无编号与题注，且无参考文献。属「全文无标题层级、无法辨识章节」的严重结构缺失，判未达标档，记 0 分。",
+      "evidence": [
+        {
+          "id": "E15",
+          "kind": "text",
+          "location": {
+            "section": "标题",
+            "lineStart": 1,
+            "lineEnd": 1
+          },
+          "quote": "# 实验报告：网络程序",
+          "confidence": 0.85,
+          "note": "全文仅此一个标题，其余为连续段落，无任何子章节标题"
+        },
+        {
+          "id": "E16",
+          "kind": "text",
+          "location": {
+            "section": "正文首段（无章节编号）",
+            "lineStart": 7,
+            "lineEnd": 7
+          },
+          "quote": "本次实验要做一个能传数据的网络程序",
+          "confidence": 0.85,
+          "note": "报告由标题直接进入正文段落，缺目的/原理/步骤/结果/分析等必要章节，也无参考文献"
+        }
+      ],
+      "confidence": 0.76,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R12",
+      "itemName": "原创性",
+      "weight": 2,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "未发现整段抄袭的证据：报告如实记录了编译/运行失败与拆分文件后才跑通的过程，也交代了自己为何选用现成模块，看起来是本人动手完成，故不判部分达标。但报告没有任何参数设计、测试用例设计或数据表格可供佐证个人工作（代码本身是 http.server 的常见示例写法），也未标注任何参考出处，按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E17",
+          "kind": "text",
+          "location": {
+            "section": "运行记录段（无章节编号）",
+            "lineStart": 32,
+            "lineEnd": 32
+          },
+          "quote": "后面我把两个函数分开到两个文件里跑，客户端能取到内容了",
+          "confidence": 0.68,
+          "note": "可佐证本人动手调试过；但无个人设计痕迹、无引用标注，无法进一步确认原创程度"
+        }
+      ],
+      "confidence": 0.68,
+      "needsReview": true
+    }
+  ],
+  "totalScore": 20.6,
+  "review": {
+    "triggered": true,
+    "triggerReason": "R11（0.76）、R12（0.68）两项置信度低于复核阈值 0.80",
+    "opinion": "复核后维持全部档位与得分。R11：报告除一级标题外确无任何章节标题，必要章节全部缺失，判未达标成立。R12：未发现抄袭证据，但报告内部亦无任何个人设计痕迹，维持达标档。另经抽检确认两项关键判定：R5、R6 判未达标的依据是报告全文未出现 socket/bind/listen/accept/send/recv 任一调用（作者自述以现成模块替代），符合「根本未使用实验要求的机制」；R7 按 rubric 明示的「只截了代码编辑界面而无运行结果」情形判部分达标，未越档扣分。",
+    "overallConfidenceBefore": 0.84,
+    "overallConfidenceAfter": 0.85,
+    "adjustments": [
+      {
+        "rubricItemId": "R11",
+        "opinion": "复核确认全文仅有 1 个一级标题、无任何章节标题层级、必要章节全部缺失，维持未达标档 0 分；因证据（标题行与正文段落）明确无误，置信度由 0.76 上调至 0.85。",
+        "confidenceBefore": 0.76,
+        "confidenceAfter": 0.85,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      },
+      {
+        "rubricItemId": "R12",
+        "opinion": "复核确认无抄袭证据、亦无个人设计痕迹与引用标注，维持达标档 4 分；置信度由 0.68 上调至 0.80，仍属中置信度下界，建议教师留意。",
+        "confidenceBefore": 0.68,
+        "confidenceAfter": 0.8,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      }
+    ]
+  },
+  "feedback": {
+    "overall": "报告没有按要求完成本次实验。实验要求用套接字（socket / bind / listen / accept / send / recv）实现网络程序，报告却直接使用了 Python 标准库 http.server 与 urllib.request，并认为「效果应该是一样的」，因此「核心代码正确性」与「关键 API 使用」两项均判为未达标，合计占总权重的 30%。此外报告没有实验目的、实验原理、实验步骤、实验结果等章节结构（全文只有 1 个一级标题），没有任何实验数据，「数据分析」也判为未达标，唯一的截图还是代码编辑界面而非运行结果。最该补的两件事是：改用真正的 socket 编程重做一遍，以及补齐实验数据与报告结构。",
+    "strengths": [
+      "代码风格本身整洁：端口提取为 PORT 常量、函数命名为 run_server / run_client、缩进一致、代码块带 python 语言标注，无调试残留",
+      "如实记录了运行报错与「拆到两个文件才跑通」的过程，没有伪造成功结果",
+      "交代了所用的操作系统与开发工具（Ubuntu + Python + VS Code），有动手尝试的意愿"
+    ],
+    "improvements": [
+      "重做实验：用 socket() / bind() / listen() / accept() / recv() / send() 自行实现服务端与客户端，不要再用 http.server 与 urllib；并在报告中说明为何必须自己定义消息边界（TCP 是字节流，不保留消息边界）",
+      "补齐报告结构：至少写出「实验目的、实验原理、实验环境、实验步骤、核心代码、实验结果、实验总结」七个章节，并写明 Ubuntu 与 Python 的具体版本号、监听端口和运行命令",
+      "补充实验数据与真实验证：例如分 5 组不同长度的数据各收发一轮，记录每次的字节数、耗时与是否与原串一致，用表格呈现，并截取终端运行输出（不要截代码编辑界面）",
+      "把「连不上」这个问题的根因写清楚：为什么把端口改成 8000 仍然不行、两个函数放在同一个脚本里为什么跑不通（run_server 中的 serve_forever() 会一直阻塞，后面的 run_client() 根本执行不到），而不是停在「可能是顺序的问题」"
+    ],
+    "tone": "critical"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "agent": "parser",
+      "inputSummary": "批次B · Socket网络编程主题：《实验报告：网络程序》（学生H，计算机网络）Markdown 原文，共 36 行",
+      "outputSummary": "切分结果：仅识别到 1 个一级标题 + 7 个无标题的连续段落，1 段代码块、1 张配图；未识别到任何章节结构，正文约 300 字",
+      "confidence": 0.92,
+      "note": "实验目的、原理、环境、步骤、结果、分析、总结等章节均缺失，已在 R11 中记录"
+    },
+    {
+      "step": 2,
+      "agent": "evidence",
+      "inputSummary": "原文段落 + Rubric v1.0.0 的 12 个评分点（R1–R12）及其证据要求",
+      "outputSummary": "定位证据 17 条：正文 13 条、代码 3 条、配图 1 条；其中 R1/R2/R8/R11 只能定位到「缺章节」「无数据」这类反向证据，R5/R6 定位到「未使用 socket 系列调用」的直接反证",
+      "confidence": 0.84,
+      "note": "未找到任何可支撑 R1、R2、R8 正向结论的原文，按红线判未达标并记 0 分，未编造 quote"
+    },
+    {
+      "step": 3,
+      "agent": "grader",
+      "inputSummary": "17 条证据 + Rubric v1.0.0 的四档判定标准与扣分梯度",
+      "outputSummary": "逐项判定：达标 2 项（R10、R12）、部分达标 4 项（R3/R4/R7/R9）、未达标 6 项（R1/R2/R5/R6/R8/R11），加权总分 20.60",
+      "confidence": 0.8,
+      "note": "R11、R12 置信度低于 0.80，按规则转交 Reviewer 复核；R5/R6 属方针对错的硬失分，未做折扣"
+    },
+    {
+      "step": 4,
+      "agent": "reviewer",
+      "inputSummary": "R11、R12 两项低置信度判定及其证据；抽检 R5/R6/R7 三项关键判定",
+      "outputSummary": "全部档位与得分维持不变；R11 置信度 0.76→0.85、R12 置信度 0.68→0.80；整体置信度 0.84→0.85",
+      "confidence": 0.85,
+      "note": "抽检确认「全文未使用 socket 系列调用」成立；未因报告分数偏低而放宽档位"
+    },
+    {
+      "step": 5,
+      "agent": "feedback",
+      "inputSummary": "12 项评分明细、2 条复核意见、17 条证据摘要",
+      "outputSummary": "生成总体评价 1 段、亮点 3 条、改进建议 4 条，语气为严格指出问题（critical）",
+      "confidence": 0.9,
+      "note": "首条建议直指本报告最该补的环节——用真正的 socket 重做实验；其余分别对应结构、数据与问题排查"
+    }
+  ],
+  "provenance": {
+    "generatorAgent": "LearnBuddy AutoGrader 评阅流水线",
+    "generatedAt": "2026-09-20T06:37:42+08:00",
+    "sourceConversationId": "wave3-grading-B",
+    "resultFingerprint": "sha256:3cd6354e5b12a52c8c2a50425c112bbb74c03581e00ec15bcf4b5fb1423bae65",
+    "schemaVersion": "1.0.0"
+  }
+}

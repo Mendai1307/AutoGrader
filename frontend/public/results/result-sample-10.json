@@ -1,0 +1,974 @@
+{
+  "schemaVersion": "1.0.0",
+  "report": {
+    "reportId": "sample-10",
+    "title": "实验报告：冒泡排序、选择排序与快速排序的性能对比",
+    "course": "数据结构与算法",
+    "studentCode": "学生J"
+  },
+  "rubricVersion": "1.0.0",
+  "rubric": {
+    "id": "rubric-cs-lab-report-generic",
+    "version": "1.0.0",
+    "title": "高校计算机专业实验报告通用 Rubric（进程线程同步 / Socket 网络编程 / 排序算法性能对比）",
+    "items": [
+      {
+        "id": "R1",
+        "name": "实验目的理解",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text。要求报告「实验目的」章节中明确列出本次实验要验证/实现的 2 条以上目标，且目标动词具体（如「验证信号量对临界区的保护作用」「对比三种排序在 10 万级数据下的耗时」），能与后文实验内容与结论一一对应。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "列出 3 条以上具体目标，覆盖知识目标（要懂什么）与能力目标（要做出什么），且后文每个目标都有对应结果与结论回应",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "列出 2–3 条目标，表述基本清晰，与后文内容大体对应，但个别目标缺少结果回应",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 条笼统目标（如「学习多线程编程」），或目标抄自实验指导书而无个人化表述",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验目的章节，或目的与本次实验主题明显无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "在档位基础上浮动：目标条目数达标但存在 1 条与后文无对应，降一档处理（如优秀降达标）；出现与实验主题无关的目标，每条再扣 0.5 分（最低降至未达标）。"
+      },
+      {
+        "id": "R2",
+        "name": "原理阐述",
+        "weight": 12,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告「实验原理」章节正确阐述核心概念（如临界区与互斥、TCP 三次握手与粘包、排序复杂度与主存访问局部性），术语使用准确，能结合本次实验的关键数据结构或系统调用说明机制；原理中提到的机制须能在后文代码中找到对应实现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "概念定义准确且完整，能说明机制「为什么成立」（如信号量 PV 操作为何能保证互斥、TCP 为何是字节流），并结合代码/数据结构给出具体说明，无科学性错误",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "核心概念表述正确，覆盖了主要机制，但停留在定义复述层面，未深入解释成因或与代码的对应关系偏弱",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅零散提及术语，存在概念混淆（如把进程与线程混为一谈、把互斥与同步混为一谈、错误描述平均/最坏时间复杂度），篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全缺失原理阐述，或阐述存在原则性科学错误（如认为信号量可以解决一切死锁、认为 TCP 天然保证消息边界）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每出现一处科学性错误在档位基础上再扣 2 分，出现原则性错误直接判未达标；原理与实现完全脱节（阐述 A 机制却实现 B）扣 3 分；整段照抄教材且无任何自己的归纳表述扣 1 分。"
+      },
+      {
+        "id": "R3",
+        "name": "实验环境配置",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告给出可复现的环境信息：操作系统与版本、编译器/解释器与版本、关键依赖库或内核头文件版本、编译命令或运行命令；建议以表格或截图形式呈现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "OS、语言/编译器版本、依赖库版本、编译与运行命令四要素齐全，并给出关键版本号（如 gcc 11.4.0、Python 3.11.6、glibc 2.35），他人可据此复现",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "给出了 OS 与主要工具版本，缺少个别次要信息（如未给依赖库版本或未给编译命令），基本可复现",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只写了工具名称而无版本号（如仅写「Ubuntu + gcc」），或只给了一张无法辨识版本信息的截图",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未交代环境信息",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺版本号每处扣 1 分；缺编译/运行命令扣 1 分；版本号与实际代码语法明显矛盾（如写 Python 2 却用 f-string）扣 2 分；仅以截图呈现且图中文字不可辨识，降一档处理。"
+      },
+      {
+        "id": "R4",
+        "name": "实验步骤完整性",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告给出可操作的步骤序列：环境准备 → 代码编写 → 编译/构建 → 运行与参数 → 观察记录 → 结果导出，步骤顺序合理、有编号，关键步骤附命令或截图。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "步骤编号完整且与实验流程一致，覆盖准备、实现、编译、运行、记录、导出六个环节，关键步骤给出具体命令与参数，他人可按步骤复现实验",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "步骤基本完整且顺序合理，覆盖主要环节，但个别环节无命令或参数说明，缺少结果导出/归档环节",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只有粗略的几步（如「写代码→运行」），缺少编译、参数、记录等关键环节，或步骤顺序混乱",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验步骤章节，或步骤与本次实验内容无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个关键环节（编译/运行参数/结果记录）扣 2 分；步骤编号缺失或顺序颠倒扣 1 分；步骤中出现与代码不一致的命令（如源文件名对不上）每处扣 1 分。"
+      },
+      {
+        "id": "R5",
+        "name": "核心代码正确性",
+        "weight": 20,
+        "maxScore": 20,
+        "evidenceRequirement": "证据类型：code、text。要求报告给出核心实现的代码块（带语言标注），代码能完成实验要求的核心功能且逻辑正确：临界区保护无遗漏、套接字收发与关闭正确、排序结果有序且稳定；须关注边界条件（空输入、单元素、并发冲突、连接异常断开）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "核心功能完全正确，边界条件处理完备（如空输入/单元素/连接异常/并发极端情况），无资源泄漏（锁必然释放、fd 必然关闭、内存必然回收），并有错误处理与返回值检查",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "主要功能正确，常规输入下结果正确，但边界条件或异常处理有遗漏（如未检查系统调用返回值、未处理连接断开），不影响主流程",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "代码存在可指出的明确缺陷（如锁的粒度错误、未加锁保护共享变量、recv 返回值未处理导致粘包、排序比较逻辑有误），在部分输入下会产生错误结果",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无核心代码块，或代码无法通过编译/运行，或核心逻辑完全错误（如根本未使用实验要求的机制）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处明确 bug 扣 3 分（资源泄漏每处额外扣 2 分）；代码无法编译直接判未达标；仅贴出运行结果而无代码，判未达标；核心代码与实验要求机制不符（如要求用信号量却用忙等）扣 5 分。"
+      },
+      {
+        "id": "R6",
+        "name": "关键 API / 算法使用",
+        "weight": 10,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code、text。要求报告正确使用了本实验的关键 API 或算法：如 pthread_mutex_lock/unlock、sem_wait/sem_post、socket/bind/listen/accept/send/recv、快排分区与递归、归并合并等；调用参数与惯用法正确，并在正文中说明为何选用该 API/算法。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "关键 API/算法选用恰当且调用惯用法完全正确，参数与返回值处理规范，并说明了选型理由与替代方案对比",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "使用了正确的关键 API/算法，调用基本规范，但未说明选型理由，或个别参数使用不够地道（如未复用地址、未设置超时）",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "使用了实验要求的 API/算法但用法有误（如互斥锁与条件变量配合错误、忘记 setsockopt、递归终止条件写错），或回避了关键 API 而用简化替代实现",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未使用实验要求的关键 API/算法（如要求用 socket 却直接用现成框架、要求实现快排却直接调用库排序且未作说明）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "关键 API 参数错误每处扣 2 分；调用了被废弃/不安全的接口（如 strcpy、gets）每处扣 2 分；使用了库函数但明确说明并对比了自实现版本，不扣分。"
+      },
+      {
+        "id": "R7",
+        "name": "实验结果与截图",
+        "weight": 11,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：figure、table、text。要求报告提供支撑结论的原始结果：终端运行输出截图、程序界面/输出窗口截图、性能数据表格等；每张图须有编号与图题，图题说明该图展示了什么，图中关键数据可辨识，并在正文中被引用（如「如图 3-2 所示」）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "提供 3 张以上结果截图/表格，覆盖主要实验场景（如并发前后对比、多组规模数据），每张有编号与图题，图中关键数据清晰可辨识，且正文逐一引用并解读",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "提供了 2 张左右结果截图，编号与图题基本齐全，能支撑主要结论，但个别场景缺少截图或图中部分数据不可辨识",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 张截图，或截图缺少编号/图题，或截图与实验内容不匹配（如只截了代码编辑界面而无运行结果），不足以支撑结论",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有结果截图或结果数据，结论无证据支撑",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "截图无编号或图题每张扣 1 分；截图未被正文引用每张扣 1 分；截图为伪造/明显与实验无关（如网络图片、仅截代码）判部分达标并扣 3 分；结果数据未以表格呈现导致难以比对，扣 2 分。"
+      },
+      {
+        "id": "R8",
+        "name": "数据分析与讨论",
+        "weight": 13,
+        "maxScore": 15,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告对结果数据做量化分析而非现象罗列：给出具体数值与对比（如加速比、耗时增长率、并发下错误计数差值），解释数据背后的成因（如缓存局部性、锁竞争开销、Nagle 算法影响），并能与理论预期做对照，说明偏差原因。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "给出多组量化数据对比与计算（如加速比、增长率、相对误差），结合原理深入解释成因，明确指出与理论预期的偏差并给出可信解释，讨论有个人见解",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "有量化数据对比与基本解释，能说明主要趋势（如规模增大耗时上升、加锁后吞吐下降），但归因较浅或未与理论值对照",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只罗列现象而无量化分析（如「加了锁之后变慢了」却不给数值），或仅有结论无数据支撑，分析泛泛而谈",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有数据分析与讨论，直接跳到总结",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "数据存在明显矛盾（图表数值与正文描述不一致）每处扣 3 分；仅重复描述截图内容而无分析，降一档；量化样本量过少（仅 1 组数据即下结论）扣 3 分；结论超出数据支持范围（过度外推）扣 2 分。"
+      },
+      {
+        "id": "R9",
+        "name": "问题排查与反思",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告记录实验过程中遇到的真实问题（编译报错、死锁、结果不稳定、性能异常等），给出排查过程与解决办法，并反思方案局限与改进方向；问题须具体可复现，而非泛泛而谈。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "记录 2 个以上具体问题，含现象、定位过程（用了什么手段定位）、根因与解决办法，并给出方案局限与至少 1 条可执行的改进方向",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "记录了 1–2 个问题并给出解决办法，但排查过程描述简略，或反思偏套话、缺乏可执行改进方向",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅笼统提到「遇到了一些困难」而未说明具体问题与解决办法，或只写了反思而无问题记录",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全无问题排查与反思内容",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "问题已提出但未给出解决办法，每个扣 2 分；解决办法与问题不匹配（如把编译错误当成逻辑错误处理）扣 3 分；反思内容空洞套话（如「以后要更加努力」）扣 2 分。"
+      },
+      {
+        "id": "R10",
+        "name": "代码规范",
+        "weight": 5,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code。要求代码块带语言标注，命名有意义且风格统一，缩进一致，关键分支与函数有注释说明意图，无魔法数字（或已定义为常量），无调试残留（printf 调试语句、注释掉的大段代码）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "命名规范统一，缩进与空行一致，关键函数与复杂逻辑有注释说明「为什么」，常量已提取命名，无调试残留，代码块均带语言标注",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体可读，命名与缩进基本规范，但注释偏少或仅描述「做了什么」，存在个别魔法数字或少量调试残留",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "命名随意（a、b、tmp1）或缩进混乱，几乎无注释，代码块缺少语言标注，存在大段注释掉的代码",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "代码以截图形式给出无法复制、或代码完全无法辨认、或未给出任何代码块",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处无意义命名扣 0.5 分；每处调试残留（调试打印、注释掉的整段代码）扣 1 分；代码块缺语言标注每处扣 1 分；代码以图片代替文本直接降一档。"
+      },
+      {
+        "id": "R11",
+        "name": "格式规范",
+        "weight": 3,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、figure、table。要求报告具备完整结构（目的/原理/环境/步骤/代码/结果/分析/总结），标题层级清晰，图表有编号与题注，参考文献（如教材、RFC、官方文档）标注规范，无大面积空白或排版错乱。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "章节结构完整，标题层级清晰，图表编号连续且题注规范，引用标注规范，排版整洁",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "结构基本完整，图表有编号，但存在个别章节缺失、编号不连续或参考文献格式不统一",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "缺少 2 个以上必要章节，或标题层级混乱，图表无编号，篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "结构严重缺失（如只有代码没有正文），或全文无标题层级、无法辨识章节",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个必要章节扣 2 分；图表编号缺失或不连续每处扣 0.5 分；篇幅低于本实验规定下限（如优档 < 1500 字）扣 2 分；复制他人排版模板未改（出现其他实验的残留标题）扣 2 分。"
+      },
+      {
+        "id": "R12",
+        "name": "原创性",
+        "weight": 2,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、code。要求报告体现个人独立完成痕迹：参数选取、测试用例设计、数据表格由本人实验产生，核心代码非整段照抄网络或同学；引用他人代码或资料须注明出处。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "参数与测试用例有个人设计痕迹（如自行设定的并发规模、数据集构造方式），数据与代码一致，引用处均注明出处",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体为独立完成，个别片段参考公开资料但未注明出处，或参数完全照搬实验指导书默认值",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "存在明显照抄痕迹（代码风格与正文描述割裂、数据与他人雷同），但未发现直接复制的整段内容",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "确认存在整段抄袭（代码或正文与他人完全一致且无引用标注）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "发现未标注引用的参考内容每段扣 1 分；数据明显伪造（如性能数据违背基本规律）扣 2 分；确认抄袭直接判未达标并按课程学术规范另行处理，本项不得分。"
+      }
+    ]
+  },
+  "scores": [
+    {
+      "rubricItemId": "R1",
+      "itemName": "实验目的理解",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "列出 3 条目标，表述清晰且与后文内容大体对应（目标 2、3 分别在第 6 节表格与第 7 节分析中落地）；但第 1 条\"掌握各自的实现思路与代码写法\"属过程性表述，全文没有对应的结果或结论回应，且三条目标均未点出要对比的具体维度（稳定性、最坏情况），按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E1",
+          "kind": "text",
+          "location": {
+            "section": "1 实验目的",
+            "lineStart": 12,
+            "lineEnd": 14
+          },
+          "quote": "1. 实现冒泡排序、选择排序与快速排序三种算法，掌握各自的实现思路与代码写法。\n2. 在不同数据规模下测量三种算法的运行时间，比较它们的快慢。\n3. 通过实验数据验证不同时间复杂度在实际运行中的差异。",
+          "confidence": 0.9,
+          "note": "三条目标分别指向实现、测量、验证三个层次，其中目标 3\"验证不同时间复杂度在实际运行中的差异\"能在第 7 节找到回应，目标 1 无对应结果。"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R2",
+      "itemName": "原理阐述",
+      "weight": 12,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "三算法的平均/最坏时间复杂度、空间复杂度与稳定性表述均正确，且不止复述定义：第 2 章说明了选择排序不稳定的机理（跨距离交换打乱相等元素顺序）、快排最坏情况的成因（基准取到区间极值使递归深度达 n 层）。但全文未把原理与自己代码里的实现细节挂钩（例如分区基准固定取 a[l]、冒泡未做有序提前退出），也没有解释同为 O(n log n) 时快排为何更快（常数因子与访存局部性）。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E2",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 20,
+            "lineEnd": 20
+          },
+          "quote": "三种算法在稳定性上也有区别。稳定性指的是排序前后相等元素的相对顺序是否保持不变。冒泡排序在比较时只在前者严格大于后者时才交换，相等时不交换，因此是稳定的。选择排序需要把找到的最小元素与当前位置交换，这个交换可能跨越多个位置，会把原本在前面的相等元素换到后面去，因此是不稳定的。快速排序在分区过程中同样存在跨距离的元素搬移，因此也是不稳定的。本次实验使用的是随机整数数组，相等元素较少，稳定性差异不会体现在运行结果上。",
+          "confidence": 0.88,
+          "note": "逐一点明冒泡稳定、选择不稳定、快排不稳定的原因，并指出本次实验用随机整数、重复元素少，稳定性差异不会体现在结果里——这一限定是准确的。"
+        },
+        {
+          "id": "E3",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 22,
+            "lineEnd": 22
+          },
+          "quote": "另外需要说明最坏情况是如何产生的。快速排序每次划分后，如果基准元素恰好是当前区间的最大值或最小值，那么划分出来的两段中有一段长度为 0，另一段长度为 n-1，递归深度就变成 n 层，总比较次数退化为 n² 量级。当输入数组已经有序、而基准又固定取区间第一个元素时，就会出现这种最坏情况。本次实验使用随机生成的数组，基准取区间首元素，因此没有触发最坏情况。",
+          "confidence": 0.88,
+          "note": "解释了最坏情况的产生条件（基准为区间极值 → 一段长 0、一段长 n-1 → 深度 n 层），并说明本次取首元素为基准但输入随机故未触发，与第 5 节的实现一致。"
+        },
+        {
+          "id": "E4",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 18,
+            "lineEnd": 18
+          },
+          "quote": "选择排序每趟在未排序部分选出最小元素放到已排序部分末尾，时间复杂度也是 O(n²)，但交换次数比冒泡少。快速排序采用分治思想，选取一个基准元素把数组分成两段，再对两段递归排序，平均时间复杂度是 O(n log n)，最坏情况下会退化到 O(n²)。三者的空间复杂度分别是 O(1)、O(1)、O(log n)（递归栈）。",
+          "confidence": 0.85,
+          "note": "复杂度与空间复杂度陈述正确；但止于结论复述，未展开常数因子差异，也未与代码对应。"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R3",
+      "itemName": "实验环境配置",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "excellent",
+      "levelScoreRatio": 1,
+      "score": 5,
+      "deductionReason": null,
+      "evidence": [
+        {
+          "id": "E5",
+          "kind": "table",
+          "location": {
+            "section": "3 实验环境",
+            "lineStart": 26,
+            "lineEnd": 32
+          },
+          "quote": "| 项目 | 配置 |\n|---|---|\n| 操作系统 | Ubuntu 22.04.3 LTS（内核 5.15.0-91-generic） |\n| 编译器 | gcc 11.4.0 |\n| 编译命令 | `gcc -O2 -o sort sort.c` |\n| 运行命令 | `./sort <数据规模>` |\n| CPU | 4 核 8 线程 x86_64 |",
+          "confidence": 0.93,
+          "note": "OS 与内核版本、编译器版本 gcc 11.4.0、编译命令、运行命令、CPU 五要素齐全；本实验仅用 C 标准库，无第三方依赖需要列版本。"
+        },
+        {
+          "id": "E6",
+          "kind": "figure",
+          "location": {
+            "section": "3 实验环境",
+            "figureNo": "图3-1"
+          },
+          "quote": "![图3-1 实验环境信息截图（示意图）](figures/ds-10-fig1.png)",
+          "confidence": 0.8,
+          "note": "环境信息截图在第 4 节步骤 1 被点引用（\"记录版本信息（图 3-1）\"），编号与图题齐全。"
+        }
+      ],
+      "confidence": 0.92,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R4",
+      "itemName": "实验步骤完整性",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "excellent",
+      "levelScoreRatio": 1,
+      "score": 10,
+      "deductionReason": null,
+      "evidence": [
+        {
+          "id": "E7",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 38,
+            "lineEnd": 43
+          },
+          "quote": "1. **环境准备**：执行 `gcc --version` 与 `uname -a` 记录版本信息（图 3-1）。\n2. **编写代码**：编写 `sort.c`，实现三种排序函数与随机数组生成函数。\n3. **编译**：执行 `gcc -O2 -o sort sort.c`。\n4. **运行**：生成规模为 1000、5000、10000、20000 的随机数组，对每种规模分别运行三种算法，各运行 3 次记录耗时。\n5. **记录**：把每次运行的耗时输出到终端并保存为文本文件。\n6. **结果导出**：把结果整理成表 6-1，并绘制图 6-2 的耗时对比柱状图。",
+          "confidence": 0.9,
+          "note": "六步编号覆盖环境准备→编写→编译→运行与参数→记录→结果导出，编译命令与规模列表（1000/5000/10000/20000）、重复次数（3 次）均给出，他人可据此复现。"
+        }
+      ],
+      "confidence": 0.9,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R5",
+      "itemName": "核心代码正确性",
+      "weight": 20,
+      "maxScore": 20,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 16,
+      "deductionReason": "三个排序函数本身正确：将第 5 节代码逐字复刻后本地对拍，冒泡 500 组、选择排序（原文的 xuanze，比较对象写作 a[m]）与快排 3000 组全部通过，非递归终止条件与内存释放（free(b)/free(c)）均无问题。但存在两处遗漏：其一，main 的计时循环只调用了 kuaisu，冒泡与选择排序从未被驱动执行，第 6 节表 6-1 中\"冒泡排序\"\"选择排序\"两列数据无法由报告给出的这段代码产生；其二，atoi(argv[1]) 与两次 malloc 的返回值均未校验，参数缺失或分配失败会直接崩溃。按达标档（满分 20 × 0.8）计 16 分。",
+      "evidence": [
+        {
+          "id": "E8",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 83,
+            "lineEnd": 100
+          },
+          "quote": "int main(int argc, char *argv[]) {\n    int n = atoi(argv[1]);\n    int *b = malloc(n * sizeof(int));\n    int *c = malloc(n * sizeof(int));\n    srand(20260920);\n    for (int i = 0; i < n; i++) b[i] = rand() % 100000;\n\n    clock_t t;\n    for (int k = 0; k < 3; k++) {\n        for (int i = 0; i < n; i++) c[i] = b[i];\n        t = clock();\n        kuaisu(c, 0, n - 1);\n        printf(\"quick  n=%d  %.4f s\\n\", n, (double)(clock()-t)/CLOCKS_PER_SEC);\n    }\n    free(b);\n    free(c);\n    return 0;\n}",
+          "confidence": 0.88,
+          "note": "main 内三次重复计时的对象只有 kuaisu(c, 0, n - 1)，maopao 与 xuanze 定义了却从未被调用；argv[1] 与 malloc 的返回值未做检查。"
+        },
+        {
+          "id": "E9",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 69,
+            "lineEnd": 81
+          },
+          "quote": "void kuaisu(int a[], int l, int r) {\n    if (l >= r) return;\n    int i = l, j = r, p = a[l];\n    while (i < j) {\n        while (i < j && a[j] >= p) j--;\n        a[i] = a[j];\n        while (i < j && a[i] <= p) i++;\n        a[j] = a[i];\n    }\n    a[i] = p;\n    kuaisu(a, l, i - 1);\n    kuaisu(a, i + 1, r);\n}",
+          "confidence": 0.93,
+          "note": "挖坑填数式分区 + 以 a[i] 落位基准，递归区间为 [l, i-1] 与 [i+1, r]，本地对拍 3000 组（含大量重复值）全部有序，无栈溢出。"
+        },
+        {
+          "id": "E10",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 52,
+            "lineEnd": 67
+          },
+          "quote": "void maopao(int a[], int n) {\n    for (int i = 0; i < n - 1; i++)\n        for (int j = 0; j < n - 1 - i; j++)\n            if (a[j] > a[j+1]) {\n                int t = a[j]; a[j] = a[j+1]; a[j+1] = t;\n            }\n}\n\nvoid xuanze(int a[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        int m = i;\n        for (int j = i + 1; j < n; j++)\n            if (a[j] < a[m]) m = j;\n        int t = a[i]; a[i] = a[m]; a[m] = t;\n    }\n}",
+          "confidence": 0.92,
+          "note": "冒泡（外层趟数 + 内层 - i 收缩）与选择排序（m 记录最小值下标后再交换）逻辑均正确，本地对拍全部通过。"
+        }
+      ],
+      "confidence": 0.8,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R6",
+      "itemName": "关键 API / 算法使用",
+      "weight": 10,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "三种排序均按要求自实现、未调用库排序，快排采用挖坑填数分区、选择排序\"先定位最小值下标再交换\"都是惯用法，参数与递归边界正确；计时使用 clock()/CLOCKS_PER_SEC 亦属标准做法。但全文未说明算法或接口的选型理由（为何快排固定取首元素为基准、为何用 clock 而非更高精度计时），也未与其他替代写法对比，仅在第 2 章提到选择排序交换次数比冒泡少一句。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E11",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 69,
+            "lineEnd": 81
+          },
+          "quote": "void kuaisu(int a[], int l, int r) {\n    if (l >= r) return;\n    int i = l, j = r, p = a[l];\n    while (i < j) {\n        while (i < j && a[j] >= p) j--;\n        a[i] = a[j];\n        while (i < j && a[i] <= p) i++;\n        a[j] = a[i];\n    }\n    a[i] = p;\n    kuaisu(a, l, i - 1);\n    kuaisu(a, i + 1, r);\n}",
+          "confidence": 0.9,
+          "note": "快排分区与递归边界符合惯用法；但基准固定取 a[l]，与第 2 章自述的最坏情况触发条件一致，报告却未说明为何仍这样选。"
+        },
+        {
+          "id": "E12",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 90,
+            "lineEnd": 96
+          },
+          "quote": "    clock_t t;\n    for (int k = 0; k < 3; k++) {\n        for (int i = 0; i < n; i++) c[i] = b[i];\n        t = clock();\n        kuaisu(c, 0, n - 1);\n        printf(\"quick  n=%d  %.4f s\\n\", n, (double)(clock()-t)/CLOCKS_PER_SEC);\n    }",
+          "confidence": 0.88,
+          "note": "clock() 计时、每次计时前从备份数组复制输入以保证三种算法吃到相同数据，做法规整；但未说明计时精度与取平均值的处理理由。"
+        }
+      ],
+      "confidence": 0.84,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R7",
+      "itemName": "实验结果与截图",
+      "weight": 11,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "提供表 6-1（4 个规模 × 3 种算法共 12 格耗时）与图 6-1、图 6-2 两张结果图，表有题注\"表 6-1 三种算法在不同规模下的运行时间（3 次取平均，单位 s）\"、图有编号与图题，表数据在第 7 节被逐一引用比对。不足之处：图 6-1（运行结果输出截图）全文未被正文点引用，图 6-2 仅在步骤 6 的\"绘制图 6-2\"中顺带提到、第 7 节分析未回指；配图为占位路径无法核验数值可辨识性；规模覆盖 10³～2×10⁴，缺少更大规模的趋势验证。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E13",
+          "kind": "table",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 105,
+            "lineEnd": 112
+          },
+          "quote": "表 6-1 三种算法在不同规模下的运行时间（3 次取平均，单位 s）\n\n| 数据规模 | 冒泡排序 | 选择排序 | 快速排序 |\n|---:|---:|---:|---:|\n| 1000 | 0.0031 | 0.0022 | 0.0002 |\n| 5000 | 0.0762 | 0.0521 | 0.0011 |\n| 10000 | 0.3045 | 0.2073 | 0.0024 |\n| 20000 | 1.2188 | 0.8302 | 0.0052 |",
+          "confidence": 0.9,
+          "note": "四条规模档 × 三种算法的完整耗时矩阵，口径写明\"3 次取平均\"；第 7 节引用了 20000 档的 1.2188 / 0.8302 / 0.0052 三个数值，与表一致。"
+        },
+        {
+          "id": "E14",
+          "kind": "figure",
+          "location": {
+            "section": "6 实验结果",
+            "figureNo": "图6-1"
+          },
+          "quote": "![图6-1 运行结果输出截图（示意图）](figures/ds-10-fig2.png)",
+          "confidence": 0.72,
+          "note": "编号与图题齐全，但全文未在正文中引用该图（第 7 节引用的是表 6-1），属\"截图未被正文引用\"。"
+        },
+        {
+          "id": "E15",
+          "kind": "figure",
+          "location": {
+            "section": "6 实验结果",
+            "figureNo": "图6-2"
+          },
+          "quote": "![图6-2 三种算法耗时对比柱状图（示意图）](figures/ds-10-fig3.png)",
+          "confidence": 0.75,
+          "note": "仅在步骤 6\"并绘制图 6-2 的耗时对比柱状图\"被提到，第 7 节分析未回指该图。"
+        }
+      ],
+      "confidence": 0.8,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R8",
+      "itemName": "数据分析与讨论",
+      "weight": 13,
+      "maxScore": 15,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 12,
+      "deductionReason": "第 7 节为量化分析而非现象罗列：给出 n=20000 时三者耗时 1.2188 s / 0.8302 s / 0.0052 s，并算了 10000→20000 的增长倍数（冒泡约 4 倍、快排约 2 倍多）。经复算：冒泡 0.3045→1.2188 为 4.00×、选择 0.2073→0.8302 为 4.00×、快排 0.0024→0.0052 为 2.17×，与文中描述吻合。但分析止于趋势描述，未把实测倍数与理论值（n² 约 4×、n log n 约 2.1×）对照，未解释\"为什么快了这么多\"（比较次数、访存、分支预测），\"总体来看快速排序优势很大\"属定性收尾。按达标档（满分 15 × 0.8）计 12 分。",
+      "evidence": [
+        {
+          "id": "E16",
+          "kind": "text",
+          "location": {
+            "section": "7 结果分析",
+            "lineStart": 120,
+            "lineEnd": 120
+          },
+          "quote": "从表 6-1 可以看出，三种算法里快速排序是最快的，冒泡排序是最慢的，选择排序在中间。规模为 20000 的时候，冒泡用了 1.2188 秒，选择用了 0.8302 秒，快速只用了 0.0052 秒。数据规模变大之后三种算法的耗时都增加了，冒泡和选择增加得比较明显，快速增加得不明显。规模从 10000 到 20000 的时候，冒泡的耗时增加了大约 4 倍，快速增加了大约 2 倍多一点。总体来看快速排序优势很大，在数据量大的时候尤其明显。",
+          "confidence": 0.85,
+          "note": "含具体数值与增长倍数计算，趋势判断与表 6-1 数据一致；但归因浅（未解释成因），也未与理论预期倍数对照。"
+        }
+      ],
+      "confidence": 0.83,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R9",
+      "itemName": "问题排查与反思",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "记录了 2 个真实问题并给出解决办法（快排递归下标算错导致数组越界、未固定随机种子导致结果波动，改用 srand 固定种子），问题具体、与代码可对应。但排查过程过于简略——只写\"后来把递归的边界条件改对之后就正常了\"，未说明越界是如何发现的（报错信息、段错误现象、用什么手段定位）；结尾改进方向\"后面可以再补充更多数据规模和其他排序算法\"属泛泛表述，无可执行的下一步。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E17",
+          "kind": "text",
+          "location": {
+            "section": "8 问题与总结",
+            "lineStart": 124,
+            "lineEnd": 124
+          },
+          "quote": "实验中遇到过数组越界的问题，快排递归的时候下标算错了，会访问到数组外面去，后来把递归的边界条件改对之后就正常了。另外一开始没有用固定随机种子，导致每次生成的数据不一样，结果波动比较大，加上 `srand` 固定种子之后数据稳定了。",
+          "confidence": 0.88,
+          "note": "两个问题均真实可复现，且有对应修复动作；但缺少\"如何定位\"的过程描述。"
+        },
+        {
+          "id": "E18",
+          "kind": "text",
+          "location": {
+            "section": "8 问题与总结",
+            "lineStart": 126,
+            "lineEnd": 126
+          },
+          "quote": "本次实验完成了三种排序算法的实现与性能对比，快速排序明显快于另外两种，这与课本上讲的复杂度结论是一致的。基本达到了实验要求，后面可以再补充更多数据规模和其他排序算法。",
+          "confidence": 0.86,
+          "note": "结论与数据一致（快排最快），但反思与改进方向偏套话，未锚定到具体参数或实验设计。"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R10",
+      "itemName": "代码规范",
+      "weight": 5,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "代码块带 c 语言标注、缩进与括号风格统一，无调试残留与注释掉的代码；但全文约 55 行代码没有任何注释，命名随意：三个函数用拼音 maopao / xuanze / kuaisu（rubric 中指出的\"意义不明的命名\"），数据数组写作 b 与 c（一个是原数组、一个是工作副本，仅凭名字无法分辨），另有 t / m / p / k 等单字母变量；规模 3（重复次数）与 100000（随机数上界）以字面量直接出现在 main 中，属魔法数字。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E19",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 52,
+            "lineEnd": 58
+          },
+          "quote": "void maopao(int a[], int n) {\n    for (int i = 0; i < n - 1; i++)\n        for (int j = 0; j < n - 1 - i; j++)\n            if (a[j] > a[j+1]) {\n                int t = a[j]; a[j] = a[j+1]; a[j+1] = t;\n            }\n}",
+          "confidence": 0.85,
+          "note": "函数名 maopao 为拼音直译；循环与交换变量 i/j/t 均为单字母；函数体无任何注释。"
+        },
+        {
+          "id": "E20",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 83,
+            "lineEnd": 92
+          },
+          "quote": "int main(int argc, char *argv[]) {\n    int n = atoi(argv[1]);\n    int *b = malloc(n * sizeof(int));\n    int *c = malloc(n * sizeof(int));\n    srand(20260920);\n    for (int i = 0; i < n; i++) b[i] = rand() % 100000;\n\n    clock_t t;\n    for (int k = 0; k < 3; k++) {\n        for (int i = 0; i < n; i++) c[i] = b[i];",
+          "confidence": 0.85,
+          "note": "b（原始数据）与 c（工作副本）命名无法自解释；3（重复次数）、100000（随机上界）为魔法数字；main 中亦无注释说明计时流程。"
+        }
+      ],
+      "confidence": 0.75,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R11",
+      "itemName": "格式规范",
+      "weight": 3,
+      "maxScore": 10,
+      "level": "excellent",
+      "levelScoreRatio": 1,
+      "score": 10,
+      "deductionReason": null,
+      "evidence": [
+        {
+          "id": "E21",
+          "kind": "text",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 103,
+            "lineEnd": 105
+          },
+          "quote": "## 6 实验结果\n\n表 6-1 三种算法在不同规模下的运行时间（3 次取平均，单位 s）",
+          "confidence": 0.86,
+          "note": "章节为 1 实验目的 / 2 实验原理 / 3 实验环境 / 4 实验步骤 / 5 核心代码 / 6 实验结果 / 7 结果分析 / 8 问题与总结 / 参考文献，八项必要章节齐备，标题层级为二级标题 + 表格题注，编号连续（图3-1、图6-1、图6-2，表6-1）。"
+        },
+        {
+          "id": "E22",
+          "kind": "text",
+          "location": {
+            "section": "参考文献",
+            "lineStart": 128,
+            "lineEnd": 130
+          },
+          "quote": "## 参考文献\n\n[1] 数据结构（C 语言版），第 9 章 排序。",
+          "confidence": 0.85,
+          "note": "设有参考文献章节并给出教材条目，标注规范；排版无大面积空白。"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R12",
+      "itemName": "原创性",
+      "weight": 2,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "三个排序函数为独立实现，未见整段照抄痕迹，随机种子 20260920 为自选值（与常见示例不同），步骤中亦自定了 4 个规模档与 3 次重复。但\"数据与代码一致\"这一要求未完全满足：表 6-1 列出了冒泡与选择排序两列耗时，而报告给出的 main 只驱动了快排，这两列数据缺少对应代码支撑；规模档 1000/5000/10000/20000 属教材常见默认取值，未见个人化的测试用例设计。按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E23",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 41,
+            "lineEnd": 41
+          },
+          "quote": "4. **运行**：生成规模为 1000、5000、10000、20000 的随机数组，对每种规模分别运行三种算法，各运行 3 次记录耗时。",
+          "confidence": 0.82,
+          "note": "自定了 4 个规模档、每档 3 次重复的测量方案；规模取值属常见默认范围。"
+        },
+        {
+          "id": "E24",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 87,
+            "lineEnd": 88
+          },
+          "quote": "    srand(20260920);\n    for (int i = 0; i < n; i++) b[i] = rand() % 100000;",
+          "confidence": 0.82,
+          "note": "用给定的固定种子生成数据，保证可复现；但报告中冒泡/选择两列数据无对应驱动代码，数据与代码的一致性存在缺口。"
+        }
+      ],
+      "confidence": 0.78,
+      "needsReview": true
+    }
+  ],
+  "review": {
+    "triggered": true,
+    "triggerReason": "R10（0.75）与 R12（0.78）两项置信度低于复核阈值 0.80：前者因\"代码规范\"属风格类判定、档位落在达标与部分达标之间；后者因\"数据与代码一致性\"缺少可核对的口径。",
+    "opinion": "复核 12 项，维持全部档位与得分。R10 逐行核过第 5 节全部约 55 行代码：确无任何注释，函数名为 maopao / xuanze / kuaisu（拼音），数据数组 b / c 无法自解释，且 3 与 100000 未提取常量，命中 rubric 中\"命名随意、几乎无注释\"的描述，故维持部分达标档；该项属风格判定，置信度仅上调至 0.79，建议教师在界面上人工确认后如需再议。R12 因表 6-1 的冒泡/选择两列缺少驱动代码支撑，维持\"达标\"档而未降至部分达标（未见抄袭痕迹，且排序实现为独立完成），置信度上调至 0.84。另在 R5 中确认\"main 只驱动快排\"这一缺陷，已在评语中作为首要改进项反馈。",
+    "adjustments": [
+      {
+        "rubricItemId": "R10",
+        "opinion": "复核确认第 5 节两个代码块均无注释、函数名使用拼音、数组名 b/c 无自解释性，档位判定成立，仅因命名与注释属主观风格项而上调置信度。",
+        "confidenceBefore": 0.75,
+        "confidenceAfter": 0.79,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      },
+      {
+        "rubricItemId": "R12",
+        "opinion": "复核后确认无整段抄袭迹象、排序实现为独立完成，维持达标档；表 6-1 两列数据缺少驱动代码属 R5 的工程缺陷而非原创性问题，不重复扣减。",
+        "confidenceBefore": 0.78,
+        "confidenceAfter": 0.84,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      }
+    ],
+    "overallConfidenceBefore": 0.83,
+    "overallConfidenceAfter": 0.84
+  },
+  "feedback": {
+    "overall": "报告整体扎实：三种排序均为自己实现、环境与步骤写得清楚可复现，第 2 章还解释了选择排序为何不稳定、快排最坏情况是怎么产生的，第 7 节也给出了具体数值与增长倍数。主要短板有两处：一是第 5 节的 main 只驱动了快速排序，表 6-1 中冒泡和选择排序两列数据缺少对应代码，他人无法按报告复现；二是第 7 节止于\"快排最快、冒泡最慢\"的趋势描述，没有把实测倍数与理论倍数对照，也没有解释差距为什么这么大。补上这两块，报告档次会有明显提升。",
+    "strengths": [
+      "第 2 章说明了选择排序不稳定的机理（最小值与当前位置的跨距离交换会打乱相等元素相对顺序），不只是复述\"选择排序不稳定\"这一结论",
+      "第 2 章把快排最坏情况的产生条件写清楚了（基准为区间极值 → 一段长 0、一段长 n-1 → 递归深度 n 层），并与本次\"随机输入 + 首元素基准\"的取法对应上",
+      "第 3 章环境表给出 OS 与内核、gcc 11.4.0、编译命令 gcc -O2 -o sort sort.c 与运行命令，配合第 4 节六步流程，可复现性达标",
+      "第 8 节如实记录了快排递归下标越界与未固定随机种子两个真实问题，并给出了各自的修复动作"
+    ],
+    "improvements": [
+      "把第 5 节 main 的三次计时循环扩展为对 maopao、xuanze、kuaisu 三个函数各自计时（每次计时前都从原始数组复制一份输入），否则表 6-1 的冒泡、选择两列无法按报告复现",
+      "在 main 中对 atoi(argv[1]) 的结果做 >0 校验、对两次 malloc 判空，并在 argc < 2 时打印用法后返回，避免参数缺失或分配失败直接崩溃",
+      "在第 7 节补一张\"实测增长倍数 vs 理论增长倍数\"的对照：复算得冒泡 4.00×、选择 4.00×、快排 2.17×，可与 n² 的 4× 和 n log n 的约 2.1× 直接比对，并据此解释快排优势的来源",
+      "给三个函数与关键分支补上注释，把 maopao / xuanze / kuaisu 改为 bubble_sort / select_sort / quick_sort，把 b、c 改为 data、work，并把重复次数 3 与随机上界 100000 提取为具名常量",
+      "在第 8 节把\"快排递归下标算错\"的排查过程补具体：说明是运行时报错还是结果异常、如何定位到递归边界、改动前后分别测了什么规模"
+    ],
+    "tone": "encouraging"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "agent": "parser",
+      "inputSummary": "sample-10.md《实验报告：冒泡排序、选择排序与快速排序的性能对比》，Markdown 全文 131 行，含 1 个 C 代码块、1 张数据表、3 处图片引用",
+      "outputSummary": "切分 9 个二级标题（含参考文献）、1 个 ```c 代码块（约 55 行、4 个函数）、1 张表、3 处图引用；正文约 1200 字",
+      "confidence": 0.94,
+      "note": "图片均为占位路径（figures/ds-10-figN.png），图类证据只能依据图题与正文引用判定，无法核验图中数据可辨识性"
+    },
+    {
+      "step": 2,
+      "agent": "evidence",
+      "inputSummary": "章节树 + Rubric v1.0.0 的 12 个评分点及各点 evidenceRequirement",
+      "outputSummary": "产出 24 条证据：text 11 条、code 8 条、table 2 条、figure 3 条；每条 quote 由脚本从报告原文按行区间直接切取，避免转录失真",
+      "confidence": 0.87,
+      "note": "R7 的图6-1 证据置信度仅 0.72（未被正文点引用）；R10/R12 的证据为主要由代码风格与数据一致性推出的判断，置信度 0.75/0.78"
+    },
+    {
+      "step": 3,
+      "agent": "grader",
+      "inputSummary": "24 条证据 + Rubric v1.0.0 四档标准与扣分梯度；另将第 5 节代码逐字复刻后本地对拍，并对表 6-1 的增长倍数独立复算",
+      "outputSummary": "逐项判定：优秀 3 项（R3/R4/R11）、达标 8 项（R1/R2/R5/R6/R7/R8/R9/R12）、部分达标 1 项（R10）、无未达标；加权总分 81.50",
+      "confidence": 0.83,
+      "note": "R5 因 main 只驱动快排、冒泡/选择两列数据无代码支撑而落达标档；R10（0.75）、R12（0.78）低于 0.80，转交 Reviewer"
+    },
+    {
+      "step": 4,
+      "agent": "reviewer",
+      "inputSummary": "R10、R12 两项低置信度判定及其证据原文（第 5 节两个代码块全量、第 4 节步骤 4、表 6-1）",
+      "outputSummary": "维持 12 项档位与得分；R10 置信度 0.75→0.79、R12 0.78→0.84，整体置信度 0.83→0.84；新增 2 条复核记录（均 changed=false）",
+      "confidence": 0.84,
+      "note": "R10 复核后仍低于 0.80，建议界面标注\"待教师人工确认\"；R5 的 main 缺陷确认后归入评语首要改进项"
+    },
+    {
+      "step": 5,
+      "agent": "feedback",
+      "inputSummary": "12 项评分明细、2 条复核记录、24 条证据摘要与本地对拍/复算结论",
+      "outputSummary": "生成总体评价 1 段、亮点 4 条、改进建议 5 条，语气为鼓励式；改进建议逐条锚定到第 5 节 main、第 7 节分析、第 8 节两个问题与具体函数名/变量名",
+      "confidence": 0.88,
+      "note": "改进建议给出可替换的代码范围（把三次计时循环扩展为三算法各计时一次）与复算后的具体倍数，避免泛泛而谈"
+    }
+  ],
+  "provenance": {
+    "generatorAgent": "LearnBuddy AutoGrader 评阅流水线",
+    "generatedAt": "2026-09-20T06:44:34+08:00",
+    "sourceConversationId": "wave3-grading-C",
+    "resultFingerprint": "sha256:9ecd7ad7e218d78625e9a5f2418c1fee67822b7659e51d44a39e469bb4242fe1",
+    "schemaVersion": "1.0.0"
+  },
+  "totalScore": 81.5
+}

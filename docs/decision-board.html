@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoGrader 交付形态与技术栈决策看板</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #F7F7F5; color: #1F1F1D; line-height: 1.65; padding: 40px 20px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  header { margin-bottom: 36px; padding-bottom: 24px; border-bottom: 1px solid #E3E2DD; }
+  h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
+  .sub { font-size: 14px; color: #6B6A65; margin-top: 8px; }
+  .verdict {
+    margin-top: 18px; background: #EEEDFE; border-left: 3px solid #534AB7;
+    padding: 14px 18px; border-radius: 0 8px 8px 0; font-size: 14px; color: #26215C;
+  }
+  .verdict strong { font-weight: 600; }
+  section { margin-bottom: 40px; }
+  h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .h2sub { font-size: 13px; color: #6B6A65; margin-bottom: 18px; }
+  .grid { display: grid; gap: 12px; }
+  .g2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .g4 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .card { background: #fff; border: 1px solid #E9E8E3; border-radius: 10px; padding: 14px 16px; }
+  .card .k { font-size: 12px; color: #888780; margin-bottom: 4px; }
+  .card .v { font-size: 14px; }
+  .card.warn { background: #FCEBEB; border-color: #F7C1C1; }
+  .card.warn .v { color: #791F1F; }
+  .quote { font-size: 13px; color: #5F5E5A; font-style: italic; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #E9E8E3; border-radius: 10px; overflow: hidden; font-size: 13px; }
+  th { text-align: left; background: #F1EFE8; font-weight: 600; padding: 10px 14px; }
+  td { padding: 10px 14px; border-top: 1px solid #EFEEE9; vertical-align: top; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+  .t-keep { background: #E1F5EE; color: #0F6E56; }
+  .t-drop { background: #FCEBEB; color: #A32D2D; }
+  .t-change { background: #FAEEDA; color: #854F0B; }
+  .t-new { background: #E6F1FB; color: #185FA5; }
+  .flow { background: #fff; border: 1px solid #E9E8E3; border-radius: 10px; padding: 20px; }
+  .flowrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .step { padding: 7px 12px; border-radius: 7px; font-size: 12.5px; white-space: nowrap; }
+  .s-a { background: #E1F5EE; color: #0F6E56; }
+  .s-b { background: #EEEDFE; color: #3C3489; }
+  .s-x { background: #FCEBEB; color: #A32D2D; text-decoration: line-through; }
+  .s-n { background: #F1EFE8; color: #5F5E5A; }
+  .arrow { color: #B4B2A9; font-size: 13px; }
+  .flowlabel { font-size: 12px; color: #888780; margin-bottom: 10px; font-weight: 600; }
+  .flow + .flow { margin-top: 14px; }
+  .note { font-size: 12.5px; color: #6B6A65; margin-top: 10px; }
+  ol { padding-left: 20px; font-size: 13.5px; }
+  ol li { margin-bottom: 7px; }
+  .dim { color: #888780; }
+  footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #E3E2DD; font-size: 12px; color: #888780; }
+  code { background: #F1EFE8; padding: 1px 5px; border-radius: 4px; font-size: 12px; font-family: ui-monospace, Menlo, monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>AutoGrader · 交付形态与技术栈决策看板</h1>
+  <div class="sub">AI Coding 创新大赛 · 高校教与学场景 · 创意验证阶段</div>
+  <div class="verdict">
+    <strong>核心结论：</strong>赛事规则与你的技术设想之间存在结构性冲突。你设想的是「实时 AI Web 应用」，但规则只允许「AI 推理在 LearnBuddy 侧、Web 端确定性呈现」的混合形态。建议采用<strong>双形态交付</strong>：LearnBuddy 专家智能体（能力本体）+ 纯静态 Next.js Demo（产品形态），用一份评阅结果 JSON 契约耦合。
+  </div>
+</header>
+
+<section>
+  <h2>一、规则约束提取</h2>
+  <div class="h2sub">来自赛事答疑记录，每条都直接决定架构走向</div>
+  <div class="grid g2">
+    <div class="card warn"><div class="k">约束 1 · 载体</div><div class="v">以 LearnBuddy 为载体，最终效果呈现<strong>最好不要包含第三方 AI</strong></div></div>
+    <div class="card warn"><div class="k">约束 2 · 接口</div><div class="v">平台<strong>没有开放给网页用的 API</strong>，前端无法运行时调 AI</div></div>
+    <div class="card"><div class="k">约束 3 · 环境</div><div class="v">初赛提交 demo 即可，<strong>不用部署到正式环境</strong></div></div>
+    <div class="card warn"><div class="k">约束 4 · 交付</div><div class="v">须部署至浏览器环境，<strong>提供可直接访问的在线链接</strong></div></div>
+    <div class="card"><div class="k">约束 5 · 代码</div><div class="v">须提交<strong>完整源代码仓库</strong>（GitHub / Gitee）</div></div>
+    <div class="card warn"><div class="k">约束 6 · 证据</div><div class="v">须提交 <strong>LearnBuddy 历史对话记录</strong>作为评审参考</div></div>
+    <div class="card"><div class="k">约束 7 · 时效</div><div class="v">赛前壳子不可复用，要<strong>比赛开始后</strong>的对话记录</div></div>
+    <div class="card"><div class="k">约束 8 · 形态</div><div class="v">智能体可以是 <strong>web demo，也可以是专家智能体</strong></div></div>
+  </div>
+</section>
+
+<section>
+  <h2>二、范式切换：Runtime AI → Compile-time AI</h2>
+  <div class="h2sub">把 AI 推理从「用户打开网页的那一刻」前移到「开发时在 LearnBuddy 对话中」</div>
+  <div class="flow">
+    <div class="flowlabel">原设想 · Runtime AI（违规）</div>
+    <div class="flowrow">
+      <span class="step s-n">用户上传</span><span class="arrow">→</span>
+      <span class="step s-n">浏览器</span><span class="arrow">→</span>
+      <span class="step s-x">FastAPI</span><span class="arrow">→</span>
+      <span class="step s-x">LangGraph</span><span class="arrow">→</span>
+      <span class="step s-x">第三方 LLM</span><span class="arrow">→</span>
+      <span class="step s-x">PostgreSQL</span><span class="arrow">→</span>
+      <span class="step s-n">返回</span>
+    </div>
+    <div class="note">红色删除线部分同时违反约束 1（第三方 AI）、约束 2（无 API）、约束 3（无需正式环境）</div>
+  </div>
+  <div class="flow">
+    <div class="flowlabel">修订后 · Compile-time AI（推荐）</div>
+    <div class="flowrow">
+      <span class="step s-b">开发时：LearnBuddy 对话上传报告</span><span class="arrow">→</span>
+      <span class="step s-b">五 Agent 流水线推理</span><span class="arrow">→</span>
+      <span class="step s-a">产出评阅 JSON</span><span class="arrow">→</span>
+      <span class="step s-a">提交进仓库</span>
+    </div>
+    <div class="flowrow" style="margin-top:10px">
+      <span class="step s-b">运行时：浏览器</span><span class="arrow">→</span>
+      <span class="step s-a">读仓库内 JSON</span><span class="arrow">→</span>
+      <span class="step s-a">确定性渲染 + 前端规则核查</span><span class="arrow">→</span>
+      <span class="step s-a">展示</span>
+    </div>
+    <div class="note">运行时零 AI 调用、零后端。附带收益：结果可复现、可审计、可做一致性评测</div>
+  </div>
+</section>
+
+<section>
+  <h2>三、双形态交付</h2>
+  <div class="h2sub">约束 8 明确两条路都合规，那就两条都走，互为佐证</div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="k">形态 A · 能力本体</div>
+      <div class="v"><strong>LearnBuddy「实验报告评阅专家」</strong><br>
+      · 用专家分身能力构建，注入评分方法论<br>
+      · 师生可直接对话，上传报告获得真实评阅<br>
+      · 产出：对话记录（评审主证据）</div>
+    </div>
+    <div class="card">
+      <div class="k">形态 B · 产品形态</div>
+      <div class="v"><strong>纯静态 Next.js Web Demo</strong><br>
+      · 完整体验：上传→解析→逐项核查→复核→评语<br>
+      · 数据来源：形态 A 生成的评阅 JSON 资产<br>
+      · 产出：在线 URL + 源码仓库</div>
+    </div>
+  </div>
+  <div class="note">耦合点 = 一份 Zod schema 定义的 <code>ReviewResult</code> 契约，同时约束：LearnBuddy 输出格式、前端类型、仓库 JSON 资产。</div>
+</section>
+
+<section>
+  <h2>四、技术栈逐项修订</h2>
+  <div class="h2sub">保留 3 项 · 改造 3 项 · 移除 4 项 · 新增 3 项</div>
+  <table>
+    <thead><tr><th style="width:24%">原设想</th><th style="width:10%">结论</th><th style="width:32%">修订</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>Next.js + React + TS</td><td><span class="tag t-keep">保留</span></td><td>改为 <code>output: 'export'</code> 静态导出</td><td>去掉 SSR / Server Action 依赖，产物可直接静态托管</td></tr>
+      <tr><td>Tailwind + shadcn/ui</td><td><span class="tag t-keep">保留</span></td><td>不变</td><td>展示层核心，AI 生成质量最高、最易出效果</td></tr>
+      <tr><td>Vercel</td><td><span class="tag t-keep">保留</span></td><td>静态托管；备用内置静态部署一键拿链接</td><td>两条路都能拿到可访问 URL</td></tr>
+      <tr><td>FastAPI</td><td><span class="tag t-drop">移除</span></td><td>降级为离线批处理脚本（可选，不部署）</td><td>初赛无需正式环境；避免第三方 AI 嫌疑</td></tr>
+      <tr><td>PostgreSQL</td><td><span class="tag t-drop">移除</span></td><td>静态 JSON 数据层 + Zod schema</td><td>无持久化、无多用户、无写入需求，JSON 即数据库</td></tr>
+      <tr><td>Supabase Storage / S3</td><td><span class="tag t-drop">移除</span></td><td><code>frontend/public/samples/</code> 静态资源</td><td>样例随仓库分发，零外部依赖、零密钥</td></tr>
+      <tr><td>Render / Railway</td><td><span class="tag t-drop">移除</span></td><td>不需要</td><td>无后端可跑，冷启动慢、配置成本高</td></tr>
+      <tr><td>LangGraph / Agent Workflow</td><td><span class="tag t-change">改造</span></td><td>LearnBuddy Skill + 多 Agent 对话编排；前端用 TS 状态机可视化</td><td>Workflow 的执行者是 LearnBuddy，不是 Python 进程</td></tr>
+      <tr><td>PyMuPDF + python-docx</td><td><span class="tag t-change">改造</span></td><td>① LearnBuddy 原生多模态解析（主）<br>② 浏览器端 pdf.js + mammoth.js（辅）</td><td>服务端无 Python 运行时；前端解析让"上传新报告"有真实反应</td></tr>
+      <tr><td><code>backend/agents/*.py</code></td><td><span class="tag t-change">改造</span></td><td>改为 <code>*.md</code> prompt 规格 / Skill</td><td>保留 .py 会让评委误以为后端调了模型，增加违规嫌疑</td></tr>
+      <tr><td>—</td><td><span class="tag t-new">新增</span></td><td><code>/eval</code> 一致性评测页</td><td>AI vs 教师金标准：逐项命中率、MAE、Kappa。回应"AI 评阅可不可信"，最高性价比的一页</td></tr>
+      <tr><td>—</td><td><span class="tag t-new">新增</span></td><td><code>/trace</code> 工作流溯源页</td><td>展示章节树、证据原文、复核意见与置信度变化，回应"AI 是不是黑箱"</td></tr>
+      <tr><td>—</td><td><span class="tag t-new">新增</span></td><td><code>lib/inspectors/</code> 浏览器端确定性核查器</td><td>章节完整性、指定 API 调用检测、字数/截图统计、SimHash 查重——非 AI 但真实运行，补上静态 Demo 的真实感</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>五、风险与对策</h2>
+  <div class="grid g2">
+    <div class="card"><div class="k">高 · 对话记录太薄</div><div class="v">一份报告一个对话，每个 Agent 单独成对话，迭代过程保留不删</div></div>
+    <div class="card"><div class="k">高 · 被质疑"假 AI"</div><div class="v">页面标注生成时间、来源智能体、结果指纹；提供 JSON 下载；README 附对话记录索引</div></div>
+    <div class="card"><div class="k">高 · 残留第三方 AI 依赖</div><div class="v">依赖白名单检查：禁止 <code>openai</code> / <code>anthropic</code> / <code>langchain-*</code> 进入依赖清单</div></div>
+    <div class="card"><div class="k">中 · 赛前骨架复用</div><div class="v">当前仓库除 README 外全为 0 字节空文件，风险低；赛程开始后用对话重新生成 README 与全部代码</div></div>
+    <div class="card"><div class="k">中 · 样例隐私</div><div class="v">全部使用合成 / 脱敏数据，README 声明数据来源</div></div>
+    <div class="card"><div class="k">低 · 首屏加载慢</div><div class="v">单份 PDF 控制在 3MB 内，报告原件懒加载</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>六、下一步（按优先级）</h2>
+  <ol>
+    <li><strong>确认比赛正式开始时间</strong> — 决定现有骨架是否需要整体重生成</li>
+    <li><strong>锁定 ReviewResult 契约</strong>（Zod schema）— 后续所有工作的枢纽，先做这个</li>
+    <li><strong>设计 Rubric 模板</strong>（8–12 个评分点）— 与专家分身多轮打磨</li>
+    <li><strong>构建 10–20 份脱敏样例 + 金标准</strong> — 一致性评测的基准</li>
+    <li><strong>构建「评阅专家」专家分身</strong> — 形态 A 落地</li>
+    <li><strong>开发前端四页</strong> — 形态 B 落地</li>
+    <li><strong>部署 + 推仓库 + 写 README</strong> — 交付</li>
+  </ol>
+  <div class="note">决赛演进路径：初赛保持轻量；若晋级需要真实部署，再按需加回 FastAPI（编排层）、PostgreSQL、Supabase Storage，LangGraph 只做流程编排、模型能力仍走平台。</div>
+</section>
+
+<footer>
+  AutoGrader · 创意验证阶段决策看板 · 配套文档：<code>docs/learnbuddy-usage.md</code>（任务一）、<code>docs/deliverable-strategy.md</code>（任务二）
+</footer>
+
+</div>
+</body>
+</html>

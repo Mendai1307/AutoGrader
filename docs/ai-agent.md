@@ -197,5 +197,6 @@ steps[i].confidence                     各环节自身的交付质量（ReviewS
 ```
 
 `/trace` 页面用 `_example.json` 展开一条完整的溯源链样例；
-`/report/[id]` 页面展示单份结果的逐项证据、复核记录与溯源信息。
+`/report/[id]` 页面展示单份结果的逐项证据、复核记录、溯源信息，以及构建期的**分数自证**
+（`verifyItemScore()` 单项档位复算 + `verifyTotalScore()` 总分口径复算）。
 **当前前端只展示 `resultFingerprint`，未实现契约中建议的"一键复算指纹"**（详见 [`testing.md`](testing.md) 第五节）。

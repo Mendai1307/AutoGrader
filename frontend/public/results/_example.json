@@ -413,9 +413,8 @@
   "provenance": {
     "generatorAgent": "learnbuddy://expert/autograder-reviewer",
     "generatedAt": "2026-09-20T10:24:36+08:00",
-    "sourceConversationId": "conv_2026-09-20_os-lab3_review",
-    "sourceTurnId": "turn_0142",
-    "resultFingerprint": "sha256:b8adcbb37f43cbb0801ebd336fbc07dedc177726c7b27b94baea374c22390b77",
+    "sourceConversationId": "conversations/README.md#契约示例",
+    "resultFingerprint": "sha256:71a6493b12f7c3d4e90d7667009d5cc37bb0d0f672cf585f3b96488362b4472b",
     "schemaVersion": "1.0.0"
   }
 }

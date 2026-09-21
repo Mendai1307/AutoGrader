@@ -1022,8 +1022,9 @@
   "provenance": {
     "generatorAgent": "LearnBuddy AutoGrader 评阅流水线",
     "generatedAt": "2026-09-20T06:38:17+08:00",
-    "sourceConversationId": "wave3-grading-B",
-    "resultFingerprint": "sha256:1553a7b032c162e4d6f43b8a4f04bd262393e694082ec3b0c0065645affe16e6",
-    "schemaVersion": "1.0.0"
+    "sourceConversationId": "conversations/03-评阅生产与一致性评测.md#批次B",
+    "resultFingerprint": "sha256:52ccb903d64115723ef1da9befa51b921131eab94455ca5f28033cf4b8df7b11",
+    "schemaVersion": "1.0.0",
+    "sourceTurnId": "wave3-grading-B"
   }
 }

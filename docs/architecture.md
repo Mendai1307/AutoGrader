@@ -28,16 +28,19 @@
 ┌─ 构建期（next build，只做确定性校验与渲染）─────────────────────────────┐
 │  frontend/lib/data.ts   用 node:fs 读 demo/ 与 public/results/          │
 │         ↓               并用 zod 校验每份结果（不合契约即拒绝渲染）       │
+│  同时调用 lib/inspectors/ 做客观核查、调用 schema.ts 做分数自证复算，      │
+│  结果一并固化进 HTML                                                     │
+│         ↓                                                                │
 │  frontend/app/*         生成静态 HTML                                   │
 │         ↓                                                                │
 │  frontend/out/          ← 唯一部署单元（实测 70 个文件 / 33 个目录）      │
 └──────────────────────────────┬──────────────────────────────────────────┘
-                               │ 静态托管
+                               │ 静态托管（GitHub Actions 自动发布，见 3.7 节）
                                ▼
 ┌─ 运行时（浏览器里，零 AI / 零后端 / 零数据库）──────────────────────────┐
 │  静态 HTML + 同源 CSS/JS/JSON → 确定性渲染                               │
-│  （frontend/lib/inspectors/ 是已实现、但当前未被任何页面引用的核查器 ——    │
-│    见第五节，此处如实标注，不作为"已上线能力"宣称）                       │
+│  （客观核查面板与分数自证结果都已在构建期算好并写进 HTML，               │
+│    运行时只做展示，不发起任何请求、不做任何计算）                         │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -105,8 +108,8 @@
 |---|---|
 | `validateReviewResult(input)` | 唯一校验入口，返回 `{ ok: true, data }` 或 `{ ok: false, issues }` |
 | `computeWeightedTotal(scores)` | 总分口径：`round2(Σ(score_i / maxScore_i × weight_i))` |
-| `verifyTotalScore(result)` | 核查声明总分与复算值（容差 0.01） |
-| `verifyItemScore(item)` | 核查单项 `score ≈ maxScore × levelScoreRatio` |
+| `verifyTotalScore(result)` | 核查声明总分与复算值（容差 0.01）；由 `/report/[id]` 的「口径复算」调用 |
+| `verifyItemScore(item)` | 核查单项 `score ≈ maxScore × levelScoreRatio`；由 `/report/[id]` 的「单项档位自证」调用 |
 | `computeItemScore(maxScore, ratio)` | 由档位系数算应得分 |
 | `gradeConfidence(c)` / `needsReviewByConfidence(c)` | 置信度分级（`≥0.80` 高 / `≥0.60` 中 / 其余低）与复核触发（`<0.80`） |
 
@@ -120,18 +123,42 @@
 | `/trace` | `app/trace/page.tsx` | 453 | `getContractExample()` 读 `_example.json`，展开一条完整五 Agent 溯源链 + 阈值表 |
 | `/report/[id]` | `app/report/[id]/page.tsx` | 625 | `data.ts`（原文 + 逐项评分 + 复核记录 + 评语）；构建期由 `generateStaticParams` 展开为 12 个静态页 |
 
-`/report/[id]` 未使用 `inspectors`（见第五节）。
+页面另有两处构建期派生区块（详见第五、第六节）：`InspectionPanel`（客观核查）与分数面板里的
+「单项档位自证 / 口径复算」（契约复算）。两处都在构建期算好、随 HTML 固化，运行时不参与计算。
+
+> 上表「行数」为整理时的读数，属参考值；本轮新增了分数自证展示，行数已变动。
 
 ### 3.6 展示层与工具层
 
-- `frontend/components/`：8 个业务组件（`agent-pipeline` / `score-item-card` / `provenance-block` /
-  `markdown-view` / `site-header` / `site-footer` / `stat-card` / `empty-state`）+ `ui/` 下 7 个基础组件
-  （`badge` / `button` / `card` / `progress` / `separator` / `table` / `tabs`）。
+- `frontend/components/`：9 个业务组件（`agent-pipeline` / `score-item-card` / `provenance-block` /
+  `inspection-panel` / `markdown-view` / `site-header` / `site-footer` / `stat-card` / `empty-state`）
+  + `ui/` 下 7 个基础组件（`badge` / `button` / `card` / `progress` / `separator` / `table` / `tabs`；
+  其中 `separator.tsx` 当前未被任何文件引用，删除动作被本机删除守卫拦截，故保留并在文件头标注）。
 - `frontend/lib/constants.ts`：**仅承载展示用的中文名与配色**，口径类常量一律以 `schema.ts` 为准。
 - `frontend/lib/analysis.ts`：评测计算纯函数（MAE = `(1/N)Σ|AI_i − 金标准_i|`、逐项档位命中率、分布统计）。
 - `frontend/lib/utils.ts`：格式化（`formatScore` / `formatDelta` / `formatNumber`）与 `cn`。
 - `frontend/next.config.mjs`：`output: 'export'`、`images.unoptimized: true`、`basePath`/`assetPrefix` 默认 `/AutoGrader`、
   `trailingSlash: true`（每路由输出 `<route>/index.html`）。
+
+### 3.7 部署链路（GitHub Actions 自动发布）
+
+| 项 | 内容 |
+|---|---|
+| 工作流 | `.github/workflows/deploy.yml` |
+| 触发 | `push` 到 `main`；`workflow_dispatch` 手动触发 |
+| 步骤 | `checkout`（**完整仓库**，含根 `demo/`）→ Node 22 + npm 缓存 → `npm ci`（`working-directory: frontend`）→ `npm run build`（注入 `NEXT_PUBLIC_BASE_PATH=/AutoGrader`）→ `configure-pages` → `upload-pages-artifact`（`path: frontend/out`）→ `deploy-pages` |
+| 权限 / 并发 | `contents: read` `pages: write` `id-token: write`；`group: pages` + `cancel-in-progress: true` |
+| 线上状态 | <https://mendai1307.github.io/AutoGrader/> 返回 HTTP 200（2026-09-21 实测） |
+
+两个易踩的点，工作流文件内已注明：
+
+1. 构建步骤**必须**以 `working-directory: frontend` 运行 —— `data.ts` 的 `findDemoDir()`
+   按 `cwd/../demo` 解析数据源，这也是 `checkout` 必须是完整仓库的原因（`demo/` 在仓库根）。
+2. `NEXT_PUBLIC_BASE_PATH` **显式注入**，不依赖 `next.config.mjs` 的默认值，
+   避免默认值被改动后产出错误资源前缀、导致线上白屏。
+
+`frontend/public/.nojekyll` 随产物一同发布，用于关闭 GitHub Pages 的 Jekyll 处理，
+确保 `_next/` 目录不被吞掉。
 
 ---
 
@@ -169,15 +196,16 @@ CloudBase 兜底 / 本地 `npm run preview`）**指向同一份产物**，故展
 
 **实情（重要）**：
 
-1. **当前没有任何页面 `import` 这个模块**（对 `frontend/app`、`frontend/components`、`frontend/lib`
-   全量检索 `inspectors` 引用，除模块自身外为空）。因此：它是**已实现、未接线**的模块 ——
-   在已部署的静态站里，用户看不到核查器输出，构建产物中也没有核查结论文本。
-2. 它仍是有价值的资产：本次整理在 Node 下**独立运行**了这 8 个模块并复现出 12 份样例的核查发现
+1. **已接线**：核查器由 `lib/data.ts` 的 `getInspection()` / `getSimilarityPairs()` 统一调用，
+   渲染在 `/report/[id]` 的「客观核查」区块（`components/inspection-panel.tsx`）。
+   全部计算发生在**构建期**，结果随 HTML 固化；运行时不计算、不发请求。
+   即：在已部署的静态站里，用户**能**看到核查器输出，构建产物中**有**核查结论文本。
+2. 它仍是有价值的资产：本次整理曾在 Node 下**独立运行**该模块并复现出 12 份样例的核查发现
    （结论见 [`testing.md`](testing.md)），说明其逻辑可执行、结果可复算。
+   接线后这些结论直接出现在页面上，不再需要单独跑脚本。
 3. 它的定位是"**客观事实层**"：不判断代码正确性、不做语义评价、不给出抄袭结论；
    相似度只回答"两篇文本指纹有多接近"，最终结论仍由教师作出。
-4. 若后续要把它接入页面（例如在 `/report/[id]` 增加"客观核查"面板），属于**前端改动**，
-   不影响本架构的其余部分。
+4. **未做**：全量 66 对相似度的矩阵 / 榜单页面。详情页只展示"与该报告最相似的一对"。
 
 ---
 
@@ -218,7 +246,9 @@ backend/
 
   注意「未设置」与「显式置空」语义不同：空串必须能真正清空前缀，否则根路径预览会静默退回
   `/AutoGrader` 并导致根路径 404（这是早期实现用 `||` 回退造成的缺陷，已修复）。
-- 因此部署动作只有一步：**把 `frontend/out/` 作为静态站点发布**。
+- 部署动作只有一步：**把 `frontend/out/` 作为静态站点发布**。主链接这一步已由
+  GitHub Actions 自动化（`.github/workflows/deploy.yml`，见 3.7 节）：`push` 到 `main` 即自动重建并发布，
+  无需人工上传；本地 `npm run preview` 与线上使用同一套 basePath 解析逻辑。
 
 ---
 

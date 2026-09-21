@@ -280,6 +280,13 @@ totalScore = round2( Σ ( score_i / maxScore_i × weight_i ) )
 
 页面侧建议：在报告详情页与 `/trace` 溯源页底部固定展示这四项，并提供**一键复算指纹**与**完整 JSON 下载**。
 
+> 现状（如实标注）：**该建议尚未实现**。前端目前只在 `provenance-block.tsx` 中**展示**已固化的
+> `resultFingerprint`，没有 Web Crypto 复算、也没有 JSON 下载入口。
+> 已在页面上落地的是**构建期**的契约口径自证 —— `/report/[id]` 分数面板的「单项档位自证」
+> 调用 `verifyItemScore()`（核验 `score ≈ maxScore × levelScoreRatio`）、「口径复算」调用
+> `verifyTotalScore()`（核验声明总分与加权公式一致）。这两项证明"分数由档位机械推出"，属构建期复算，
+> **不等同于**浏览器端 Web Crypto 指纹复算。
+
 ---
 
 ## 六、schemaVersion 递增规范

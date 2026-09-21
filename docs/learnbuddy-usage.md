@@ -18,8 +18,9 @@
 这个范式切换是整个项目的地基，详见 `docs/deliverable-strategy.md`。
 
 补充一条风险提示：**"赛前做的壳子和设计计划不可以复用"（李磊答复星树）**。
-当前仓库除 `README.md` 外，所有文件均为 0 字节空占位——实质内容尚未产生，风险很低。
-但仍建议：赛程正式开始后，用 LearnBuddy 重新生成 README 与全部代码，确保每一份产物都能追溯到赛程内的对话记录。
+> 📌 **以下为赛前快照，已过期（保留作决策留痕）**：当时仓库除 `README.md` 外，
+> 所有文件均为 0 字节空占位。**当前仓库已不含任何 0 字节占位文件**：
+> `frontend/`、`demo/`、`docs/`（8 篇均为实写内容）、`backend/agents/`（5 份 `.md` 规格）均为实写内容。
 
 ---
 
@@ -123,7 +124,7 @@
 ### 阶段 3 · Agent 工作流与 Prompt 设计
 - **用法**：把五个 Agent 各自写成一份 prompt 规格（Markdown），再封装成 Skill
 - **产出**：`backend/agents/*.md`（parser / evidence / grader / reviewer / feedback）+ `docs/prompt-design.md`
-- **要点**：`backend/agents/` 下现有 5 个 `.py` 空文件，建议**改为 `.md` prompt 规格**——因为真正的执行者是 LearnBuddy，不是 Python 进程（理由见策略文档）
+- **要点**：当时 `backend/agents/` 下有 5 个 `.py` 空文件，据此判断可**改为 `.md` prompt 规格**——因为真正的执行者是 LearnBuddy，不是 Python 进程（理由见策略文档）。**该判断已落地**：5 份 `.md` 规格已实写，5 个 `.py` 占位文件已删除（见 `docs/architecture.md` 第六节）。
 
 ### 阶段 4 · 前端原型开发
 - **用法**：代码开发模式；先用 Visualizer 出界面草图确认布局，再生成 Next.js + shadcn/ui 代码

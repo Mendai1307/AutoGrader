@@ -10,7 +10,7 @@
 
 ## 一、在线访问
 
-作品即将部署至浏览器环境（未完善），提供以下四条访问路径，按优先级排列：
+作品已部署至浏览器环境，提供以下四条访问路径，按优先级排列：
 
 | 优先级 | 方式 | 地址 |
 |---|---|---|
@@ -22,10 +22,38 @@
 四条路径指向**完全相同的静态产物**（即仓库内 `frontend/out/`），因此展示效果一致。
 提供冗余是为了应对单一平台的服务波动、域名策略变更或网络环境差异。
 
+> **核实说明（2026-09-21 实测）**：主链接与备用链接均返回 **HTTP 200**；
+> **兜底方案（CloudBase）本轮未实测可达性**，仅作为冗余规划保留在此，不作为已上线能力宣称。
+
 > 说明：主链接为 GitHub Pages **项目子路径**站点，因此 `frontend/next.config.mjs`
 > 默认设置 `basePath: '/AutoGrader'` 与 `assetPrefix: '/AutoGrader'`，
 > 即**产物内部的资源地址被固化为 `/AutoGrader/_next/...`**。这一点决定了它必须
 > 挂在子路径下访问（详见下节）。
+
+**主链接状态（实测）**：<https://mendai1307.github.io/AutoGrader/> 返回 **HTTP 200**；
+仓库内已随产物提供 `frontend/public/.nojekyll`，
+用于关闭 GitHub Pages 的 Jekyll 处理、确保 `_next/` 目录正常发布。
+
+### 自动部署（GitHub Actions）
+
+GitHub Pages 的发布不是手工上传，而是由仓库内工作流自动完成：
+
+| 项 | 内容 |
+|---|---|
+| 工作流文件 | [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) |
+| 触发条件 | `push` 到 `main` 分支；另有 `workflow_dispatch` 支持在 Actions 页面手动触发 |
+| 构建环境 | `ubuntu-latest` + Node 22，`working-directory: frontend`，先 `npm ci` 再 `npm run build` |
+| 构建期环境变量 | `NEXT_PUBLIC_BASE_PATH=/AutoGrader` 显式注入，不依赖配置文件默认值 |
+| 发布产物路径 | `frontend/out`（`actions/upload-pages-artifact@v3` 的 `path`），由 `actions/deploy-pages@v4` 发布 |
+| 所需权限 | `contents: read` / `pages: write` / `id-token: write` |
+| 并发策略 | `group: pages`、`cancel-in-progress: true`（新推送取消进行中的旧部署） |
+
+工作流文件内已注明：`frontend/lib/data.ts` 在**构建期**用 `fs` 读取 `cwd/../demo/sample-reports/`，
+因此 `checkout` 必须拉取完整仓库（含仓库根的 `demo/`），且构建步骤固定以 `working-directory: frontend`
+运行，`../demo` 正好指向仓库根 `demo/`。
+
+**这意味着主链接会随 `main` 分支的每次推送自动更新**，无需人工重新发布；本地 `npm run build` 与
+CI 使用同一套 basePath 解析逻辑，故本地预览与线上表现一致。
 
 ### 本地运行
 
@@ -160,15 +188,14 @@ $env:NEXT_PUBLIC_BASE_PATH=''; npm run build; npm run preview
   `class-variance-authority`，**无 `openai` / `anthropic` / `langchain-*` 等第三方 AI 包**
 - `backend/` 目录**不部署、不参与运行时**，`backend/api`、`backend/models`、
   `backend/prompts`、`backend/services` 均为**空目录**，`backend/agents/` 的实际内容如下（如实标注）：
-  - **已新增 5 份 prompt 规格文档**（实写内容，非空）：`parser.md` / `evidence.md` /
+  - **该目录下现有 5 份 prompt 规格文档**（实写内容，非空）：`parser.md` / `evidence.md` /
     `grader.md` / `reviewer.md` / `feedback.md`，逐条描述五个 Agent 的输入、输出、
     判定口径与返工条件。它们是**写给 LearnBuddy 智能体的人类可读规格**，
     **不是可执行代码、不含任何模型调用**；
-  - **原有的 5 个 `.py` 文件仍然存在，且仍为 0 字节空文件**：`parser.py` /
-    `evidence.py` / `grader.py` / `reviewer.py` / `feedback.py`。
-    它们**未被删除**——清理动作被本机环境的删除守卫拦截（需人工授权），
-    因此当前处于「空 `.py` 占位与实写 `.md` 规格并存」的状态。
-    这一点不做美化：`backend/` 下**没有任何可运行代码**；
+  - **该目录下已不再有任何 `.py` 文件**：早前存在的 5 个 0 字节占位文件
+    （`parser.py` / `evidence.py` / `grader.py` / `reviewer.py` / `feedback.py`）
+    已在后续提交中被删除。`ls backend/agents/` 当前只列出上述 5 个 `.md`，
+    **目录内不存在任何可执行代码**；
   - `backend/` **不参与构建、不参与部署**，也不被 `frontend/` 引用（全量检索确认）。
   五 Agent 的真实执行者是 LearnBuddy 智能体，其行为规格记录在同目录的 `.md` 文件、
   [`docs/contract.md`](docs/contract.md) 与 [`docs/ai-agent.md`](docs/ai-agent.md) 中
@@ -182,7 +209,7 @@ $env:NEXT_PUBLIC_BASE_PATH=''; npm run build; npm run preview
 | 层 | 选型 | 说明 |
 |---|---|---|
 | 前端 | Next.js + React + TypeScript | `output: 'export'` 静态导出 |
-| UI | Tailwind CSS + shadcn/ui 风格组件 | `frontend/components/ui/` 下自持 7 个基础组件 |
+| UI | Tailwind CSS + shadcn/ui 风格组件 | `frontend/components/ui/` 下自持 7 个基础组件（`badge` / `button` / `card` / `progress` / `separator` / `table` / `tabs`；其中 `separator.tsx` 当前未被任何文件引用，见第十一节） |
 | 运行时 | 无后端、无数据库 | 评阅结果为静态 JSON 资产 |
 | 数据契约 | Zod（`ReviewResult` schema） | 同时约束 AI 输出、前端类型、JSON 资产 |
 | Agent 编排 | LearnBuddy 多 Agent 对话 + Skills | Parser / Evidence / Grader / Reviewer / Feedback |
@@ -249,6 +276,28 @@ $env:NEXT_PUBLIC_BASE_PATH=''; npm run build; npm run preview
 
 **核查器不做的事**：不做代码正确性判断、不做语义层评价、不判定抄袭。
 相似度只回答"两篇文本的指纹有多接近"，最终结论必须由教师完成。
+
+### 分数自证（契约复算，构建期）
+
+除上述客观核查外，`/report/[id]` 的分数面板还展示一组**契约自证**结果，用于回答
+"页面上显示的分数是不是事后手工填的"。它由 `frontend/lib/schema.ts` 的两个纯函数在**构建期**算出，
+随 HTML 固化（运行时不计算、不发请求）：
+
+| 自证项 | 调用 | 判定 |
+|---|---|---|
+| 单项档位自证 | `verifyItemScore(item)` | 逐项核验 `得分 ≈ 满分 × 档位系数`（容差 0.01）；面板显示 `通过项数 / 总项数` |
+| 总分口径自证（「口径复算」） | `verifyTotalScore(result)` | 核验声明的 `totalScore` 与 `Σ(score_i / maxScore_i × weight_i)` 一致（容差 0.01） |
+
+两项同时成立，即说明页面上每一个分数都是**由档位系数机械推出**的，而非事后填写。
+若任一项不一致，页面会显式列出不一致的评分点 id 并给出提示，不做静默处理。
+
+**实测结果（本轮独立复算）**：对 `frontend/public/results/` 的 12 份真实结果逐项调用上述两个函数 ——
+**144 个评分点（12 × 12）单项自证全部通过，0 项不一致**；**12 / 12 份的总分复算值与声明值一致**。
+因此 12 个详情页当前均显示 `12 / 12`。
+
+**边界（不做美化）**：这是**构建期**的确定性复算，不是浏览器端 Web Crypto 复算。
+`docs/contract.md` 第五节的"浏览器端一键复算 `resultFingerprint`"仍未实现 —— 前端目前只**展示**
+已固化的指纹，读者需在浏览器之外自行复算（见第十一节"模块实现状态总表"）。
 
 ### 12 份样例的核查发现
 
@@ -350,9 +399,9 @@ $env:NEXT_PUBLIC_BASE_PATH=''; npm run build; npm run preview
 7. **发布形态限制**：AI 评阅在 LearnBuddy 对话侧一次性完成并固化为 JSON，
    Web 端**不可重跑推理、无上传入口**，只能浏览既有的 12 份样例评阅链路。
    这是"运行时零 AI 调用"这一架构前提的直接代价。
-8. **`backend/` 仍是占位目录**：`backend/api`、`backend/models`、`backend/services` 为空目录；
-   `backend/agents/` 下五个 `.py` 文件**仍为 0 字节空文件且仍然存在**（清理被本机删除守卫拦截，
-   需人工授权），另有 5 份 `.md` prompt 规格为实写内容。整体上 `backend/` **没有可运行代码**，
+8. **`backend/` 仍是占位目录**：`backend/api`、`backend/models`、`backend/prompts`、`backend/services`
+   为空目录；`backend/agents/` 下只有 5 份实写的 `.md` prompt 规格，**已无任何 `.py` 文件**
+   （早前的 5 个 0 字节占位文件已在后续提交中删除）。整体上 `backend/` **没有可运行代码**，
    不参与构建与部署。**本作品当前不存在任何"离线评阅工作台"的可执行实现。**
 
 ---
@@ -377,6 +426,7 @@ AutoGrader/
 │   │   ├── markdown-view.tsx        #   报告原文渲染
 │   │   ├── site-header.tsx / site-footer.tsx / stat-card.tsx / empty-state.tsx
 │   │   └── ui/                      #   badge / button / card / progress / separator / table / tabs
+│   │                                #   （separator.tsx 当前未被引用，见第十一节）
 │   ├── lib/
 │   │   ├── schema.ts                # ReviewResult 契约（Zod，全系统枢纽）
 │   │   ├── data.ts                  # 构建期数据访问层（仅 Server Component 可引入，含核查/相似度缓存）
@@ -393,10 +443,12 @@ AutoGrader/
 │   │       ├── markdown.ts          #   Markdown 围栏/图片/行扫描基础解析
 │   │       └── types.ts             #   核查器类型定义
 │   ├── public/
-│   │   └── results/                 # 评阅结果 JSON 资产（运行时按约定命名拉取）
+│   │   ├── .nojekyll                # 关闭 GitHub Pages 的 Jekyll 处理（保证 _next/ 正常发布）
+│   │   └── results/                 # 评阅结果 JSON 资产（构建期用 fs 读取，见第十二节）
 │   │       ├── _example.json        #   契约示例
 │   │       └── result-sample-01.json … result-sample-12.json
 │   ├── out/                         # ★ 构建产物，即部署单元（见第十二节）
+│   ├── scripts/serve.mjs            # 零依赖本地预览服务（npm run preview / preview:check）
 │   ├── next.config.mjs              # output:'export' + basePath:/AutoGrader
 │   └── package.json
 ├── demo/                            # 构建期数据源（被 frontend 读取，本身不部署）
@@ -407,8 +459,9 @@ AutoGrader/
 │       ├── manifest.json            #   12 份样例元信息 + 教师金标准分
 │       └── sample-01.md … sample-12.md
 ├── backend/                         # 离线评阅工作台占位（不部署，无可运行代码）
-│   ├── agents/                      #   5 份 .md prompt 规格（实写）+ 5 个 .py（仍为 0 字节，未删除）
+│   ├── agents/                      #   5 份 .md prompt 规格（实写）；已无任何 .py 文件
 │   └── api/ models/ prompts/ services/   #   空目录
+├── .github/workflows/deploy.yml     # GitHub Pages 自动部署（push main / 手动触发，见第一节）
 ├── preview/index.html               # 部署链路验证页
 └── docs/                            # 见第十三节
 ```
@@ -426,7 +479,7 @@ AutoGrader/
 | `/grade` | 评阅工作台 | 12 份样例报告清单与评阅状态；每张卡片含主题、难度档位、教师金标准分、字数 / 代码块 / 截图数与状态徽章 | **已实现** |
 | `/eval` | 一致性评测 | AI 评分 vs 教师金标准逐份对比、MAE、逐项档位命中率、难度档位与分数区间分布 | **已实现** |
 | `/trace` | 工作流溯源 | 以契约示例 `_example.json` 展开一条完整的五 Agent 溯源链样例，并展示复核触发规则与阈值表（< 0.80）、已固化溯源结果计数 | **已实现** |
-| `/report/[id]` | 报告详情 | 单份报告的原文、逐项评分明细（含证据与扣分理由）、复核记录、评语，**以及「客观核查」区块** | **已实现**（核查区块已于本次接线） |
+| `/report/[id]` | 报告详情 | 单份报告的原文、逐项评分明细（含证据与扣分理由）、复核记录、评语，**以及「客观核查」区块与「分数自证」结果** | **已实现**（核查区块与自证均已接线） |
 
 `/report/[id]` 在构建期由 `generateStaticParams` 展开为 **12 个静态子页面**
 （`out/report/sample-01/` … `out/report/sample-12/`）。
@@ -438,16 +491,19 @@ AutoGrader/
 | 模块 | 实现状态 | 说明 |
 |---|---|---|
 | 五个页面（`/`、`/grade`、`/eval`、`/trace`、`/report/[id]`） | **已实现** | 均由构建期静态生成，`out/` 中为真实 HTML |
-| `/report/[id]` 的「客观核查」区块 | **已实现（本次接线）** | 构建期调用 `lib/inspectors/`，结果固化进 HTML；此前为「已实现未接线」 |
+| `/report/[id]` 的「客观核查」区块 | **已实现** | 构建期调用 `lib/data.ts` → `lib/inspectors/`，结果固化进 HTML |
+| `/report/[id]` 的「分数自证」（契约复算） | **已实现** | 构建期调用 `schema.ts` 的 `verifyItemScore()` 与 `verifyTotalScore()`，显示单项通过数 / 总项数与总分口径复算，见第七节 |
 | `frontend/lib/inspectors/`（8 个文件） | **已实现** | 纯函数、确定性；`inspectReport` 与 `pairwiseSimilarities` 已由 `lib/data.ts` 统一调用 |
-| `frontend/lib/data.ts` | **已实现** | 新增 `getInspection()` / `getSimilarityPairs()` / `getTopSimilarity()`，构建期进程内缓存 |
+| `frontend/lib/data.ts` | **已实现** | `getInspection()` / `getSimilarityPairs()` / `getTopSimilarity()`，构建期进程内缓存 |
 | `frontend/lib/inspectors/similarity.ts` 的查重展示 | **已实现** | 详情页展示「与其余 11 份中相似度最高的一对」；**未实现**全量 66 对的矩阵/榜单页面 |
+| `frontend/components/ui/separator.tsx` | **未被引用** | 全量检索确认无任何 import；原计划删除，删除动作被本机删除守卫拦截（`SAFE_DELETE_FAIL_CLOSED`），故保留并在文件头标注 |
 | `backend/agents/*.md`（5 份 prompt 规格） | **已实现** | 实写内容，描述五个 Agent 的输入 / 输出 / 判定口径 / 返工条件 |
-| `backend/agents/*.py`（5 个） | **未实现（仍为 0 字节空文件）** | 清理动作被本机删除守卫拦截、需人工授权，故文件仍在；不含任何代码 |
+| `backend/agents/*.py`（原 5 个 0 字节占位） | **已删除** | 早前提交中删除；`ls backend/agents/` 现只有 5 个 `.md`，目录内无任何可执行代码 |
 | `backend/api`、`backend/models`、`backend/prompts`、`backend/services` | **未实现** | 空目录 |
 | Web 端运行时 AI 调用 / 后端 / 数据库 | **未实现** | 架构上刻意不实现：运行时零 AI、零后端、零数据库 |
-| 浏览器端一键复算结果指纹 | **未实现** | `docs/contract.md` 第五节的页面侧建议，前端当前只展示 `provenance.resultFingerprint` |
-| `docs/` 各文档 | 见第十三节 | 其中 4 篇此前为空文件，已补充为实写内容 |
+| 浏览器端一键复算结果指纹 | **未实现** | `docs/contract.md` 第五节的页面侧建议，前端当前只展示 `provenance.resultFingerprint`；无 Web Crypto 复算、无完整 JSON 下载 |
+| GitHub Pages 自动部署 | **已实现** | `.github/workflows/deploy.yml`：`push main` 或手动触发 → `npm ci && npm run build` → 发布 `frontend/out`，见第一节 |
+| `docs/` 各文档 | 见第十三节 | 8 篇均为实写内容，无 0 字节空文件 |
 
 ---
 
@@ -460,10 +516,21 @@ AutoGrader/
 | 文件总数 | **70** 个 |
 | 目录总数 | **33** 个 |
 | `index.html`（首页） | **79,652** 字节 |
-| 报告详情子页面 | **12** 个（`out/report/sample-01/` … `sample-12/`），单页约 **0.4 – 0.6 MB**（含报告原文、评分明细与客观核查区块） |
+| 报告详情子页面 | **12** 个（`out/report/sample-01/` … `sample-12/`），单页约 **0.4 – 0.6 MB**（含报告原文、评分明细、客观核查区块） |
 | 评测结果 JSON | 13 个文件：12 份评阅结果（`out/results/result-sample-01.json` … `12.json`）+ 1 份契约示例 `_example.json` |
 
-> 上表为**本次「核查器接线」后重新构建**的实测值（接线前同为 70 / 33，页面体量已增大）。
+> 上表为**「核查器接线」后一次重新构建**的实测值（接线前同为 70 / 33，页面体量已增大）。
+> 结果 JSON 之所以出现在 `out/` 下，是 Next.js 把 `public/` 目录整体拷贝进产物的结果 ——
+> 它们是**静态资产副本**，页面**不在运行时拉取**它们（见下）。
+
+**数据来源说明（重要）**：`frontend/public/results/*.json` 由 `frontend/lib/data.ts`
+在**构建期**用 `node:fs` 读取、经 Zod 校验后**渲染进 HTML**；`out/results/` 下的 JSON 副本
+只是 `public/` 的静态拷贝，供人工核对与契约复算下载用，
+**页面渲染不依赖任何运行时 fetch**。这与"运行时零后端、零 AI"的架构前提一致。
+
+> ⚠️ **本轮改动的产物尚未重新构建**：本轮的「分数自证」区块是前端源码改动，
+> 需重新执行 `npm run build`（按约定由另一位工程师统一构建）后才会出现在 `frontend/out/` 与线上站点。
+> 上表数值取自**改动前**的那次构建，文件数 / 目录数不受本次改动影响，报告详情页字节数会小幅增大。
 
 产物顶层结构：
 
@@ -475,7 +542,7 @@ frontend/out/
 ├── eval/               # 一致性评测
 ├── trace/              # 工作流溯源
 ├── report/sample-01/ … sample-12/   # 12 个报告详情页
-├── results/            # 12 份评阅结果 JSON + 契约示例（运行时拉取）
+├── results/            # 结果 JSON 的静态拷贝（构建期已渲染进 HTML，运行时不再拉取）
 └── _next/              # Next.js 静态资源（JS / CSS）
 ```
 
@@ -498,11 +565,17 @@ frontend/out/
 
 > `docs/` 下**已无 0 字节空文件**：8 个文件均为实写内容。
 >
-> 已知滞后：`docs/architecture.md` 与 `docs/testing.md` 中"`lib/inspectors/` **已实现、未接线**"
-> 的表述，写于本次接线之前，**现已过期**——核查器已接入 `/report/[id]`；
-> 另 `docs/decision-board.html`、`docs/deliverable-strategy.md`、`docs/learnbuddy-usage.md`
-> 中"仓库除 README 外全为 0 字节空文件"的赛前描述同样只反映当时的骨架状态。
-> 这三处文档本轮未修改，读数时请以本节与第七节为准。
+> **一致性状态（本轮已核对并修正）**：`docs/architecture.md` 与 `docs/testing.md` 中
+> "`lib/inspectors/` **已实现、未接线**"的过期表述已改为"已接线"（核查器现经 `lib/data.ts`
+> 渲染于 `/report/[id]`）；已无 `.py` 占位文件的表述、`results/` 的构建期读取口径、
+> `components/` 业务组件个数（9 个）、GitHub Actions 部署链路也已同步写实。
+> 另 `docs/learnbuddy-usage.md`、`docs/deliverable-strategy.md`、`docs/decision-board.html` 中
+> "仓库除 README 外全为 0 字节空文件"的赛前描述，均已就地加注为**赛前快照（已过期）**，
+> 不改写其决策留痕性质。
+>
+> 仍未实现、且已在各文档如实标注的能力：**浏览器端一键复算 `resultFingerprint`**（Web Crypto）
+> 与**完整 JSON 下载**；**全量 66 对相似度的矩阵 / 榜单页面**；**回归测试套件**
+> （CI 只做构建与发布，不跑测试）。
 
 ---
 

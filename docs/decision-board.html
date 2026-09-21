@@ -147,7 +147,7 @@
     <tbody>
       <tr><td>Next.js + React + TS</td><td><span class="tag t-keep">保留</span></td><td>改为 <code>output: 'export'</code> 静态导出</td><td>去掉 SSR / Server Action 依赖，产物可直接静态托管</td></tr>
       <tr><td>Tailwind + shadcn/ui</td><td><span class="tag t-keep">保留</span></td><td>不变</td><td>展示层核心，AI 生成质量最高、最易出效果</td></tr>
-      <tr><td>Vercel</td><td><span class="tag t-keep">保留</span></td><td>静态托管；备用内置静态部署一键拿链接</td><td>两条路都能拿到可访问 URL</td></tr>
+      <tr><td>Vercel</td><td><span class="tag t-keep">保留</span></td><td>静态托管；备用内置静态部署一键拿链接<br>（<b>赛后补注</b>：入口可达，但为 SPA 回退式托管、无目录索引 —— 深链与刷新回退首页，且链接生命周期不受本项目控制，故不可替代主链接）</td><td>两条路都能拿到可访问 URL</td></tr>
       <tr><td>FastAPI</td><td><span class="tag t-drop">移除</span></td><td>降级为离线批处理脚本（可选，不部署）</td><td>初赛无需正式环境；避免第三方 AI 嫌疑</td></tr>
       <tr><td>PostgreSQL</td><td><span class="tag t-drop">移除</span></td><td>静态 JSON 数据层 + Zod schema</td><td>无持久化、无多用户、无写入需求，JSON 即数据库</td></tr>
       <tr><td>Supabase Storage / S3</td><td><span class="tag t-drop">移除</span></td><td><code>frontend/public/samples/</code> 静态资源</td><td>样例随仓库分发，零外部依赖、零密钥</td></tr>

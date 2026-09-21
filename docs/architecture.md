@@ -166,12 +166,18 @@
 
 实测：**70 个文件 / 33 个目录**（含 12 个报告详情页与 13 个结果 JSON 拷贝）。
 该目录即"唯一部署单元"，README 第一节列出的四条访问路径（GitHub Pages 主链接 / LearnBuddy 内置部署 /
-CloudBase 兜底 / 本地 `npm run preview`）**指向同一份产物**，故展示效果一致。
+CloudBase 兜底 / 本地 `npm run preview`）**指向同一套页面与同一份评阅产物**
+（差异仅在构建期资源前缀，见下），故展示效果一致。
 
-> ⚠️ **产物自带子路径前缀**：默认构建 `basePath`/`assetPrefix` = `/AutoGrader`，
-> 即产物内部的资源地址被固化为 `/AutoGrader/_next/...`。因此它**必须挂在 `/AutoGrader/` 子路径下访问**，
+> ⚠️ **产物自带子路径前缀（默认构建）**：默认构建 `basePath`/`assetPrefix` = `/AutoGrader`，
+> 即产物内部的资源地址被固化为 `/AutoGrader/_next/...`。因此这份**默认产物**必须挂在 `/AutoGrader/` 子路径下访问，
 > 直接挂到网站根路径（`npx serve frontend/out`）会导致页面能打开但 CSS/JS 全部 404，表现为白屏。
 > 本地预览统一走 `frontend/scripts/serve.mjs`（`npm run preview`），它会自动识别并复刻该前缀。
+
+> 对应地，把 `NEXT_PUBLIC_BASE_PATH` **显式置空**可构建**根路径变体**（资源引用为 `/_next/...`），
+> 适用于根域名托管 —— README 第一节的备用链接即该变体（2026-09-21 实测首页 HTTP 200、资源正常）。
+> 但该内置托管是 **SPA 回退模型、无目录索引**：深链与刷新会回退首页（精确路径可访问），
+> 且沙箱生命周期不受本项目控制，故该入口**仅作演示冗余，不作为可靠兜底**。
 
 构建期校验的副作用（正面）：只要某份结果 JSON 不符合契约，`/report/[id]` 就会渲染契约错误面板而不是评分明细 ——
 因此"构建成功且页面呈现分数"本身就是一次**全量契约校验通过的证据**（详见 [`testing.md`](testing.md)）。

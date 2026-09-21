@@ -1,0 +1,96 @@
+# AutoGrader · GitHub Pages 自动部署工作流
+# ---------------------------------------------------------------------------
+# 目标：推送到 main 后自动「构建纯静态站点 → 发布到 GitHub Pages」，
+#       对外地址 https://mendai1307.github.io/AutoGrader/
+#
+# 背景约束（与项目架构一致，勿轻易改动）：
+#   1. 站点是 Next.js 静态导出（output: 'export'），产物在 frontend/out/；
+#   2. 部署在「项目页」子路径 /AutoGrader 下，因此构建时必须带 basePath/assetPrefix；
+#   3. frontend/lib/data.ts 在【构建期】用 fs 读取 cwd/../demo/sample-reports/，
+#      所以构建前必须保证仓库根的 demo/ 目录存在 —— checkout 会拉取完整仓库，
+#      且 job 步骤固定以 working-directory: frontend 运行，../demo 正好指向仓库根 demo/。
+
+name: Deploy to GitHub Pages
+
+on:
+  # 主分支推送即自动部署：保证比赛主链接始终是最新可用版本
+  push:
+    branches: [main]
+  # 支持在 Actions 页面手动触发，便于排障、补发或复现问题
+  workflow_dispatch:
+
+# 最小权限原则（GitHub Pages 官方部署所需的三个权限，缺一不可）：
+#   contents: read   —— 只读仓库源码
+#   pages: write     —— 允许写入 / 更新 Pages 站点
+#   id-token: write  —— deploy-pages 通过 OIDC 校验部署来源，必需
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 并发控制：同一时刻只跑一个 Pages 部署。
+# 新的推送会取消进行中的旧部署，避免旧的构建结果后发布、覆盖新版本。
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------- 构建
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取完整仓库（含仓库根的 demo/，构建期 data.ts 需要读取）
+      - name: Checkout 源码
+        uses: actions/checkout@v4
+
+      # 安装 Node.js 22，并开启 npm 依赖缓存加速后续构建
+      # cache-dependency-path 指向 frontend 下的 lock 文件（仓库非 npm 根目录）
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # 严格按 lock 文件安装依赖。
+      # 注意：npm ci 要求 package-lock.json 与 package.json 完全同步，
+      #       若二者不同步（例如手改过依赖的版本区间）会直接报错中止。
+      #       出现该情况时的兜底写法：run: npm ci || npm install
+      #       （npm install 会就地修正 lock 与依赖树，保证构建继续）
+      - name: 安装依赖
+        working-directory: frontend
+        run: npm ci
+
+      # 生成静态产物到 frontend/out/。
+      # 显式注入 NEXT_PUBLIC_BASE_PATH，不依赖 next.config.mjs 的默认值，
+      # 防止默认值被改动后产出错误的资源前缀，导致线上页面无样式 / 资源 404。
+      - name: 构建静态站点
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_BASE_PATH: /AutoGrader
+        run: npm run build
+
+      # 注入 Pages 站点元信息（站点 URL、base_path 等），供后续步骤使用
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+
+      # 上传构建产物作为部署用 artifact（路径必须是 frontend/out）
+      - name: 上传构建产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/out
+
+  # ---------------------------------------------------------------- 部署
+  deploy:
+    # 必须在 build 成功之后才部署，避免发布空产物 / 半成品
+    needs: build
+    runs-on: ubuntu-latest
+    # 关联 github-pages 环境，部署完成后该环境会记录并展示站点访问地址
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # 取出上一步上传的 artifact 并发布到 GitHub Pages
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

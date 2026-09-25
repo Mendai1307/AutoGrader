@@ -1,0 +1,355 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "autograder/ReviewResult/1.1.0",
+  "title": "AutoGrader ReviewResult",
+  "description": "AutoGrader 评阅结果契约（冻结版 1.1.0）。基线为 v0.1 Zod 契约，新增字段一律 optional，故 1.0.0 历史资产继续通过。口径说明见 docs/contract.md。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "report",
+    "rubricVersion",
+    "scores",
+    "totalScore",
+    "review",
+    "feedback",
+    "steps",
+    "provenance"
+  ],
+  "properties": {
+    "schemaVersion": { "$ref": "#/$defs/SchemaVersion" },
+    "taskType": {
+      "type": "string",
+      "enum": ["rubric-build", "review", "replay"]
+    },
+    "report": { "$ref": "#/$defs/ReportMeta" },
+    "rubricVersion": { "type": "string", "minLength": 1 },
+    "rubricRef": { "$ref": "#/$defs/RubricRef" },
+    "rubric": { "$ref": "Rubric.schema.json" },
+    "scores": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/ScoreItem" }
+    },
+    "totalScore": { "type": "number", "minimum": 0, "maximum": 100 },
+    "total": { "$ref": "#/$defs/Total" },
+    "review": { "$ref": "#/$defs/ReviewRecord" },
+    "feedback": { "$ref": "#/$defs/ReviewFeedback" },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/ReviewStep" }
+    },
+    "provenance": { "$ref": "#/$defs/ReviewProvenance" },
+    "reviewMeta": { "$ref": "#/$defs/ReviewMeta" },
+    "doubts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Doubt" }
+    },
+    "reviewChecklist": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ChecklistEntry" }
+    },
+    "selfCheck": { "$ref": "#/$defs/SelfCheck" }
+  },
+  "$defs": {
+    "SchemaVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "Confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "ScoreLevel": {
+      "type": "string",
+      "enum": ["excellent", "meeting", "partial", "notMet"]
+    },
+    "NullableString": {
+      "oneOf": [{ "type": "string" }, { "type": "null" }]
+    },
+    "NullableScore": {
+      "oneOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }]
+    },
+    "ReportMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reportId", "title", "course", "studentCode"],
+      "properties": {
+        "reportId": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "course": { "type": "string", "minLength": 1 },
+        "studentCode": { "type": "string", "minLength": 1 }
+      }
+    },
+    "RubricRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "digest"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "minLength": 1 }
+      }
+    },
+    "BlockRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blockId", "anchor", "digest"],
+      "properties": {
+        "blockId": { "type": "string", "minLength": 1 },
+        "anchor": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "minLength": 1 }
+      }
+    },
+    "EvidenceLocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "section": { "type": "string", "minLength": 1 },
+        "lineStart": { "type": "integer", "minimum": 0 },
+        "lineEnd": { "type": "integer", "minimum": 0 },
+        "figureNo": { "type": "string", "minLength": 1 },
+        "tableNo": { "type": "string", "minLength": 1 }
+      }
+    },
+    "Evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "location", "quote", "confidence"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "type": "string",
+          "enum": ["text", "code", "figure", "table"]
+        },
+        "location": { "$ref": "#/$defs/EvidenceLocation" },
+        "quote": { "type": "string", "minLength": 1 },
+        "confidence": { "$ref": "#/$defs/Confidence" },
+        "note": { "type": "string" },
+        "citationValid": { "type": "boolean" },
+        "blockRef": { "$ref": "#/$defs/BlockRef" }
+      }
+    },
+    "ScoreItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rubricItemId",
+        "itemName",
+        "weight",
+        "maxScore",
+        "level",
+        "levelScoreRatio",
+        "score",
+        "deductionReason",
+        "evidence",
+        "confidence",
+        "needsReview"
+      ],
+      "properties": {
+        "rubricItemId": { "type": "string", "minLength": 1 },
+        "itemName": { "type": "string", "minLength": 1 },
+        "weight": { "type": "number", "minimum": 0, "maximum": 100 },
+        "maxScore": { "type": "number", "minimum": 0, "exclusiveMinimum": 0 },
+        "level": { "$ref": "#/$defs/ScoreLevel" },
+        "levelScoreRatio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "score": { "$ref": "#/$defs/NullableScore" },
+        "suggestedScore": { "type": "number", "minimum": 0 },
+        "overriddenByTeacher": { "type": "boolean" },
+        "deductionReason": { "$ref": "#/$defs/NullableString" },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Evidence" }
+        },
+        "confidence": { "$ref": "#/$defs/Confidence" },
+        "needsReview": { "type": "boolean" },
+        "pending": { "type": "boolean" }
+      }
+    },
+    "Total": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "weightIncluded",
+        "weightExcluded",
+        "upperBound",
+        "isPartial",
+        "grade"
+      ],
+      "properties": {
+        "weightIncluded": { "type": "number", "minimum": 0, "maximum": 100 },
+        "weightExcluded": { "type": "number", "minimum": 0, "maximum": 100 },
+        "upperBound": { "type": "number", "minimum": 0 },
+        "isPartial": { "type": "boolean" },
+        "grade": {
+          "oneOf": [{ "$ref": "#/$defs/ScoreLevel" }, { "type": "null" }]
+        }
+      }
+    },
+    "ReviewStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["step", "agent", "inputSummary", "outputSummary", "confidence"],
+      "properties": {
+        "step": { "type": "integer", "minimum": 1 },
+        "agent": {
+          "type": "string",
+          "enum": ["parser", "evidence", "grader", "reviewer", "feedback"]
+        },
+        "inputSummary": { "type": "string", "minLength": 1 },
+        "outputSummary": { "type": "string", "minLength": 1 },
+        "confidence": { "$ref": "#/$defs/Confidence" },
+        "note": { "type": "string" }
+      }
+    },
+    "ReviewFeedback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["overall", "strengths", "improvements", "tone"],
+      "properties": {
+        "overall": { "type": "string", "minLength": 1 },
+        "strengths": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "improvements": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "tone": {
+          "type": "string",
+          "enum": ["encouraging", "neutral", "critical"]
+        }
+      }
+    },
+    "ReviewAdjustment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rubricItemId",
+        "opinion",
+        "confidenceBefore",
+        "confidenceAfter",
+        "scoreBefore",
+        "scoreAfter",
+        "changed"
+      ],
+      "properties": {
+        "rubricItemId": { "type": "string", "minLength": 1 },
+        "opinion": { "type": "string", "minLength": 1 },
+        "confidenceBefore": { "$ref": "#/$defs/Confidence" },
+        "confidenceAfter": { "$ref": "#/$defs/Confidence" },
+        "scoreBefore": { "$ref": "#/$defs/NullableScore" },
+        "scoreAfter": { "$ref": "#/$defs/NullableScore" },
+        "changed": { "type": "boolean" }
+      }
+    },
+    "ReviewRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "triggered",
+        "triggerReason",
+        "opinion",
+        "overallConfidenceBefore",
+        "overallConfidenceAfter",
+        "adjustments"
+      ],
+      "properties": {
+        "triggered": { "type": "boolean" },
+        "triggerReason": { "$ref": "#/$defs/NullableString" },
+        "opinion": { "type": "string", "minLength": 1 },
+        "overallConfidenceBefore": { "$ref": "#/$defs/Confidence" },
+        "overallConfidenceAfter": { "$ref": "#/$defs/Confidence" },
+        "adjustments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ReviewAdjustment" }
+        }
+      }
+    },
+    "ReviewProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generatorAgent",
+        "generatedAt",
+        "sourceConversationId",
+        "resultFingerprint",
+        "schemaVersion"
+      ],
+      "properties": {
+        "generatorAgent": { "type": "string", "minLength": 1 },
+        "generatedAt": { "type": "string", "minLength": 1 },
+        "sourceConversationId": { "type": "string", "minLength": 1 },
+        "sourceTurnId": { "type": "string" },
+        "resultFingerprint": {
+          "type": "string",
+          "pattern": "^(sha256:)?[0-9a-fA-F]{8,128}$"
+        },
+        "schemaVersion": { "$ref": "#/$defs/SchemaVersion" }
+      }
+    },
+    "ReviewMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["teacher-participated", "ai-only"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "confirmed"]
+        }
+      }
+    },
+    "Doubt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rubricItemId", "detail"],
+      "properties": {
+        "rubricItemId": { "type": "string", "minLength": 1 },
+        "detail": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string" }
+      }
+    },
+    "ChecklistEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rubricItemId", "confidence"],
+      "properties": {
+        "rubricItemId": { "type": "string", "minLength": 1 },
+        "confidence": { "$ref": "#/$defs/Confidence" },
+        "rankKey": { "type": "number", "minimum": 0 },
+        "pending": { "type": "boolean" },
+        "note": { "type": "string" }
+      }
+    },
+    "CheckStatus": {
+      "type": "string",
+      "enum": ["pass", "fail", "skipped"]
+    },
+    "SelfCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "recompute", "fingerprint"],
+      "properties": {
+        "schema": { "$ref": "#/$defs/CheckStatus" },
+        "recompute": { "$ref": "#/$defs/CheckStatus" },
+        "fingerprint": { "$ref": "#/$defs/CheckStatus" },
+        "skipped": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "errors": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

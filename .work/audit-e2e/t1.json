@@ -1,0 +1,70 @@
+{
+  "blocks": [
+    {
+      "anchor": "1.1",
+      "blockId": "b00001",
+      "kind": "heading",
+      "page": null,
+      "text": "一、实验原理"
+    },
+    {
+      "anchor": "1.2",
+      "blockId": "b00002",
+      "kind": "text",
+      "page": null,
+      "text": "原理说明，采用 malloc 动态分配。"
+    },
+    {
+      "anchor": "2.1",
+      "blockId": "b00003",
+      "kind": "heading",
+      "page": null,
+      "text": "1.1 设计思路"
+    },
+    {
+      "anchor": "2.2",
+      "blockId": "b00004",
+      "kind": "text",
+      "page": null,
+      "text": "正文。"
+    },
+    {
+      "anchor": "2.3",
+      "blockId": "b00005",
+      "kind": "code",
+      "page": null,
+      "text": "int main(){return 0;}"
+    }
+  ],
+  "failures": [],
+  "sourceFile": {
+    "digest": "sha256:5dbf71222b871825356fce708adf76260be326a006a4a53d4dccf40e8c910d6a",
+    "path": "r.md"
+  },
+  "status": "ok",
+  "structure": [
+    {
+      "children": [
+        {
+          "children": [],
+          "id": "s0002",
+          "level": 2,
+          "title": "1.1 设计思路"
+        }
+      ],
+      "id": "s0001",
+      "level": 1,
+      "title": "一、实验原理"
+    }
+  ],
+  "summary": {
+    "blockCount": 5,
+    "codeBlocks": 1,
+    "codeLines": 1,
+    "figures": 0,
+    "tables": 0,
+    "testCases": 0,
+    "textChars": 37
+  },
+  "tool": "T1"
+}

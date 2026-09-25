@@ -1,0 +1,4 @@
+{"items":[
+ {"pointId":"P1","score":8,"maxScore":10,"weight":60,"pending":false,"confidence":0.9},
+ {"pointId":"P2","score":7,"maxScore":10,"weight":40,"pending":false,"confidence":0.5}
+]}

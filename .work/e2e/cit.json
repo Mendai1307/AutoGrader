@@ -1,0 +1,26 @@
+{
+  "rejected": [
+    {
+      "anchor": "1.1",
+      "pointId": "P1",
+      "reason": "quote-mismatch"
+    },
+    {
+      "anchor": "1.1",
+      "pointId": "P2",
+      "reason": "quote-mismatch"
+    },
+    {
+      "anchor": "9.9",
+      "pointId": "P3",
+      "reason": "anchor-not-found"
+    }
+  ],
+  "resolved": [],
+  "summary": {
+    "rejected": 3,
+    "total": 3,
+    "valid": 0
+  },
+  "tool": "T3"
+}

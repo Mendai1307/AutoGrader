@@ -1,0 +1,112 @@
+{
+  "declaredSummary": {
+    "blockCount": 2,
+    "codeBlocks": 0,
+    "codeLines": 0,
+    "figures": 0,
+    "headings": 0,
+    "tables": 0,
+    "testCases": 0,
+    "textChars": 14
+  },
+  "facts": [
+    {
+      "evidenceAnchor": null,
+      "fact": "该规则未提供可核查参数",
+      "kind": "code",
+      "ruleId": "code.api.required",
+      "source": "default",
+      "value": null
+    },
+    {
+      "evidenceAnchor": null,
+      "fact": "代码块数量 0（要求至少 1）",
+      "kind": "code",
+      "ruleId": "code.blocks.present",
+      "source": "default",
+      "threshold": 1,
+      "value": 0
+    },
+    {
+      "evidenceAnchor": null,
+      "fact": "正文字数 14（要求至少 800）",
+      "kind": "statistics",
+      "ruleId": "statistics.char_count.minChars",
+      "source": "default",
+      "threshold": 800,
+      "value": 14
+    },
+    {
+      "evidenceAnchor": null,
+      "fact": "代码行数 0（要求至少 20）",
+      "kind": "statistics",
+      "ruleId": "statistics.code_lines.minCodeLines",
+      "source": "default",
+      "threshold": 20,
+      "value": 0
+    },
+    {
+      "evidenceAnchor": null,
+      "fact": "图表数量 0（要求至少 1）",
+      "kind": "statistics",
+      "ruleId": "statistics.figure_count.minFigures",
+      "source": "default",
+      "threshold": 1,
+      "value": 0
+    },
+    {
+      "evidenceAnchor": null,
+      "fact": "测试用例数 0（要求至少 0）",
+      "kind": "statistics",
+      "ruleId": "statistics.test_cases.minTestCases",
+      "source": "default",
+      "threshold": 0,
+      "value": 0
+    }
+  ],
+  "notCovered": [
+    "similarity.shingle",
+    "structure.chapter.analysis",
+    "structure.chapter.environment",
+    "structure.chapter.principle",
+    "structure.chapter.results",
+    "structure.chapter.steps",
+    "structure.chapter.summary"
+  ],
+  "notCoveredReasons": {
+    "similarity.shingle": "未提供 --corpus，相似度不适用",
+    "structure.chapter.analysis": "报告 blocks 中不含任何 heading，章节存在性无法判定（T1 未识别到标题，属未解析，不是缺失）",
+    "structure.chapter.environment": "报告 blocks 中不含任何 heading，章节存在性无法判定（T1 未识别到标题，属未解析，不是缺失）",
+    "structure.chapter.principle": "报告 blocks 中不含任何 heading，章节存在性无法判定（T1 未识别到标题，属未解析，不是缺失）",
+    "structure.chapter.results": "报告 blocks 中不含任何 heading，章节存在性无法判定（T1 未识别到标题，属未解析，不是缺失）",
+    "structure.chapter.steps": "报告 blocks 中不含任何 heading，章节存在性无法判定（T1 未识别到标题，属未解析，不是缺失）",
+    "structure.chapter.summary": "报告 blocks 中不含任何 heading，章节存在性无法判定（T1 未识别到标题，属未解析，不是缺失）"
+  },
+  "reportIntegrity": {
+    "blocksSource": {
+      "digest": "sha256:9399f6ab141945f835741646be3c380d05716abfcc4973d68b4f39f4fb2712b6",
+      "path": "flat.txt"
+    },
+    "summaryConsistent": true,
+    "summaryMismatches": []
+  },
+  "rulesetDigest": {
+    "defaultRuleSetId": "autograder.default",
+    "defaultVersion": "1.0.0",
+    "disabled": [],
+    "ruleCount": 13,
+    "rulesetDigest": "sha256:c6d782b4fb3028400a548fdd484f6f0695c59302f3cdaa811cdcced8cc666842",
+    "teacherRuleSetId": null
+  },
+  "stats": {
+    "blockCount": 2,
+    "codeBlocks": 0,
+    "codeLines": 0,
+    "figures": 0,
+    "headings": 0,
+    "tables": 0,
+    "testCases": 0,
+    "textChars": 14
+  },
+  "tool": "T2"
+}

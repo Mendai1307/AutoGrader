@@ -145,6 +145,35 @@ Skills 统一用 T1–T6 编号）、P1-16、P2-17/18/19/22/23、P3-28/29/30/31/
 T4 的 `round2` 是**就地实现**，自测有一项 `round2MatchesContract` 与 `contract/fingerprint.py` 的
 `js_round2` 逐值对齐，防两侧分叉。
 
+## 三之五、docx 修订链路（可复用，2026-09-25 实测通过）
+
+**需求**：对既有 docx 做**成批文字修订**，且要保留原文档的章节层级与表格。
+
+**正解三步**（`tencent-local-office-edit` 技能 + T1）：
+
+1. **docx → markdown**（脚本 `.work/docx2md.py`）：调用 T1 的 `run()` 拿 `blocks`，
+   再用 `structure` 树把 `heading` 块映射回 `#`/`##` 层级，`table` 块还原成 markdown 表。
+   **不要自己写 docx 解析**——T1 已处理 `outlineLvl` / `styles.xml` 两套标题标记，比手写可靠。
+2. **改 markdown**：逐条套用修订要求；用 `Write` 直接产出新版本 md（不要在原 md 上反复 Edit）。
+3. **markdown → docx**（脚本 `.work/make_docx.py`）：
+   `python3 edsdk.py call create_doc` → 取返回里的 `file_id=` →
+   `doc_insert_markdown file_id=<id> idx=0 markdown="file://<绝对路径 md>"` →
+   `save_file file_id=<id> file_path=<目标 docx>`。
+   `markdown` 参数**支持 `file://<绝对路径>`**，避免把整篇长文当调用字符串。
+
+**验证**（脚本 `.work/verify_v11.py`）：新 docx 用 T1 回读，比对「应存在的新表述 / 应清除的旧表述 /
+v1.0 对照组仍在」，再对两版 md 做**逐段差异**（`.work` 里的一次性脚本）确认改动面与预期一致。
+
+**三个坑**：
+
+- `edsdk.py` 在技能目录 `H:\LearnBuddy\...\builtin-skills\tencent-local-office-edit\`，用 `python3` 调；
+  `create_doc` 返回的是**纯文本**（`file_id=xxx, file_path=xxx`），不是 JSON，要正则取。
+- **docx 里的「图」可能是文本框（`wps:wsp` + `w:txbxContent`），不是位图**（`a:blip` 为假时即为此类）。
+  此时它的文字已被 T1 作为正文抽出 → md 里的 `[图片]` 占位是**冗余**的，删掉即可；
+  但**文本框的版面框线不会复刻**，需在 Word 里手工套文本框才还原。
+- 生成后的 docx **不要用 `present_files` 去「打开」**再编辑——会另起实例；
+  该技能约定「已用 `present_files` 打开的文档不要再 `open_file`」。
+
 ## 四、平台侧硬约束（决定 Tools 层封装，2026-09-25 双源取证）
 
 官方明文：「开发者不可自行添加 tools：所有工具权限由系统统一分配」。系统内置工具仅 9 个：

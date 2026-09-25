@@ -1,0 +1,187 @@
+{
+  "$comment": "AutoGrader Expert 打包映射清单 —— 打包层的唯一真源。由 build_expert.py 读取后装配成平台合规专家包。改映射改这里，不要改脚本。",
+  "expertDirName": "autograder-expert",
+  "targetMarketplace": "$WORKBUDDY_CONFIG_DIR/plugins/marketplaces/my-experts/plugins",
+
+  "pluginJson": {
+    "name": "autograder-expert",
+    "version": "1.0.0",
+    "description": "AutoGrader Expert — a LearnBuddy expert that reviews computer-science lab reports point by point against a teacher-defined rubric, with verbatim evidence links, deterministic score arithmetic and a full audit trail.",
+    "author": { "name": "能工智人", "email": "" },
+    "agents": ["./agents/autograder-expert.md"],
+    "expertType": "agent",
+    "agentName": "autograder-expert",
+    "displayName": { "en": "AutoGrader", "zh": "评阅官" },
+    "profession": { "en": "Lab Report Review Expert", "zh": "实验报告评阅专家" },
+    "displayDescription": {
+      "en": "Reviews CS lab reports point by point against the teacher's rubric: verbatim evidence, reproducible scores, and comments grounded in citations.",
+      "zh": "按教师评分标准逐点核查实验报告：证据逐字回链、总分可复算、评语有据可依，全程留痕可审计。"
+    },
+    "avatar": "avatars/expert.png",
+    "categoryId": "10-ProjectQuality",
+    "defaultInitPrompt": {
+      "en": "Review this lab report against my rubric, point by point, with verbatim evidence for every judgement",
+      "zh": "按我的评分标准逐点评阅这份实验报告，每个评分点都要给出逐字原文证据"
+    },
+    "plugin": "autograder-expert",
+    "tags": [
+      { "en": "Lab Report Grading", "zh": "实验报告评阅" },
+      { "en": "Rubric / Scoring Criteria", "zh": "评分量规" },
+      { "en": "Traceable Evidence Chain", "zh": "可追溯证据链" }
+    ],
+    "quickPrompts": [
+      {
+        "en": "Review this lab report against my rubric, point by point, with verbatim evidence for every judgement",
+        "zh": "按我的评分标准逐点评阅这份实验报告，每个评分点都要给出逐字原文证据"
+      },
+      {
+        "en": "Help me turn my grading criteria into a structured rubric: item, weight, max score and four non-overlapping levels",
+        "zh": "把我的评分要求整理成结构化 Rubric：评分点、权重、满分与四档互斥档位"
+      },
+      {
+        "en": "Explain why this item only got that score — replay the recorded evidence, do not re-judge it",
+        "zh": "解释一下这一项为什么只有这个分——只回放当时记录的凭据，不要重新判定"
+      }
+    ]
+  },
+
+  "agent": {
+    "target": "agents/autograder-expert.md",
+    "frontmatter": {
+      "name": "autograder-expert",
+      "description": "计算机专业实验报告评阅专家。当教师要用自己的评分标准（Rubric）评阅实验报告、要逐评分点核查证据与判定、要算加权总分、要生成基于证据的评语、要复核清单或事后解释某一项的分数、或要把评分要求整理成结构化评分标准时激活。面向教师，不面向学生。",
+      "displayName": { "en": "AutoGrader", "zh": "评阅官" },
+      "profession": { "en": "Lab Report Review Expert", "zh": "实验报告评阅专家" },
+      "maxTurns": 80
+    },
+    "source": "agents/agent/SYSTEM_PROMPT.md",
+    "bodyFrom": "## 0 · 身份",
+    "bodyTo": "# 附录"
+  },
+
+  "skillNote": "\n> **打包说明**：本文件由 `build_expert.py` 从仓库源码树映射而来（映射表见专家包 `README.md`）。\n> 文中形如 `../tools/T1-document-parser.md`、`../skills/README.md` 的相对路径指向**仓库源码树**，\n> 包内的对应位置是：工具规格与脚本 → `skills/autograder-tools/`。\n",
+
+  "skills": [
+    {
+      "target": "autograder-task-router",
+      "source": "agents/skills/S0-task-router.md",
+      "frontmatter": {
+        "name": "autograder-task-router",
+        "description": "AutoGrader 的入口路由与缺件判定。当教师提出「建评分标准 / 评阅报告 / 复核已有结果」这类请求、或意图不明需要判定走哪条链路时触发；缺 Rubric 或缺报告时只问不代做。"
+      }
+    },
+    {
+      "target": "autograder-rubric-builder",
+      "source": "agents/skills/S1-rubric-builder.md",
+      "frontmatter": {
+        "name": "autograder-rubric-builder",
+        "description": "教师评分标准（Rubric）的结构化构建与一致性自查。当教师用自然语言描述评分点、要新建或修改评分标准、要检查权重和与档位可判定性时触发；只编码不赋值。"
+      }
+    },
+    {
+      "target": "autograder-report-parser",
+      "source": "agents/skills/S2-report-parser.md",
+      "frontmatter": {
+        "name": "autograder-report-parser",
+        "description": "实验报告的解析与可回链坐标生成。当需要把 docx / pdf / md / txt 报告变成带章节树、代码块、图表位置与逐字原文坐标的结构对象时触发；只读不改，未解析不等于缺失。"
+      }
+    },
+    {
+      "target": "autograder-evidence-grader",
+      "source": "agents/skills/S3-evidence-grader.md",
+      "frontmatter": {
+        "name": "autograder-evidence-grader",
+        "description": "按评分点逐项取证与判定。当需要为每个评分点找到原文证据、给出建议档位与建议分、形成疑点清单时触发；证据必须逐字且经引用校验，无证据不得高置信。"
+      }
+    },
+    {
+      "target": "autograder-score-calculator",
+      "source": "agents/skills/S4-score-calculator.md",
+      "frontmatter": {
+        "name": "autograder-score-calculator",
+        "description": "总分的纯算术计算。当需要按冻结口径算出部分分总分、未计入权重合计（W_r）、上界与等级映射时触发；所有数字必须由确定性计算器产出，不接受口算。"
+      }
+    },
+    {
+      "target": "autograder-contract-assembler",
+      "source": "agents/skills/S5-contract-assembler.md",
+      "frontmatter": {
+        "name": "autograder-contract-assembler",
+        "description": "评阅结果的契约装配与六项自检。当需要把各环节产出装配成合规 ReviewResult、并做 schema / 权重和 / 档位 / 证据 / 总分复算 / 指纹复算六项校验时触发；只校验合规性，不改写判断内容。"
+      }
+    },
+    {
+      "target": "autograder-feedback-writer",
+      "source": "agents/skills/S6-feedback-writer.md",
+      "frontmatter": {
+        "name": "autograder-feedback-writer",
+        "description": "基于证据的评语生成。当需要产出挂回「评分点 + 证据」的可执行评语、且教师参与与不参与两种总分来源要输出同一结构时触发；不生成涉及学术诚信与学生个人情况的表述。"
+      }
+    },
+    {
+      "target": "autograder-review-checklist",
+      "source": "agents/skills/S7-review-checklist.md",
+      "frontmatter": {
+        "name": "autograder-review-checklist",
+        "description": "教师复核清单与事后解释回放。当需要把该由教师看的地方按「低置信 × 高出错代价」排序呈现、或教师事后追问「为什么这项只有 X 分」时触发；只呈现事实，只回放不重判。"
+      }
+    },
+    {
+      "target": "autograder-workflow",
+      "kind": "bundle",
+      "source": "agents/workflow/README.md",
+      "frontmatter": {
+        "name": "autograder-workflow",
+        "description": "五 Agent 评阅流水线的编排规格。当需要按 Parser→Evidence→Grader→Reviewer→Feedback 组织一次评阅、选择单会话分步或多会话分环、或处理某一环失败与重试时触发。"
+      },
+      "references": [
+        { "file": "W1-five-agent-pipeline.md", "source": "agents/workflow/W1-five-agent-pipeline.md" },
+        { "file": "W2-orchestration-modes.md", "source": "agents/workflow/W2-orchestration-modes.md" },
+        { "file": "W3-failure-and-retry.md", "source": "agents/workflow/W3-failure-and-retry.md" }
+      ]
+    },
+    {
+      "target": "autograder-evaluation",
+      "kind": "bundle",
+      "source": "agents/evaluations/README.md",
+      "frontmatter": {
+        "name": "autograder-evaluation",
+        "description": "评测与回归门禁规格。当需要用教师金标准核算一致性指标（总分 MAE、逐项命中率、档位一致率、置信度校准）、或判定新版本指标是否劣化需要回退时触发。"
+      },
+      "references": [{ "file": "metrics.md", "source": "agents/evaluations/metrics.md" }]
+    },
+    {
+      "target": "autograder-tools",
+      "kind": "tools",
+      "source": "agents/tools/README.md",
+      "frontmatter": {
+        "name": "autograder-tools",
+        "description": "确定性工具层（T1–T6）与评测 CLI 的使用规格。当需要解析文档、做客观核查、校验引用忠实度、算总分、校验契约、检索随包资产或跑评测与回归门禁时触发；所有工具以绝对路径经平台内置 Bash 调用。"
+      },
+      "scripts": [
+        { "file": "document_parser.py", "source": "agents/tools/scripts/document_parser.py" },
+        { "file": "rule_inspector.py", "source": "agents/tools/scripts/rule_inspector.py" },
+        { "file": "citation_resolver.py", "source": "agents/tools/scripts/citation_resolver.py" },
+        { "file": "deterministic_calculator.py", "source": "agents/tools/scripts/deterministic_calculator.py" },
+        { "file": "contract_validator.py", "source": "agents/tools/scripts/contract_validator.py" },
+        { "file": "asset_store.py", "source": "agents/tools/scripts/asset_store.py" },
+        { "file": "evaluate.py", "source": "agents/evaluations/scripts/evaluate.py" },
+        { "file": "regression_gate.py", "source": "agents/evaluations/scripts/regression_gate.py" }
+      ],
+      "toolSpecs": [
+        { "file": "T1-document-parser.md", "source": "agents/tools/T1-document-parser.md" },
+        { "file": "T2-rule-inspector.md", "source": "agents/tools/T2-rule-inspector.md" },
+        { "file": "T3-citation-resolver.md", "source": "agents/tools/T3-citation-resolver.md" },
+        { "file": "T4-deterministic-calculator.md", "source": "agents/tools/T4-deterministic-calculator.md" },
+        { "file": "T5-contract-validator.md", "source": "agents/tools/T5-contract-validator.md" },
+        { "file": "T6-asset-store.md", "source": "agents/tools/T6-asset-store.md" }
+      ],
+      "rulesDir": "agents/tools/rules",
+      "$contractDir_note": "契约层在仓库根（不在 expert 目录下），故这里用相对 expert 目录的两级上跳。包内落到 skills/autograder-tools/contract/，与 scripts/ 同级 —— 这正是 T4/T5/评测脚本向上查找 contract/ 时命中的位置。",
+      "contractDir": "../../contract",
+      "assetsDir": "agents/tools/assets"
+    }
+  ],
+
+  "readme": { "source": "packaging/PLUGIN_README.md" }
+}

@@ -63,7 +63,7 @@ S3 的铁律是「证据不得改写、不得拼接、不得用类似表述冒�
 | `resolved[].exactText` | `evidence[].quote` |
 | `resolved[].blockId` | `evidence[].blockRef.blockId` |
 | `resolved[].anchor` | `evidence[].blockRef.anchor` |
-| `resolved[].blockDigest` | `evidence[].blockRef.digest` |
+| `resolved[].blockTextDigest` | `evidence[].blockRef.digest` |
 
 **`rejected[]` 里的项不得进入契约的 `evidence[]`**——坐标无效或引用不忠实的证据必须作废。
 

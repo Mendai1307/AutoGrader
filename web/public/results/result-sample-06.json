@@ -1,0 +1,994 @@
+{
+  "schemaVersion": "1.0.0",
+  "report": {
+    "reportId": "sample-06",
+    "title": "实验报告：基于 TCP 的文件传输程序设计",
+    "course": "计算机网络",
+    "studentCode": "学生F"
+  },
+  "rubricVersion": "1.0.0",
+  "rubric": {
+    "id": "rubric-cs-lab-report-generic",
+    "version": "1.0.0",
+    "title": "高校计算机专业实验报告通用 Rubric（进程线程同步 / Socket 网络编程 / 排序算法性能对比）",
+    "items": [
+      {
+        "id": "R1",
+        "name": "实验目的理解",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text。要求报告「实验目的」章节中明确列出本次实验要验证/实现的 2 条以上目标，且目标动词具体（如「验证信号量对临界区的保护作用」「对比三种排序在 10 万级数据下的耗时」），能与后文实验内容与结论一一对应。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "列出 3 条以上具体目标，覆盖知识目标（要懂什么）与能力目标（要做出什么），且后文每个目标都有对应结果与结论回应",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "列出 2–3 条目标，表述基本清晰，与后文内容大体对应，但个别目标缺少结果回应",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 条笼统目标（如「学习多线程编程」），或目标抄自实验指导书而无个人化表述",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验目的章节，或目的与本次实验主题明显无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "在档位基础上浮动：目标条目数达标但存在 1 条与后文无对应，降一档处理（如优秀降达标）；出现与实验主题无关的目标，每条再扣 0.5 分（最低降至未达标）。"
+      },
+      {
+        "id": "R2",
+        "name": "原理阐述",
+        "weight": 12,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告「实验原理」章节正确阐述核心概念（如临界区与互斥、TCP 三次握手与粘包、排序复杂度与主存访问局部性），术语使用准确，能结合本次实验的关键数据结构或系统调用说明机制；原理中提到的机制须能在后文代码中找到对应实现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "概念定义准确且完整，能说明机制「为什么成立」（如信号量 PV 操作为何能保证互斥、TCP 为何是字节流），并结合代码/数据结构给出具体说明，无科学性错误",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "核心概念表述正确，覆盖了主要机制，但停留在定义复述层面，未深入解释成因或与代码的对应关系偏弱",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅零散提及术语，存在概念混淆（如把进程与线程混为一谈、把互斥与同步混为一谈、错误描述平均/最坏时间复杂度），篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全缺失原理阐述，或阐述存在原则性科学错误（如认为信号量可以解决一切死锁、认为 TCP 天然保证消息边界）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每出现一处科学性错误在档位基础上再扣 2 分，出现原则性错误直接判未达标；原理与实现完全脱节（阐述 A 机制却实现 B）扣 3 分；整段照抄教材且无任何自己的归纳表述扣 1 分。"
+      },
+      {
+        "id": "R3",
+        "name": "实验环境配置",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告给出可复现的环境信息：操作系统与版本、编译器/解释器与版本、关键依赖库或内核头文件版本、编译命令或运行命令；建议以表格或截图形式呈现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "OS、语言/编译器版本、依赖库版本、编译与运行命令四要素齐全，并给出关键版本号（如 gcc 11.4.0、Python 3.11.6、glibc 2.35），他人可据此复现",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "给出了 OS 与主要工具版本，缺少个别次要信息（如未给依赖库版本或未给编译命令），基本可复现",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只写了工具名称而无版本号（如仅写「Ubuntu + gcc」），或只给了一张无法辨识版本信息的截图",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未交代环境信息",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺版本号每处扣 1 分；缺编译/运行命令扣 1 分；版本号与实际代码语法明显矛盾（如写 Python 2 却用 f-string）扣 2 分；仅以截图呈现且图中文字不可辨识，降一档处理。"
+      },
+      {
+        "id": "R4",
+        "name": "实验步骤完整性",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告给出可操作的步骤序列：环境准备 → 代码编写 → 编译/构建 → 运行与参数 → 观察记录 → 结果导出，步骤顺序合理、有编号，关键步骤附命令或截图。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "步骤编号完整且与实验流程一致，覆盖准备、实现、编译、运行、记录、导出六个环节，关键步骤给出具体命令与参数，他人可按步骤复现实验",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "步骤基本完整且顺序合理，覆盖主要环节，但个别环节无命令或参数说明，缺少结果导出/归档环节",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只有粗略的几步（如「写代码→运行」），缺少编译、参数、记录等关键环节，或步骤顺序混乱",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验步骤章节，或步骤与本次实验内容无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个关键环节（编译/运行参数/结果记录）扣 2 分；步骤编号缺失或顺序颠倒扣 1 分；步骤中出现与代码不一致的命令（如源文件名对不上）每处扣 1 分。"
+      },
+      {
+        "id": "R5",
+        "name": "核心代码正确性",
+        "weight": 20,
+        "maxScore": 20,
+        "evidenceRequirement": "证据类型：code、text。要求报告给出核心实现的代码块（带语言标注），代码能完成实验要求的核心功能且逻辑正确：临界区保护无遗漏、套接字收发与关闭正确、排序结果有序且稳定；须关注边界条件（空输入、单元素、并发冲突、连接异常断开）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "核心功能完全正确，边界条件处理完备（如空输入/单元素/连接异常/并发极端情况），无资源泄漏（锁必然释放、fd 必然关闭、内存必然回收），并有错误处理与返回值检查",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "主要功能正确，常规输入下结果正确，但边界条件或异常处理有遗漏（如未检查系统调用返回值、未处理连接断开），不影响主流程",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "代码存在可指出的明确缺陷（如锁的粒度错误、未加锁保护共享变量、recv 返回值未处理导致粘包、排序比较逻辑有误），在部分输入下会产生错误结果",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无核心代码块，或代码无法通过编译/运行，或核心逻辑完全错误（如根本未使用实验要求的机制）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处明确 bug 扣 3 分（资源泄漏每处额外扣 2 分）；代码无法编译直接判未达标；仅贴出运行结果而无代码，判未达标；核心代码与实验要求机制不符（如要求用信号量却用忙等）扣 5 分。"
+      },
+      {
+        "id": "R6",
+        "name": "关键 API / 算法使用",
+        "weight": 10,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code、text。要求报告正确使用了本实验的关键 API 或算法：如 pthread_mutex_lock/unlock、sem_wait/sem_post、socket/bind/listen/accept/send/recv、快排分区与递归、归并合并等；调用参数与惯用法正确，并在正文中说明为何选用该 API/算法。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "关键 API/算法选用恰当且调用惯用法完全正确，参数与返回值处理规范，并说明了选型理由与替代方案对比",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "使用了正确的关键 API/算法，调用基本规范，但未说明选型理由，或个别参数使用不够地道（如未复用地址、未设置超时）",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "使用了实验要求的 API/算法但用法有误（如互斥锁与条件变量配合错误、忘记 setsockopt、递归终止条件写错），或回避了关键 API 而用简化替代实现",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未使用实验要求的关键 API/算法（如要求用 socket 却直接用现成框架、要求实现快排却直接调用库排序且未作说明）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "关键 API 参数错误每处扣 2 分；调用了被废弃/不安全的接口（如 strcpy、gets）每处扣 2 分；使用了库函数但明确说明并对比了自实现版本，不扣分。"
+      },
+      {
+        "id": "R7",
+        "name": "实验结果与截图",
+        "weight": 11,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：figure、table、text。要求报告提供支撑结论的原始结果：终端运行输出截图、程序界面/输出窗口截图、性能数据表格等；每张图须有编号与图题，图题说明该图展示了什么，图中关键数据可辨识，并在正文中被引用（如「如图 3-2 所示」）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "提供 3 张以上结果截图/表格，覆盖主要实验场景（如并发前后对比、多组规模数据），每张有编号与图题，图中关键数据清晰可辨识，且正文逐一引用并解读",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "提供了 2 张左右结果截图，编号与图题基本齐全，能支撑主要结论，但个别场景缺少截图或图中部分数据不可辨识",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 张截图，或截图缺少编号/图题，或截图与实验内容不匹配（如只截了代码编辑界面而无运行结果），不足以支撑结论",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有结果截图或结果数据，结论无证据支撑",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "截图无编号或图题每张扣 1 分；截图未被正文引用每张扣 1 分；截图为伪造/明显与实验无关（如网络图片、仅截代码）判部分达标并扣 3 分；结果数据未以表格呈现导致难以比对，扣 2 分。"
+      },
+      {
+        "id": "R8",
+        "name": "数据分析与讨论",
+        "weight": 13,
+        "maxScore": 15,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告对结果数据做量化分析而非现象罗列：给出具体数值与对比（如加速比、耗时增长率、并发下错误计数差值），解释数据背后的成因（如缓存局部性、锁竞争开销、Nagle 算法影响），并能与理论预期做对照，说明偏差原因。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "给出多组量化数据对比与计算（如加速比、增长率、相对误差），结合原理深入解释成因，明确指出与理论预期的偏差并给出可信解释，讨论有个人见解",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "有量化数据对比与基本解释，能说明主要趋势（如规模增大耗时上升、加锁后吞吐下降），但归因较浅或未与理论值对照",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只罗列现象而无量化分析（如「加了锁之后变慢了」却不给数值），或仅有结论无数据支撑，分析泛泛而谈",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有数据分析与讨论，直接跳到总结",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "数据存在明显矛盾（图表数值与正文描述不一致）每处扣 3 分；仅重复描述截图内容而无分析，降一档；量化样本量过少（仅 1 组数据即下结论）扣 3 分；结论超出数据支持范围（过度外推）扣 2 分。"
+      },
+      {
+        "id": "R9",
+        "name": "问题排查与反思",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告记录实验过程中遇到的真实问题（编译报错、死锁、结果不稳定、性能异常等），给出排查过程与解决办法，并反思方案局限与改进方向；问题须具体可复现，而非泛泛而谈。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "记录 2 个以上具体问题，含现象、定位过程（用了什么手段定位）、根因与解决办法，并给出方案局限与至少 1 条可执行的改进方向",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "记录了 1–2 个问题并给出解决办法，但排查过程描述简略，或反思偏套话、缺乏可执行改进方向",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅笼统提到「遇到了一些困难」而未说明具体问题与解决办法，或只写了反思而无问题记录",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全无问题排查与反思内容",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "问题已提出但未给出解决办法，每个扣 2 分；解决办法与问题不匹配（如把编译错误当成逻辑错误处理）扣 3 分；反思内容空洞套话（如「以后要更加努力」）扣 2 分。"
+      },
+      {
+        "id": "R10",
+        "name": "代码规范",
+        "weight": 5,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code。要求代码块带语言标注，命名有意义且风格统一，缩进一致，关键分支与函数有注释说明意图，无魔法数字（或已定义为常量），无调试残留（printf 调试语句、注释掉的大段代码）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "命名规范统一，缩进与空行一致，关键函数与复杂逻辑有注释说明「为什么」，常量已提取命名，无调试残留，代码块均带语言标注",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体可读，命名与缩进基本规范，但注释偏少或仅描述「做了什么」，存在个别魔法数字或少量调试残留",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "命名随意（a、b、tmp1）或缩进混乱，几乎无注释，代码块缺少语言标注，存在大段注释掉的代码",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "代码以截图形式给出无法复制、或代码完全无法辨认、或未给出任何代码块",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处无意义命名扣 0.5 分；每处调试残留（调试打印、注释掉的整段代码）扣 1 分；代码块缺语言标注每处扣 1 分；代码以图片代替文本直接降一档。"
+      },
+      {
+        "id": "R11",
+        "name": "格式规范",
+        "weight": 3,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、figure、table。要求报告具备完整结构（目的/原理/环境/步骤/代码/结果/分析/总结），标题层级清晰，图表有编号与题注，参考文献（如教材、RFC、官方文档）标注规范，无大面积空白或排版错乱。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "章节结构完整，标题层级清晰，图表编号连续且题注规范，引用标注规范，排版整洁",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "结构基本完整，图表有编号，但存在个别章节缺失、编号不连续或参考文献格式不统一",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "缺少 2 个以上必要章节，或标题层级混乱，图表无编号，篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "结构严重缺失（如只有代码没有正文），或全文无标题层级、无法辨识章节",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个必要章节扣 2 分；图表编号缺失或不连续每处扣 0.5 分；篇幅低于本实验规定下限（如优档 < 1500 字）扣 2 分；复制他人排版模板未改（出现其他实验的残留标题）扣 2 分。"
+      },
+      {
+        "id": "R12",
+        "name": "原创性",
+        "weight": 2,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、code。要求报告体现个人独立完成痕迹：参数选取、测试用例设计、数据表格由本人实验产生，核心代码非整段照抄网络或同学；引用他人代码或资料须注明出处。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "参数与测试用例有个人设计痕迹（如自行设定的并发规模、数据集构造方式），数据与代码一致，引用处均注明出处",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体为独立完成，个别片段参考公开资料但未注明出处，或参数完全照搬实验指导书默认值",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "存在明显照抄痕迹（代码风格与正文描述割裂、数据与他人雷同），但未发现直接复制的整段内容",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "确认存在整段抄袭（代码或正文与他人完全一致且无引用标注）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "发现未标注引用的参考内容每段扣 1 分；数据明显伪造（如性能数据违背基本规律）扣 2 分；确认抄袭直接判未达标并按课程学术规范另行处理，本项不得分。"
+      }
+    ]
+  },
+  "scores": [
+    {
+      "rubricItemId": "R1",
+      "itemName": "实验目的理解",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "列出 3 条目标，覆盖「掌握调用流程与参数含义」（知识）与「实现文件传输并校验长度」「观察缓冲区尺寸对耗时与系统调用次数的影响」（能力），表述基本清晰，与后文实验内容大体对应；但第 1 条「掌握服务端与客户端两侧调用流程与参数含义」在第 6、7 节无对应的结果与结论回应，未达优秀档「每个目标都有对应结果与结论回应」，按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E1",
+          "kind": "text",
+          "location": {
+            "section": "1 实验目的",
+            "lineStart": 12,
+            "lineEnd": 14
+          },
+          "quote": "1. 掌握 TCP 套接字编程中服务端与客户端两侧的调用流程与参数含义。\n2. 实现一个能把本地文件完整传输到对端的程序，并在接收端校验文件长度一致。\n3. 通过改变文件大小与缓冲区尺寸，观察传输耗时的变化，理解缓冲区大小对系统调用次数的影响。",
+          "confidence": 0.86,
+          "note": "目标 2、3 在后文有结果回应（表 6-2 的一致性校验、表 6-1 的缓冲区对比）；目标 1 无专门回应"
+        }
+      ],
+      "confidence": 0.84,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R2",
+      "itemName": "原理阐述",
+      "weight": 12,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "核心概念表述正确：说明了 TCP 不保留消息边界因而必须先发文件名与长度、缓冲区大小决定系统调用次数、send 成功仅代表数据进入内核发送缓冲区，还主动讨论了字节序与 htonl/ntohl 的适用条件。但整体仍停留在定义与结论的复述层面，未深入解释「为何字节流不保留边界」「缓冲区大小如何影响内核/用户态切换开销」等成因，与 5 节代码中单次 recv 读元数据这一做法的对应关系也偏弱，按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E2",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 20,
+            "lineEnd": 20
+          },
+          "quote": "由于 TCP 不保留消息边界，接收端无法从字节流本身判断文件何时结束，因此需要先发送文件名与文件长度，接收端按长度循环接收，收满即认为传输完成。",
+          "confidence": 0.88,
+          "note": "正确说明了定界方案的必要性，但未解释字节流为何不保留边界"
+        },
+        {
+          "id": "E3",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 22,
+            "lineEnd": 22
+          },
+          "quote": "文件长度使用 `long` 直接发送，因为收发两端都在同一台主机上，字节序一致，所以没有出现问题。如果要在不同体系结构的机器之间传输，就必须用 `htonl` 和 `ntohl` 做显式转换。",
+          "confidence": 0.88,
+          "note": "主动交代了未做字节序转换的前提与局限，属正确表述；但该做法在 5 节代码中确实是主机序直发，未见防护"
+        },
+        {
+          "id": "E4",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 24,
+            "lineEnd": 24
+          },
+          "quote": "但这也意味着发送方调用 `send` 返回成功，只表示数据被复制到了内核发送缓冲区，并不代表对端已经收到。",
+          "confidence": 0.87,
+          "note": "对 send 语义的说明准确"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R3",
+      "itemName": "实验环境配置",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "以表格给出了操作系统版本（Ubuntu 22.04.3 LTS）、编译器（gcc 11.4.0）、C 运行库（glibc 2.35）与 CPU 信息，主要工具版本齐全、基本可复现；但全文未给出内核版本、编译命令与运行命令（第 4 节仅写「编译两个程序」），缺少编译/运行命令这一关键要素，未达优秀档四要素齐全的要求，按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E5",
+          "kind": "table",
+          "location": {
+            "section": "3 实验环境",
+            "lineStart": 30,
+            "lineEnd": 34
+          },
+          "quote": "| 操作系统 | Ubuntu 22.04.3 LTS |\n| 编译器 | gcc 11.4.0 |\n| C 运行库 | glibc 2.35 |\n| 网络环境 | 本机回环 127.0.0.1 |\n| CPU | 4 核 8 线程 x86_64 |",
+          "confidence": 0.9,
+          "note": "OS、编译器、运行库三个版本号齐全"
+        },
+        {
+          "id": "E6",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 42,
+            "lineEnd": 42
+          },
+          "quote": "3. 编译两个程序。",
+          "confidence": 0.85,
+          "note": "反向证据：全文未出现 gcc 编译命令与运行参数，如 gcc -o filesrv filesrv.c"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R4",
+      "itemName": "实验步骤完整性",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "6 步编号连续、顺序合理，覆盖编写服务端/客户端、编译、构造测试文件、按两种缓冲区运行、md5 校验等主要环节，测试规模与重复次数（3 次）也有交代；但编译环节无命令、运行环节无参数说明，也缺少结果导出/归档环节（数据直接手抄入表），按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E7",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 43,
+            "lineEnd": 45
+          },
+          "quote": "4. 生成 1 MB / 10 MB / 50 MB 三个测试文件。\n5. 分别以缓冲区 1024 字节与 8192 字节传输，各运行 3 次记录耗时。\n6. 用 `md5sum` 校验收发两端文件是否一致。",
+          "confidence": 0.88,
+          "note": "步骤有编号、有明确测试规模，但通篇无具体命令与参数"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R5",
+      "itemName": "核心代码正确性",
+      "weight": 20,
+      "maxScore": 20,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 16,
+      "deductionReason": "核心功能正确：服务端按「文件名 + 长度 + 内容」协议落盘，数据循环用 while (total < filesize) 配合 want = min(剩余, BUFSIZE) 正确处理了部分读取，实测三个文件的 md5 在收发两端一致（表 6-2），常规输入下结果正确。但异常处理与返回值检查有明显遗漏：socket/bind/listen/accept/connect/recv/send/fopen 全部未检查返回值；文件名与文件长度各只用一次 recv 读取，未循环读取，TCP 拆分时可能错位；接收循环未判断 recv 返回值，对端异常断开返回 0 时会陷入死循环；未设置 SO_REUSEADDR。这些属于「边界条件与异常处理遗漏、不影响主流程」的情形，按达标档（满分 20 × 0.8）计 16 分。",
+      "evidence": [
+        {
+          "id": "E8",
+          "kind": "code",
+          "location": {
+            "section": "5.1 服务端接收逻辑",
+            "lineStart": 80,
+            "lineEnd": 81
+          },
+          "quote": "recv(connfd, name, NAMELEN, 0);",
+          "confidence": 0.9,
+          "note": "元数据（文件名、文件长度）各只调用一次 recv 且未校验返回值，未做循环读取"
+        },
+        {
+          "id": "E9",
+          "kind": "code",
+          "location": {
+            "section": "5.1 服务端接收逻辑",
+            "lineStart": 86,
+            "lineEnd": 92
+          },
+          "quote": "while (total < filesize) {",
+          "confidence": 0.9,
+          "note": "主循环按剩余长度循环接收，可处理部分读；但 recv 返回值 n 未判断 <= 0，对端异常断开时 n = 0 会导致死循环、n = -1 会使 total 倒退"
+        },
+        {
+          "id": "E10",
+          "kind": "code",
+          "location": {
+            "section": "5.1 服务端接收逻辑",
+            "lineStart": 72,
+            "lineEnd": 76
+          },
+          "quote": "bind(listenfd, (struct sockaddr *)&addr, sizeof(addr));",
+          "confidence": 0.9,
+          "note": "socket/bind/listen/accept/connect 返回值均未检查，未设置 SO_REUSEADDR；fopen(name, \"wb\") 未判空，失败时 fwrite 将解引用空指针"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R6",
+      "itemName": "关键 API / 算法使用",
+      "weight": 10,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "采用了正确的关键 API：socket / bind / listen / accept / connect / send / recv 调用序列与参数基本规范，htons / htonl / inet_pton 使用正确，listen 队列长度、文件长度前缀等惯用法无误。但文件长度以主机字节序的 long 直接发送（未用 htonl 转换），且未设置 SO_REUSEADDR，个别参数使用不够地道；虽在原理节说明了字节序前提，但缺少对替代方案的系统对比，未达优秀档，按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E11",
+          "kind": "code",
+          "location": {
+            "section": "5.1 服务端接收逻辑",
+            "lineStart": 70,
+            "lineEnd": 70
+          },
+          "quote": "addr.sin_port = htons(PORT);",
+          "confidence": 0.88,
+          "note": "端口使用 htons 转换，socket 系列调用序列正确"
+        },
+        {
+          "id": "E12",
+          "kind": "code",
+          "location": {
+            "section": "5.2 客户端发送逻辑",
+            "lineStart": 133,
+            "lineEnd": 133
+          },
+          "quote": "send(sockfd, &filesize, sizeof(filesize), 0);",
+          "confidence": 0.88,
+          "note": "长度元数据按主机字节序直发且未做长度校验；原理节已自述该前提，但未给出 htonl 版本对比"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R7",
+      "itemName": "实验结果与截图",
+      "weight": 11,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "提供了 2 张数据表（表 6-1 传输耗时、表 6-2 md5 一致性）与 3 张配图，覆盖主要实验场景，编号与图题基本齐全，能支撑「传输正确、缓冲区变大更快」的结论。但表 6-2 的 md5 以省略号截断（如 6f1d...a2c），收发两端无法逐位比对，图中关键数据辨识度不足；3 张配图原文自述为「示意图」占位，且正文未按图号引用（第 7 节仅用「从表中可以看出」泛指，未写表号），按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E13",
+          "kind": "table",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 151,
+            "lineEnd": 155,
+            "tableNo": "表6-1"
+          },
+          "quote": "| 文件大小 | 缓冲区 1024 B | 缓冲区 8192 B |\n|---:|---:|---:|\n| 1 MB | 0.042 s | 0.021 s |\n| 10 MB | 0.418 s | 0.197 s |\n| 50 MB | 2.153 s | 0.986 s |",
+          "confidence": 0.9,
+          "note": "3 档文件 × 2 种缓冲区的实测耗时，各运行 3 次取平均，数值清晰"
+        },
+        {
+          "id": "E14",
+          "kind": "table",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 159,
+            "lineEnd": 163,
+            "tableNo": "表6-2"
+          },
+          "quote": "| 1 MB | 6f1d...a2c | 6f1d...a2c | 是 |",
+          "confidence": 0.78,
+          "note": "md5 值被省略号截断，只能判断「看起来一致」，无法逐位复核"
+        },
+        {
+          "id": "E15",
+          "kind": "figure",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 165,
+            "lineEnd": 165,
+            "figureNo": "图6-1"
+          },
+          "quote": "![图6-1 服务端接收完成后的输出截图（示意图）](figures/net-06-fig2.png)",
+          "confidence": 0.62,
+          "note": "图6-1～图6-3 均有图号与图题，但原文标注为示意图占位，正文未按图号引用"
+        }
+      ],
+      "confidence": 0.78,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R8",
+      "itemName": "数据分析与讨论",
+      "weight": 13,
+      "maxScore": 15,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 12,
+      "deductionReason": "第 7 节给出了量化对比：1 MB 文件耗时从 0.042 s 降到 0.021 s、50 MB 从 2.153 s 降到 0.986 s（约 2 倍），10 MB 比 1 MB 慢约 10 倍，并说明了「缓冲区越大传输越快」「文件越大耗时越长」两条主要趋势，数据与表 6-1 一致、无矛盾。但归因较浅，停留在「缓冲区大一些传输会快一些」的现象层面，未量化系统调用次数的减少，也未与第 2 节提到的内核态/用户态切换开销及理论预期对照，按达标档（满分 15 × 0.8）计 12 分。",
+      "evidence": [
+        {
+          "id": "E16",
+          "kind": "text",
+          "location": {
+            "section": "7 结果分析",
+            "lineStart": 173,
+            "lineEnd": 173
+          },
+          "quote": "1 MB 文件从 0.042 s 降到 0.021 s，50 MB 文件从 2.153 s 降到 0.986 s，大概快了一倍左右。",
+          "confidence": 0.88,
+          "note": "有具体数值与倍数对比，与表 6-1 一致"
+        },
+        {
+          "id": "E17",
+          "kind": "text",
+          "location": {
+            "section": "7 结果分析",
+            "lineStart": 173,
+            "lineEnd": 173
+          },
+          "quote": "缓冲区大一些传输会快一些。",
+          "confidence": 0.87,
+          "note": "归因停留在现象描述，未解释系统调用次数减少这一机制，也未与理论预期对照"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R9",
+      "itemName": "问题排查与反思",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "第 8 节记录了两个真实问题：接收端文件大小对不上、头文件顺序导致编译报错。但均只给出现象与粗略处理——第一个「看起来是数据没收全，后来调整了接收部分的写法」，未说明用什么手段定位、根因是什么；第二个只写了报错，完全没有解决办法；反思部分（「对 bind、listen、accept 的作用有了比较清楚的认识」）也偏笼统，仅末尾一句提到多客户端版本这一改进方向。整体未达到「含排查过程与根因」的要求，按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E18",
+          "kind": "text",
+          "location": {
+            "section": "8 问题与总结",
+            "lineStart": 177,
+            "lineEnd": 177
+          },
+          "quote": "实验里遇到过传输完成后接收端文件大小对不上的情况，看起来是数据没收全，后来调整了接收部分的写法。",
+          "confidence": 0.85,
+          "note": "有现象与结果，但「看起来」「调整了写法」均无定位手段与根因"
+        },
+        {
+          "id": "E19",
+          "kind": "text",
+          "location": {
+            "section": "8 问题与总结",
+            "lineStart": 177,
+            "lineEnd": 177
+          },
+          "quote": "另外编译的时候头文件顺序不对也报了错。",
+          "confidence": 0.85,
+          "note": "问题已提出但未给出任何解决办法"
+        }
+      ],
+      "confidence": 0.74,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R10",
+      "itemName": "代码规范",
+      "weight": 5,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "两个代码块均带 c 语言标注，缩进一致，服务端命名规范（listenfd / connfd / BUFSIZE / NAMELEN），端口、缓冲区、文件名长度均已提取为具名常量，无调试残留。但客户端使用 a、s、n 等单字母命名，全文注释极少（仅服务端一处行内注释），且存在 listen(listenfd, 5) 这类未命名的队列长度常量，按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E20",
+          "kind": "code",
+          "location": {
+            "section": "5.1 服务端接收逻辑",
+            "lineStart": 60,
+            "lineEnd": 62
+          },
+          "quote": "#define PORT 9000\n#define BUFSIZE 8192\n#define NAMELEN 256",
+          "confidence": 0.9,
+          "note": "常量已提取命名；但 listen(listenfd, 5) 的 5 未命名"
+        },
+        {
+          "id": "E21",
+          "kind": "code",
+          "location": {
+            "section": "5.2 客户端发送逻辑",
+            "lineStart": 116,
+            "lineEnd": 121
+          },
+          "quote": "int sockfd = socket(AF_INET, SOCK_STREAM, 0);",
+          "confidence": 0.88,
+          "note": "客户端其余变量多用 a、s、n 等单字母，命名风格与服务端不统一，且几乎无注释"
+        }
+      ],
+      "confidence": 0.84,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R11",
+      "itemName": "格式规范",
+      "weight": 3,
+      "maxScore": 10,
+      "level": "excellent",
+      "levelScoreRatio": 1,
+      "score": 10,
+      "deductionReason": null,
+      "evidence": [
+        {
+          "id": "E22",
+          "kind": "text",
+          "location": {
+            "section": "参考文献",
+            "lineStart": 181,
+            "lineEnd": 182
+          },
+          "quote": "[1] 计算机网络（第 7 版），第 3 章 运输层。\n[2] Linux `socket(7)` 手册页。",
+          "confidence": 0.88,
+          "note": "参考文献列出教材与手册页；正文引用标注未使用序号，属可改进项但不影响结构判断"
+        },
+        {
+          "id": "E23",
+          "kind": "text",
+          "location": {
+            "section": "8 问题与总结",
+            "lineStart": 175,
+            "lineEnd": 177
+          },
+          "quote": "## 8 问题与总结",
+          "confidence": 0.9,
+          "note": "目的/原理/环境/步骤/代码/结果/分析/问题与总结/参考文献层级清晰、编号 1–8 连续，图 3-1 与图 6-1～6-3、表 6-1/6-2 编号连续"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R12",
+      "itemName": "原创性",
+      "weight": 2,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "报告整体为独立完成：自写了 filesrv.c / filecli.c，自行设计了 1/10/50 MB × 1024/8192 字节的测试矩阵与 md5 一致性校验流程，数据与代码一致，未见照抄痕迹。但正文与代码中未对任何参考资料或代码骨架标注出处（2 节关于 htonl/ntohl 与 TCP 语义的表述与常见教材高度接近也无引用），按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E24",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 43,
+            "lineEnd": 44
+          },
+          "quote": "4. 生成 1 MB / 10 MB / 50 MB 三个测试文件。\n5. 分别以缓冲区 1024 字节与 8192 字节传输，各运行 3 次记录耗时。",
+          "confidence": 0.82,
+          "note": "测试矩阵为本人设计，有个人设计痕迹；但全文无引用标注"
+        }
+      ],
+      "confidence": 0.76,
+      "needsReview": true
+    }
+  ],
+  "totalScore": 78.5,
+  "total": {
+    "weightIncluded": 100,
+    "weightExcluded": 0.0,
+    "upperBound": 100,
+    "isPartial": false,
+    "grade": null
+  },
+  "review": {
+    "triggered": true,
+    "triggerReason": "R7（0.78）、R9（0.74）、R12（0.76）三项置信度低于复核阈值 0.80",
+    "opinion": "复核后维持全部档位判定。R7：报告确有 2 张数据表与 3 张编号配图，但表 6-2 的 md5 被省略号截断、配图为示意图且正文未按图号引用，维持达标档 8 分。R9：第 8 节两个问题均只给现象与粗略处理，第二个问题无解决办法，维持部分达标档 5 分；因证据原文清晰，仅上调置信度。R12：测试矩阵可确认是个人设计，但无任何引用标注，维持达标档 4 分。三项均未调整得分，仅上调置信度。",
+    "overallConfidenceBefore": 0.82,
+    "overallConfidenceAfter": 0.83,
+    "adjustments": [
+      {
+        "rubricItemId": "R7",
+        "opinion": "复核确认表 6-2 的 md5 值确以省略号截断、3 张配图原文自述为示意图，且第 7 节只用「从表中可以看出」而未写表号，维持达标档 8 分；证据条本身定位清晰，置信度由 0.78 上调至 0.85。",
+        "confidenceBefore": 0.78,
+        "confidenceAfter": 0.85,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      },
+      {
+        "rubricItemId": "R9",
+        "opinion": "复核确认第 8 节两个问题确实缺少定位手段、根因与（第二个问题的）解决办法，维持部分达标档 5 分；原文表述明确，置信度由 0.74 上调至 0.80。",
+        "confidenceBefore": 0.74,
+        "confidenceAfter": 0.8,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      },
+      {
+        "rubricItemId": "R12",
+        "opinion": "复核确认测试矩阵（文件大小 × 缓冲区尺寸）与 md5 校验确为本人设计，但全文无引用标注，维持达标档 4 分；置信度由 0.76 上调至 0.82。",
+        "confidenceBefore": 0.76,
+        "confidenceAfter": 0.82,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      }
+    ]
+  },
+  "feedback": {
+    "overall": "报告结构完整、原理表述正确，字节序的前提与 send 只写入内核缓冲这一语义都交代得比较清楚，实测数据也做了基本的量化对比，整体达到良好水平。主要短板有两块：一是核心代码健壮性不足——socket/bind/listen/accept/connect/recv/fopen 的返回值全部未检查，文件名与长度各只用一次 recv 读取，接收循环在 recv 返回 0 时还会陷入死循环；二是第 8 节的问题记录过于笼统，既没有定位过程也没有根因，第二个问题甚至没写解决办法。",
+    "strengths": [
+      "原理部分主动说明了 send 返回成功只代表数据复制进内核发送缓冲区，并如实交代未做字节序转换的前提（见 2 实验原理）",
+      "测试设计有个人痕迹：1/10/50 MB 三档文件与 1024/8192 两种缓冲区交叉，各运行 3 次取平均，并用 md5sum 在收发两端做一致性校验（见表 6-1、表 6-2）",
+      "章节结构完整，图 3-1、图 6-1～图 6-3 与表 6-1、表 6-2 编号连续，参考文献列出教材与手册页"
+    ],
+    "improvements": [
+      "给 socket/bind/listen/accept/connect/recv/send/fopen 逐一补上返回值检查，并把接收循环改为「recv 返回 ≤ 0 即退出」，消除对端异常断开时的死循环与 total 倒退",
+      "把文件名与文件长度改为循环读取（或合并为一个长度前缀帧后统一解析），避免单次 recv 读不全导致文件名/长度错位——这与第 8 节记录的「文件大小对不上」是同一根因，建议在报告中把这条因果链写清楚",
+      "把第 8 节两个问题按「现象 → 定位手段 → 根因 → 解决办法」四步重写，并补做一次设置 SO_REUSEADDR 前后的对比重启实验，同时把表 6-2 的 md5 改为完整 32 位输出"
+    ],
+    "tone": "neutral"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "agent": "parser",
+      "inputSummary": "批次B · Socket网络编程主题：《实验报告：基于 TCP 的文件传输程序设计》（学生F，计算机网络）Markdown 原文，共 183 行",
+      "outputSummary": "切分出 8 个章节（目的/原理/环境/步骤/代码/结果/分析/问题与总结）+ 参考文献，识别代码块 2 段、配图 4 张（含环境图）、数据表 2 张，正文约 1500 字",
+      "confidence": 0.94,
+      "note": "图3-1、图6-1～图6-3 均标注「示意图」，判定为占位图；表 6-2 的 md5 值被省略号截断，已在 R7 中记录"
+    },
+    {
+      "step": 2,
+      "agent": "evidence",
+      "inputSummary": "章节树 + Rubric v1.0.0 的 12 个评分点（R1–R12）及其证据要求",
+      "outputSummary": "定位证据 24 条：正文 13 条、代码 7 条、表格 3 条、配图 1 条；另以两条反向证据记录「无编译命令」与「返回值未检查」",
+      "confidence": 0.88,
+      "note": "R5 的三条证据均指向「返回值未检查/单次 recv/循环未判 0」这一族缺陷，属同一根因的不同表现"
+    },
+    {
+      "step": 3,
+      "agent": "grader",
+      "inputSummary": "24 条证据 + Rubric v1.0.0 的四档判定标准与扣分梯度",
+      "outputSummary": "逐项判定：优秀 1 项（R11）、达标 10 项、部分达标 1 项（R9），加权总分 78.50",
+      "confidence": 0.8,
+      "note": "R7、R9、R12 三项置信度低于 0.80，按规则转交 Reviewer 复核"
+    },
+    {
+      "step": 4,
+      "agent": "reviewer",
+      "inputSummary": "R7、R9、R12 三项低置信度判定及其证据原文",
+      "outputSummary": "三项档位与得分全部维持，未发生改档；置信度分别 0.78→0.85、0.74→0.80、0.76→0.82；整体置信度 0.82→0.83",
+      "confidence": 0.83,
+      "note": "三处争议均属「档位边界」而非「事实存疑」，复核后上调置信度但不改分"
+    },
+    {
+      "step": 5,
+      "agent": "feedback",
+      "inputSummary": "12 项评分明细、3 条复核意见、24 条证据摘要",
+      "outputSummary": "生成总体评价 1 段、亮点 3 条、改进建议 3 条，语气为中性客观",
+      "confidence": 0.9,
+      "note": "改进建议分别对应 R5（返回值检查与死循环）、R9（问题记录四步法，并与第 8 节的旧缺陷关联）、R7（md5 完整输出）"
+    }
+  ],
+  "provenance": {
+    "generatorAgent": "LearnBuddy AutoGrader 评阅流水线",
+    "generatedAt": "2026-09-20T06:36:15+08:00",
+    "sourceConversationId": "conversations/03-评阅生产与一致性评测.md#批次B",
+    "resultFingerprint": "sha256:3330821e62316ba2fa7a32d9a8c748b85bd6523dac98c97b70aa75500e5f8fba",
+    "schemaVersion": "1.0.0",
+    "sourceTurnId": "wave3-grading-B"
+  }
+}

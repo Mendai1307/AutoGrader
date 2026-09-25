@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "autograder/ReviewResult/1.1.0",
+  "$id": "autograder/ReviewResult/1.2.0",
   "title": "AutoGrader ReviewResult",
-  "description": "AutoGrader 评阅结果契约（冻结版 1.1.0）。基线为 v0.1 Zod 契约，新增字段一律 optional，故 1.0.0 历史资产继续通过。口径说明见 docs/contract.md。",
+  "description": "AutoGrader 评阅结果契约（冻结版 1.2.0）。基线为 v0.1 Zod 契约，新增字段一律 optional，故 1.0.0 历史资产继续通过。1.2.0 相对 1.1.0 只放宽了一处取值域：total.grade 由「四项语义档位」改为「等级名或 null」（原定义与生产方 T4 冲突）。口径说明见 docs/contract.md。",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -65,6 +65,10 @@
     "ScoreLevel": {
       "type": "string",
       "enum": ["excellent", "meeting", "partial", "notMet"]
+    },
+    "Grade": {
+      "description": "整体成绩等级名，或 null（未映射）。⚠️ 与 scores[].level 的 ScoreLevel 不是同一个东西：ScoreLevel 是逐评分点的四项语义档位，本字段是 T4 按档位线映射出的等级名。取值域**不固定**——T4 的默认档位序列是 A/B/C/D/F（跳过 E），而 --grade-bands 允许教师自定义任意数量的档位名，故此处只能是开放字符串。",
+      "oneOf": [{ "type": "string" }, { "type": "null" }]
     },
     "NullableString": {
       "oneOf": [{ "type": "string" }, { "type": "null" }]
@@ -183,9 +187,7 @@
         "weightExcluded": { "type": "number", "minimum": 0, "maximum": 100 },
         "upperBound": { "type": "number", "minimum": 0 },
         "isPartial": { "type": "boolean" },
-        "grade": {
-          "oneOf": [{ "$ref": "#/$defs/ScoreLevel" }, { "type": "null" }]
-        }
+        "grade": { "$ref": "#/$defs/Grade" }
       }
     },
     "ReviewStep": {

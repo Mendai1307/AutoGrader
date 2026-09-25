@@ -32,7 +32,7 @@
 
 > **校验通过 ≠ 判断正确。** 本工具只回答「合不合规」，不回答「判得对不对」。
 
-## 六项检查（与 S5 的「三重校验」对齐）
+## 六项检查（与 S5 的六项校验对齐）
 
 | # | `checks[].check` | 内容 |
 |---|---|---|
@@ -81,7 +81,7 @@ Rubric 没有证据、总分与指纹，**不适用 ≠ 降级**——后三项�
 
 ```json
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "report": {"reportId": "lab-report-2026-os-017", "title": "…",
              "course": "操作系统", "studentCode": "学生A"},
   "rubricVersion": "1.2.0",
@@ -109,7 +109,7 @@ Rubric 没有证据、总分与指纹，**不适用 ≠ 降级**——后三项�
              "outputSummary": "…", "confidence": 0.95}],
   "provenance": {"generatorAgent": "…", "generatedAt": "2026-09-25T20:00:00+08:00",
                  "sourceConversationId": "…", "sourceTurnId": "…",
-                 "resultFingerprint": "sha256:…", "schemaVersion": "1.1.0"}
+                 "resultFingerprint": "sha256:…", "schemaVersion": "1.2.0"}
 }
 ```
 

@@ -44,7 +44,7 @@
 | S2 | 报告解析 | 任务类型 2 · 环 1 | 结构 + 原文坐标；只读不改，未解析 ≠ 缺失 | [S2-report-parser.md](./S2-report-parser.md) |
 | S3 | 证据取证与逐点判定 | 任务类型 2 · 环 2 | 证据四元组 + 疑点；无证据不得高置信 | [S3-evidence-grader.md](./S3-evidence-grader.md) |
 | S4 | 总分计算 | 任务类型 2 · 环 3 | 纯算术、可复算；出部分分与 `W_r` | [S4-score-calculator.md](./S4-score-calculator.md) |
-| S5 | 结构装配与自检 | 横向（对内 Reviewer） | 三重校验 + 限定重试；不改写判断内容 | [S5-contract-assembler.md](./S5-contract-assembler.md) |
+| S5 | 结构装配与自检 | 横向（对内 Reviewer） | 六项校验 + 限定重试；不改写判断内容 | [S5-contract-assembler.md](./S5-contract-assembler.md) |
 | S6 | 评语生成 | 任务类型 2 · 环 4 | 逐句挂证据；两种输入来源输出结构一致 | [S6-feedback-writer.md](./S6-feedback-writer.md) |
 | S7 | 复核与解释 | 教师复核节点 ｜ 模式 3 消费侧 | 两入口：A 复核清单「只给哪里需要你看」；B 解释回放「只回放，不重判」 | [S7-review-checklist.md](./S7-review-checklist.md) |
 

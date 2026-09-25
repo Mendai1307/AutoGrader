@@ -10,7 +10,7 @@
 
 **所有数字必须由本工具产出，不接受模型口算。**
 
-入参（契约冻结版 1.1.0）
+入参（契约冻结版 1.2.0）
 ----------------------
 顶层键为 **`scores[]`**（不是 `items[]`），逐项字段名与 `contract/ReviewResult.schema.json`
 逐字一致：
@@ -42,7 +42,6 @@ import math
 import os
 import sys
 
-WEIGHT_SEQUENCE = [5, 12, 5, 7, 20, 10, 11, 13, 7, 5, 3, 2]
 DEFAULT_BANDS = [("A", 90.0), ("B", 80.0), ("C", 70.0), ("D", 60.0), ("F", 0.0)]
 # `--grade-bands` 的档位名序列。与 `DEFAULT_BANDS` 一致地**跳过 E**（高校常用 A/B/C/D/F）。
 # 旧实现用 A/B/C/D/E… 生成，与默认档位语义不连续（AUDIT P2-24 ④）。
@@ -467,8 +466,15 @@ def main(argv: list[str]) -> int:
 
     payload_out = json.dumps(out, ensure_ascii=False, indent=2, sort_keys=True)
     if args.out:
-        with open(args.out, "w", encoding="utf-8") as f:
-            f.write(payload_out + "\n")
+        # 与 T1 / T2 / T3 / T6 一致：写输出失败也必须是结构化报错 + 退出码 2，
+        # 不得裸 traceback（tools/README §八 的全局约定覆盖全部六脚本）
+        try:
+            with open(args.out, "w", encoding="utf-8") as f:
+                f.write(payload_out + "\n")
+        except OSError as exc:
+            print(json.dumps({"tool": "T4", "error": "写输出失败：%s" % exc,
+                              "kind": "output-error"}, ensure_ascii=False))
+            return 2
     else:
         print(payload_out)
     return code

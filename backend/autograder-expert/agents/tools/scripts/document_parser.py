@@ -95,7 +95,6 @@ class Builder:
         self._section_no = 0
         self._para_no = 0
         self._code_buf: list[str] | None = None
-        self._code_page = None
         # 有标题样式但正文为空的段落数：不建节点、不建块（无文字可引用），但计数外露，不静默丢弃
         self.empty_headings = 0
 

@@ -1,0 +1,995 @@
+{
+  "schemaVersion": "1.0.0",
+  "report": {
+    "reportId": "sample-02",
+    "title": "实验报告：有界缓冲区的生产者—消费者同步",
+    "course": "操作系统原理",
+    "studentCode": "学生B"
+  },
+  "rubricVersion": "1.0.0",
+  "rubric": {
+    "id": "rubric-cs-lab-report-generic",
+    "version": "1.0.0",
+    "title": "高校计算机专业实验报告通用 Rubric（进程线程同步 / Socket 网络编程 / 排序算法性能对比）",
+    "items": [
+      {
+        "id": "R1",
+        "name": "实验目的理解",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text。要求报告「实验目的」章节中明确列出本次实验要验证/实现的 2 条以上目标，且目标动词具体（如「验证信号量对临界区的保护作用」「对比三种排序在 10 万级数据下的耗时」），能与后文实验内容与结论一一对应。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "列出 3 条以上具体目标，覆盖知识目标（要懂什么）与能力目标（要做出什么），且后文每个目标都有对应结果与结论回应",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "列出 2–3 条目标，表述基本清晰，与后文内容大体对应，但个别目标缺少结果回应",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 条笼统目标（如「学习多线程编程」），或目标抄自实验指导书而无个人化表述",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验目的章节，或目的与本次实验主题明显无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "在档位基础上浮动：目标条目数达标但存在 1 条与后文无对应，降一档处理（如优秀降达标）；出现与实验主题无关的目标，每条再扣 0.5 分（最低降至未达标）。"
+      },
+      {
+        "id": "R2",
+        "name": "原理阐述",
+        "weight": 12,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告「实验原理」章节正确阐述核心概念（如临界区与互斥、TCP 三次握手与粘包、排序复杂度与主存访问局部性），术语使用准确，能结合本次实验的关键数据结构或系统调用说明机制；原理中提到的机制须能在后文代码中找到对应实现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "概念定义准确且完整，能说明机制「为什么成立」（如信号量 PV 操作为何能保证互斥、TCP 为何是字节流），并结合代码/数据结构给出具体说明，无科学性错误",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "核心概念表述正确，覆盖了主要机制，但停留在定义复述层面，未深入解释成因或与代码的对应关系偏弱",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅零散提及术语，存在概念混淆（如把进程与线程混为一谈、把互斥与同步混为一谈、错误描述平均/最坏时间复杂度），篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全缺失原理阐述，或阐述存在原则性科学错误（如认为信号量可以解决一切死锁、认为 TCP 天然保证消息边界）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每出现一处科学性错误在档位基础上再扣 2 分，出现原则性错误直接判未达标；原理与实现完全脱节（阐述 A 机制却实现 B）扣 3 分；整段照抄教材且无任何自己的归纳表述扣 1 分。"
+      },
+      {
+        "id": "R3",
+        "name": "实验环境配置",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告给出可复现的环境信息：操作系统与版本、编译器/解释器与版本、关键依赖库或内核头文件版本、编译命令或运行命令；建议以表格或截图形式呈现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "OS、语言/编译器版本、依赖库版本、编译与运行命令四要素齐全，并给出关键版本号（如 gcc 11.4.0、Python 3.11.6、glibc 2.35），他人可据此复现",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "给出了 OS 与主要工具版本，缺少个别次要信息（如未给依赖库版本或未给编译命令），基本可复现",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只写了工具名称而无版本号（如仅写「Ubuntu + gcc」），或只给了一张无法辨识版本信息的截图",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未交代环境信息",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺版本号每处扣 1 分；缺编译/运行命令扣 1 分；版本号与实际代码语法明显矛盾（如写 Python 2 却用 f-string）扣 2 分；仅以截图呈现且图中文字不可辨识，降一档处理。"
+      },
+      {
+        "id": "R4",
+        "name": "实验步骤完整性",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告给出可操作的步骤序列：环境准备 → 代码编写 → 编译/构建 → 运行与参数 → 观察记录 → 结果导出，步骤顺序合理、有编号，关键步骤附命令或截图。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "步骤编号完整且与实验流程一致，覆盖准备、实现、编译、运行、记录、导出六个环节，关键步骤给出具体命令与参数，他人可按步骤复现实验",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "步骤基本完整且顺序合理，覆盖主要环节，但个别环节无命令或参数说明，缺少结果导出/归档环节",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只有粗略的几步（如「写代码→运行」），缺少编译、参数、记录等关键环节，或步骤顺序混乱",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验步骤章节，或步骤与本次实验内容无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个关键环节（编译/运行参数/结果记录）扣 2 分；步骤编号缺失或顺序颠倒扣 1 分；步骤中出现与代码不一致的命令（如源文件名对不上）每处扣 1 分。"
+      },
+      {
+        "id": "R5",
+        "name": "核心代码正确性",
+        "weight": 20,
+        "maxScore": 20,
+        "evidenceRequirement": "证据类型：code、text。要求报告给出核心实现的代码块（带语言标注），代码能完成实验要求的核心功能且逻辑正确：临界区保护无遗漏、套接字收发与关闭正确、排序结果有序且稳定；须关注边界条件（空输入、单元素、并发冲突、连接异常断开）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "核心功能完全正确，边界条件处理完备（如空输入/单元素/连接异常/并发极端情况），无资源泄漏（锁必然释放、fd 必然关闭、内存必然回收），并有错误处理与返回值检查",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "主要功能正确，常规输入下结果正确，但边界条件或异常处理有遗漏（如未检查系统调用返回值、未处理连接断开），不影响主流程",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "代码存在可指出的明确缺陷（如锁的粒度错误、未加锁保护共享变量、recv 返回值未处理导致粘包、排序比较逻辑有误），在部分输入下会产生错误结果",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无核心代码块，或代码无法通过编译/运行，或核心逻辑完全错误（如根本未使用实验要求的机制）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处明确 bug 扣 3 分（资源泄漏每处额外扣 2 分）；代码无法编译直接判未达标；仅贴出运行结果而无代码，判未达标；核心代码与实验要求机制不符（如要求用信号量却用忙等）扣 5 分。"
+      },
+      {
+        "id": "R6",
+        "name": "关键 API / 算法使用",
+        "weight": 10,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code、text。要求报告正确使用了本实验的关键 API 或算法：如 pthread_mutex_lock/unlock、sem_wait/sem_post、socket/bind/listen/accept/send/recv、快排分区与递归、归并合并等；调用参数与惯用法正确，并在正文中说明为何选用该 API/算法。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "关键 API/算法选用恰当且调用惯用法完全正确，参数与返回值处理规范，并说明了选型理由与替代方案对比",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "使用了正确的关键 API/算法，调用基本规范，但未说明选型理由，或个别参数使用不够地道（如未复用地址、未设置超时）",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "使用了实验要求的 API/算法但用法有误（如互斥锁与条件变量配合错误、忘记 setsockopt、递归终止条件写错），或回避了关键 API 而用简化替代实现",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未使用实验要求的关键 API/算法（如要求用 socket 却直接用现成框架、要求实现快排却直接调用库排序且未作说明）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "关键 API 参数错误每处扣 2 分；调用了被废弃/不安全的接口（如 strcpy、gets）每处扣 2 分；使用了库函数但明确说明并对比了自实现版本，不扣分。"
+      },
+      {
+        "id": "R7",
+        "name": "实验结果与截图",
+        "weight": 11,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：figure、table、text。要求报告提供支撑结论的原始结果：终端运行输出截图、程序界面/输出窗口截图、性能数据表格等；每张图须有编号与图题，图题说明该图展示了什么，图中关键数据可辨识，并在正文中被引用（如「如图 3-2 所示」）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "提供 3 张以上结果截图/表格，覆盖主要实验场景（如并发前后对比、多组规模数据），每张有编号与图题，图中关键数据清晰可辨识，且正文逐一引用并解读",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "提供了 2 张左右结果截图，编号与图题基本齐全，能支撑主要结论，但个别场景缺少截图或图中部分数据不可辨识",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 张截图，或截图缺少编号/图题，或截图与实验内容不匹配（如只截了代码编辑界面而无运行结果），不足以支撑结论",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有结果截图或结果数据，结论无证据支撑",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "截图无编号或图题每张扣 1 分；截图未被正文引用每张扣 1 分；截图为伪造/明显与实验无关（如网络图片、仅截代码）判部分达标并扣 3 分；结果数据未以表格呈现导致难以比对，扣 2 分。"
+      },
+      {
+        "id": "R8",
+        "name": "数据分析与讨论",
+        "weight": 13,
+        "maxScore": 15,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告对结果数据做量化分析而非现象罗列：给出具体数值与对比（如加速比、耗时增长率、并发下错误计数差值），解释数据背后的成因（如缓存局部性、锁竞争开销、Nagle 算法影响），并能与理论预期做对照，说明偏差原因。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "给出多组量化数据对比与计算（如加速比、增长率、相对误差），结合原理深入解释成因，明确指出与理论预期的偏差并给出可信解释，讨论有个人见解",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "有量化数据对比与基本解释，能说明主要趋势（如规模增大耗时上升、加锁后吞吐下降），但归因较浅或未与理论值对照",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只罗列现象而无量化分析（如「加了锁之后变慢了」却不给数值），或仅有结论无数据支撑，分析泛泛而谈",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有数据分析与讨论，直接跳到总结",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "数据存在明显矛盾（图表数值与正文描述不一致）每处扣 3 分；仅重复描述截图内容而无分析，降一档；量化样本量过少（仅 1 组数据即下结论）扣 3 分；结论超出数据支持范围（过度外推）扣 2 分。"
+      },
+      {
+        "id": "R9",
+        "name": "问题排查与反思",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告记录实验过程中遇到的真实问题（编译报错、死锁、结果不稳定、性能异常等），给出排查过程与解决办法，并反思方案局限与改进方向；问题须具体可复现，而非泛泛而谈。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "记录 2 个以上具体问题，含现象、定位过程（用了什么手段定位）、根因与解决办法，并给出方案局限与至少 1 条可执行的改进方向",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "记录了 1–2 个问题并给出解决办法，但排查过程描述简略，或反思偏套话、缺乏可执行改进方向",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅笼统提到「遇到了一些困难」而未说明具体问题与解决办法，或只写了反思而无问题记录",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全无问题排查与反思内容",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "问题已提出但未给出解决办法，每个扣 2 分；解决办法与问题不匹配（如把编译错误当成逻辑错误处理）扣 3 分；反思内容空洞套话（如「以后要更加努力」）扣 2 分。"
+      },
+      {
+        "id": "R10",
+        "name": "代码规范",
+        "weight": 5,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code。要求代码块带语言标注，命名有意义且风格统一，缩进一致，关键分支与函数有注释说明意图，无魔法数字（或已定义为常量），无调试残留（printf 调试语句、注释掉的大段代码）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "命名规范统一，缩进与空行一致，关键函数与复杂逻辑有注释说明「为什么」，常量已提取命名，无调试残留，代码块均带语言标注",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体可读，命名与缩进基本规范，但注释偏少或仅描述「做了什么」，存在个别魔法数字或少量调试残留",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "命名随意（a、b、tmp1）或缩进混乱，几乎无注释，代码块缺少语言标注，存在大段注释掉的代码",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "代码以截图形式给出无法复制、或代码完全无法辨认、或未给出任何代码块",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处无意义命名扣 0.5 分；每处调试残留（调试打印、注释掉的整段代码）扣 1 分；代码块缺语言标注每处扣 1 分；代码以图片代替文本直接降一档。"
+      },
+      {
+        "id": "R11",
+        "name": "格式规范",
+        "weight": 3,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、figure、table。要求报告具备完整结构（目的/原理/环境/步骤/代码/结果/分析/总结），标题层级清晰，图表有编号与题注，参考文献（如教材、RFC、官方文档）标注规范，无大面积空白或排版错乱。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "章节结构完整，标题层级清晰，图表编号连续且题注规范，引用标注规范，排版整洁",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "结构基本完整，图表有编号，但存在个别章节缺失、编号不连续或参考文献格式不统一",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "缺少 2 个以上必要章节，或标题层级混乱，图表无编号，篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "结构严重缺失（如只有代码没有正文），或全文无标题层级、无法辨识章节",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个必要章节扣 2 分；图表编号缺失或不连续每处扣 0.5 分；篇幅低于本实验规定下限（如优档 < 1500 字）扣 2 分；复制他人排版模板未改（出现其他实验的残留标题）扣 2 分。"
+      },
+      {
+        "id": "R12",
+        "name": "原创性",
+        "weight": 2,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、code。要求报告体现个人独立完成痕迹：参数选取、测试用例设计、数据表格由本人实验产生，核心代码非整段照抄网络或同学；引用他人代码或资料须注明出处。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "参数与测试用例有个人设计痕迹（如自行设定的并发规模、数据集构造方式），数据与代码一致，引用处均注明出处",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体为独立完成，个别片段参考公开资料但未注明出处，或参数完全照搬实验指导书默认值",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "存在明显照抄痕迹（代码风格与正文描述割裂、数据与他人雷同），但未发现直接复制的整段内容",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "确认存在整段抄袭（代码或正文与他人完全一致且无引用标注）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "发现未标注引用的参考内容每段扣 1 分；数据明显伪造（如性能数据违背基本规律）扣 2 分；确认抄袭直接判未达标并按课程学术规范另行处理，本项不得分。"
+      }
+    ]
+  },
+  "scores": [
+    {
+      "rubricItemId": "R1",
+      "itemName": "实验目的理解",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "第 1 节给出 3 条具体目标，覆盖建模方法、信号量/互斥量用法与变量扫描三个方面，但第 3 条承诺「观察程序吞吐与阻塞次数的变化」中的阻塞次数在全文（第 6 节结果、第 7 节分析）均无对应数据，属 1 条目标与后文无对应，按扣分梯度降一档，按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E1",
+          "kind": "text",
+          "location": {
+            "section": "1 实验目的",
+            "lineStart": 12,
+            "lineEnd": 14
+          },
+          "quote": "1. 掌握进程/线程同步中\"生产者—消费者\"这一经典模型的建模方法。\n2. 学会用信号量（`sem_t`）实现缓冲区空/满的同步，用互斥量保护缓冲区结构的读写。\n3. 通过改变缓冲区容量与线程配比，观察程序吞吐与阻塞次数的变化。",
+          "confidence": 0.86,
+          "note": "三条目标动词具体（掌握/学会/观察），但第 3 条的「阻塞次数」在第 6、7 节未见任何对应数据"
+        }
+      ],
+      "confidence": 0.86,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R2",
+      "itemName": "原理阐述",
+      "weight": 12,
+      "maxScore": 10,
+      "level": "excellent",
+      "levelScoreRatio": 1,
+      "score": 10,
+      "deductionReason": null,
+      "evidence": [
+        {
+          "id": "E2",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 20,
+            "lineEnd": 20
+          },
+          "quote": "实现上通常设三个信号量：`empty` 初值为缓冲区容量 N，表示还能放多少个；`full` 初值为 0，表示已放了多少个；`mutex` 初值为 1，用于保护缓冲区本身。生产者先 `sem_wait(&empty)` 再 `sem_wait(&mutex)`，放入后依次 `sem_post(&mutex)`、`sem_post(&full)`；消费者顺序相反。这里两条 `sem_wait` 的顺序不能颠倒，否则会出现持有互斥量等待 `empty` 的情况，导致对方也拿不到互斥量而死锁。",
+          "confidence": 0.86,
+          "note": "给出了三信号量的初值与协议，并解释了顺序约束「为什么成立」（颠倒即死锁）"
+        },
+        {
+          "id": "E3",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 24,
+            "lineEnd": 24
+          },
+          "quote": "缓冲区采用环形结构实现：用 `in` 和 `out` 两个下标分别记录下一个写入位置和下一个读取位置，每次写入或读取后对容量取模，就可以让缓冲区循环使用，避免数据搬移。环形缓冲区的判空与判满不能只看两个下标是否相等，本实验借助 `empty` 与 `full` 两个计数信号量来区分这两种状态，因此下标本身不需要额外的判满逻辑。",
+          "confidence": 0.84,
+          "note": "结合本次实验的数据结构说明机制，并指出了环形缓冲判空/判满的常见陷阱"
+        },
+        {
+          "id": "E4",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 75,
+            "lineEnd": 86
+          },
+          "quote": "static void put_item(ring_t *r, int item) {\n    r->buf[r->in] = item;\n    r->in = (r->in + 1) % r->capacity;\n    r->produced++;\n}\n\nstatic int get_item(ring_t *r) {\n    int item = r->buf[r->out];\n    r->out = (r->out + 1) % r->capacity;\n    r->consumed++;\n    return item;\n}",
+          "confidence": 0.84,
+          "note": "原理中描述的 in/out 取模与 produced/consumed 计数在后文代码中有一一对应实现，原理与实现未脱节"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R3",
+      "itemName": "实验环境配置",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "excellent",
+      "levelScoreRatio": 1,
+      "score": 5,
+      "deductionReason": null,
+      "evidence": [
+        {
+          "id": "E5",
+          "kind": "table",
+          "location": {
+            "section": "3 实验环境",
+            "lineStart": 30,
+            "lineEnd": 38
+          },
+          "quote": "| 操作系统 | Ubuntu 22.04.3 LTS（内核 5.15.0-91-generic） |\n| 编译器 | gcc 11.4.0 |\n| 线程库 | POSIX threads（NPTL 2.35，glibc 2.35） |\n| CPU | 4 核 8 线程 x86_64 |\n\n编译命令：`gcc -O2 -pthread -o pc pc.c`\n运行命令：`./pc <生产者数> <消费者数> <缓冲区容量> <每线程生产数>`",
+          "confidence": 0.95,
+          "note": "OS 与内核版本、编译器版本、glibc/NPTL 版本、编译与运行命令四要素齐全；该表在原文中未标表号，故未填 tableNo"
+        }
+      ],
+      "confidence": 0.95,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R4",
+      "itemName": "实验步骤完整性",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "六步编号连续、顺序合理，覆盖实现、编译、运行、变量扫描与记录五个环节，且给出了具体的编译命令与四条运行参数；但缺少「结果导出/归档」环节（第 6 步仅写「记录每次的耗时与校验值」，未说明写入何处、如何汇总），且没有独立的「环境准备」步骤（环境信息另列于第 3 节）。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E6",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 44,
+            "lineEnd": 49
+          },
+          "quote": "1. 编写 `pc.c`，实现环形缓冲区与生产者、消费者线程函数。\n2. 编译：`gcc -O2 -pthread -o pc pc.c`。\n3. 运行默认配置 `./pc 2 2 8 50000`，观察输出。\n4. 固定缓冲区容量为 8，改变线程数为 1/2/4，各运行 3 次。\n5. 固定线程数为 2/2，改变缓冲区容量为 4/8/64，各运行 3 次。\n6. 记录每次的耗时与校验值。",
+          "confidence": 0.85,
+          "note": "步骤 4、5 明确写出了控制变量法（固定容量变线程数 / 固定线程数变容量），可复现性较好"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R5",
+      "itemName": "核心代码正确性",
+      "weight": 20,
+      "maxScore": 20,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 16,
+      "deductionReason": "核心同步逻辑正确：三信号量协议与互斥量加锁范围覆盖了环形缓冲区的读写，第 6 节四组配置下 produced 与 consumed 均相等、无丢数据。但边界与异常处理缺失较多：main 未检查 argc（参数不足时 atoi(NULL) 崩溃）、未校验 cap > 0（容量为 0 时 % r->capacity 会除零）、calloc 与 sem_init / pthread_create / pthread_join 的返回值一律未检查，ptids/ctids 固定长度 64 且无上界校验（nprod/ncons 超过 64 会越界写），此外生产与消费的总量互相独立（nprod ≠ ncons 时进程会挂起）。按达标档（满分 20 × 0.8）计 16 分。",
+      "evidence": [
+        {
+          "id": "E7",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 114,
+            "lineEnd": 118
+          },
+          "quote": "int main(int argc, char *argv[]) {\n    int nprod = atoi(argv[1]);\n    int ncons = atoi(argv[2]);\n    int cap = atoi(argv[3]);\n    int per_producer = atoi(argv[4]);",
+          "confidence": 0.88,
+          "note": "声明了 argc 却从未使用：参数少于 4 个时 atoi(NULL) 会崩溃；也未校验 cap > 0，而 put_item/get_item 中有 % r->capacity"
+        },
+        {
+          "id": "E8",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 125,
+            "lineEnd": 128
+          },
+          "quote": "    g_ring.buf = calloc(cap, sizeof(int));\n\n    sem_init(&sem_empty, 0, cap);\n    sem_init(&sem_full, 0, 0);",
+          "confidence": 0.86,
+          "note": "calloc 与两处 sem_init 的返回值均未检查；calloc 失败时 put_item 会写入空指针"
+        },
+        {
+          "id": "E9",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 133,
+            "lineEnd": 141
+          },
+          "quote": "    pthread_t ptids[64], ctids[64];\n    for (int i = 0; i < nprod; i++)\n        pthread_create(&ptids[i], NULL, producer, &per_producer);\n    for (int i = 0; i < ncons; i++)\n        pthread_create(&ctids[i], NULL, consumer, &per_producer);\n    for (int i = 0; i < nprod; i++)\n        pthread_join(ptids[i], NULL);\n    for (int i = 0; i < ncons; i++)\n        pthread_join(ctids[i], NULL);",
+          "confidence": 0.86,
+          "note": "pthread_create / pthread_join 返回值均未检查；线程数组长度硬编码 64 且与命令行参数无关联"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R6",
+      "itemName": "关键 API / 算法使用",
+      "weight": 10,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "关键 API 选用恰当且参数惯用法正确（sem_init 的 pshared=0 与初值 cap/0/1 无误，信号量与互斥量的申请顺序与「先资源信号量、后互斥量」的防死锁顺序一致），正文也说明了为何用计数信号量表示空/满；但正文只与互斥量作了概念层面的比较（「互斥量是二值信号量的一种实现」），没有给出替代实现的结构对比或实测（如条件变量 + 互斥量、阻塞队列），且这些 API 的返回值一律未检查。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E10",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 88,
+            "lineEnd": 98
+          },
+          "quote": "static void *producer(void *arg) {\n    int items = *(int *)arg;\n    for (int i = 0; i < items; i++) {\n        sem_wait(&sem_empty);              /* 等一个空位 */\n        pthread_mutex_lock(&ring_mutex);   /* 保护缓冲区结构 */\n        put_item(&g_ring, i);\n        pthread_mutex_unlock(&ring_mutex);\n        sem_post(&sem_full);               /* 已放数量 +1 */\n    }\n    return NULL;\n}",
+          "confidence": 0.88,
+          "note": "PV 操作与互斥量的配对完整，加解锁严格成对，无临界区遗漏"
+        },
+        {
+          "id": "E11",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 22,
+            "lineEnd": 22
+          },
+          "quote": "pthread 的互斥量是二值信号量的一种实现，信号量则更通用，可表示资源计数。实验中用 `sem_wait`/`sem_post` 完成 PV 操作。",
+          "confidence": 0.8,
+          "note": "说明了 API 选型理由，但仅停留在概念层面，未展开替代方案的比较"
+        },
+        {
+          "id": "E12",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 26,
+            "lineEnd": 26
+          },
+          "quote": "本实验通过\"先申请资源信号量、再申请互斥量\"的统一顺序避免了循环等待，因为资源信号量不构成互斥资源，不会形成持有并等待的条件。",
+          "confidence": 0.84,
+          "note": "给出了顺序约定及其理由，与第 5 节代码的实际调用顺序一致"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R7",
+      "itemName": "实验结果与截图",
+      "weight": 11,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "提供了 2 张数据表与 2 张结果图，覆盖「固定容量变线程数」与「固定线程数变容量」两类场景，表内生产/消费总数可支撑「无丢数据」的结论；但两张数据表均无表号（正文以「配置一/配置二」指代），图 3-1、图 6-1、图 6-2 也未被正文以「如图所示」形式引用，且两张结果图均标注为「（示意图）」、非真实终端截图。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E13",
+          "kind": "table",
+          "location": {
+            "section": "6 实验结果（配置一：固定容量 8，改变线程数）",
+            "lineStart": 157,
+            "lineEnd": 161
+          },
+          "quote": "| 生产者/消费者 | 缓冲区容量 | 生产总数 | 消费总数 | 耗时（s） |\n|---|---:|---:|---:|---:|\n| 1 / 1 | 8 | 50000 | 50000 | 0.18 |\n| 2 / 2 | 8 | 100000 | 100000 | 0.42 |\n| 4 / 4 | 8 | 200000 | 200000 | 0.97 |",
+          "confidence": 0.9,
+          "note": "每组生产总数与消费总数相等，是「同步有效、未丢数据」的直接证据；该表在原文中无表号"
+        },
+        {
+          "id": "E14",
+          "kind": "table",
+          "location": {
+            "section": "6 实验结果（配置二：固定线程 2/2，改变缓冲区容量）",
+            "lineStart": 165,
+            "lineEnd": 169
+          },
+          "quote": "| 缓冲区容量 | 耗时（s） |\n|---:|---:|\n| 4 | 0.55 |\n| 8 | 0.42 |\n| 64 | 0.31 |",
+          "confidence": 0.88,
+          "note": "仅记录耗时一列，无生产/消费总数与阻塞次数，可支撑的趋势信息有限；该表在原文中也无表号"
+        },
+        {
+          "id": "E15",
+          "kind": "figure",
+          "location": {
+            "section": "6 实验结果",
+            "figureNo": "图6-1"
+          },
+          "quote": "图题原文：图6-1 默认配置运行结果截图（示意图）；图6-2 三种缓冲区容量下的运行对比截图（示意图）",
+          "confidence": 0.6,
+          "note": "两张图题均自述为「示意图」，图片资源为相对路径 figures/os-02-fig2.png、fig3.png，仓库中未随附图片文件，无法判读终端原始输出"
+        }
+      ],
+      "confidence": 0.78,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R8",
+      "itemName": "数据分析与讨论",
+      "weight": 13,
+      "maxScore": 15,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 7.5,
+      "deductionReason": "第 7 节仅把表中数值复述了一遍（0.18 s / 0.97 s / 0.55 s / 0.31 s）并给出「缓冲区越大跑得越快、线程越多跑得越慢」的结论：未做任何量化换算（如每万件数据的耗时、相对 1/1 的增长倍数），未解释趋势成因（本实验本可统计的阻塞/等待次数恰是解释这两条趋势的关键，而第 1 节第 3 条目标已承诺观察阻塞次数），也未与理论预期对照，属「只罗列现象而无量化分析」。按部分达标档（满分 15 × 0.5）计 7.5 分。",
+      "evidence": [
+        {
+          "id": "E16",
+          "kind": "text",
+          "location": {
+            "section": "7 结果分析",
+            "lineStart": 177,
+            "lineEnd": 177
+          },
+          "quote": "从表中的数据可以看出，线程数增加时耗时也增加了，1/1 配置是 0.18 s，4/4 配置是 0.97 s。缓冲区容量变大之后耗时有所下降，容量 4 时是 0.55 s，容量 64 时是 0.31 s。生产总数与消费总数在每组配置下都相等，说明程序没有丢数据，同步是有效的。整体来看，缓冲区越大程序跑得越快，线程越多程序跑得越慢。",
+          "confidence": 0.86,
+          "note": "全节仅此一段；唯一带解释性的句子是「生产总数与消费总数相等 → 没有丢数据」，其余为数值复述与趋势断言"
+        }
+      ],
+      "confidence": 0.84,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R9",
+      "itemName": "问题排查与反思",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "记录了两个真实问题（等待信号量与加锁顺序颠倒导致卡死、漏加 -pthread 导致链接失败）并都给出了解决办法，属达标档；但未描述任何定位过程（如何判断是顺序问题、用什么手段验证），反思部分没有给出方案局限，且提出的「增加多生产者多消费者的压力测试」在第 4 节第 4 步（4/4 配置）中其实已经做过，属不可执行的改进方向。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E17",
+          "kind": "text",
+          "location": {
+            "section": "8 问题记录与总结",
+            "lineStart": 181,
+            "lineEnd": 181
+          },
+          "quote": "实验过程中遇到过缓冲区满时程序卡住的问题，后来发现是把 `sem_wait(&sem_empty)` 写在了 `pthread_mutex_lock` 之后，调换顺序之后就正常了。此外编译时一开始忘记加 `-pthread` 参数，导致链接报错，加上参数后编译通过。",
+          "confidence": 0.88,
+          "note": "两个问题都具体可复现，且与第 2 节的原理说明互相呼应；但「后来发现」一带而过，未写定位手段"
+        },
+        {
+          "id": "E18",
+          "kind": "text",
+          "location": {
+            "section": "8 问题记录与总结",
+            "lineStart": 183,
+            "lineEnd": 183
+          },
+          "quote": "整体达到实验要求，后续可以在此基础上增加多生产者多消费者的压力测试。",
+          "confidence": 0.86,
+          "note": "改进方向与本实验已执行的内容重复（第 4 节第 4 步即 4/4 多生产者多消费者配置），未指出方案局限"
+        }
+      ],
+      "confidence": 0.88,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R10",
+      "itemName": "代码规范",
+      "weight": 5,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "两段代码块均带 ```c 语言标注，命名（ring_t / sem_empty / put_item / get_item）与缩进风格统一，未见调试残留；但注释只描述「做了什么」，未在代码旁说明「为什么」（如两条 sem_wait 为何不能颠倒，这一关键理由只写在正文第 2 节），线程数组长度 64 属未提炼的魔法数字，且第 59 行 `#define ITEMS_PER_PRODUCER 50000` 定义后全文从未被使用（每线程生产数实际来自 argv[4]）。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E19",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 59,
+            "lineEnd": 59
+          },
+          "quote": "#define ITEMS_PER_PRODUCER 50000",
+          "confidence": 0.9,
+          "note": "该常量在全文再无引用，属残留定义；实际生产数量由命令行第 4 个参数决定"
+        },
+        {
+          "id": "E20",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 133,
+            "lineEnd": 133
+          },
+          "quote": "    pthread_t ptids[64], ctids[64];",
+          "confidence": 0.88,
+          "note": "线程数组长度 64 为魔法数字，未提炼为具名常量（对照第 59 行已有 #define 的书写习惯）"
+        },
+        {
+          "id": "E21",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 91,
+            "lineEnd": 95
+          },
+          "quote": "        sem_wait(&sem_empty);              /* 等一个空位 */\n        pthread_mutex_lock(&ring_mutex);   /* 保护缓冲区结构 */\n        put_item(&g_ring, i);\n        pthread_mutex_unlock(&ring_mutex);\n        sem_post(&sem_full);               /* 已放数量 +1 */",
+          "confidence": 0.86,
+          "note": "注释解释的是每一步「做了什么」，未点明这两个 sem_wait 的顺序不可交换这一关键约束"
+        }
+      ],
+      "confidence": 0.86,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R11",
+      "itemName": "格式规范",
+      "weight": 3,
+      "maxScore": 10,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 8,
+      "deductionReason": "章节结构完整（目的/原理/环境/步骤/代码/结果/分析/问题记录与总结/参考文献齐备），标题层级清晰，图片有编号与题注；但两张数据表均无表号、所有图表都未被正文引用，参考文献仅 1 条且缺作者、出版社、年份、页码，正文也没有 [1] 形式的引用标注。按达标档（满分 10 × 0.8）计 8 分。",
+      "evidence": [
+        {
+          "id": "E22",
+          "kind": "text",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 155,
+            "lineEnd": 158
+          },
+          "quote": "配置一：固定容量 8，改变线程数（每生产者 5 万件）。\n\n| 生产者/消费者 | 缓冲区容量 | 生产总数 | 消费总数 | 耗时（s） |\n|---|---:|---:|---:|---:|",
+          "confidence": 0.84,
+          "note": "数据表以「配置一/配置二」指代，全文未出现任何表号；对照图 3-1、图 6-1、图 6-2 均有图号"
+        },
+        {
+          "id": "E23",
+          "kind": "text",
+          "location": {
+            "section": "参考文献",
+            "lineStart": 187,
+            "lineEnd": 187
+          },
+          "quote": "[1] 操作系统概念（第九版），第 6 章 同步。",
+          "confidence": 0.86,
+          "note": "仅 1 条参考文献，缺作者、出版社、出版年与页码，未采用规范著录格式，正文亦无引用标注"
+        }
+      ],
+      "confidence": 0.82,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R12",
+      "itemName": "原创性",
+      "weight": 2,
+      "maxScore": 5,
+      "level": "excellent",
+      "levelScoreRatio": 1,
+      "score": 5,
+      "deductionReason": null,
+      "evidence": [
+        {
+          "id": "E24",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 47,
+            "lineEnd": 49
+          },
+          "quote": "4. 固定缓冲区容量为 8，改变线程数为 1/2/4，各运行 3 次。\n5. 固定线程数为 2/2，改变缓冲区容量为 4/8/64，各运行 3 次。\n6. 记录每次的耗时与校验值。",
+          "confidence": 0.8,
+          "note": "采用控制变量法自设两组扫描参数（线程数 1/2/4、容量 4/8/64）并各重复 3 次，非实验指导书默认值"
+        },
+        {
+          "id": "E25",
+          "kind": "table",
+          "location": {
+            "section": "6 实验结果（配置二）",
+            "lineStart": 165,
+            "lineEnd": 169
+          },
+          "quote": "| 缓冲区容量 | 耗时（s） |\n|---:|---:|\n| 4 | 0.55 |\n| 8 | 0.42 |\n| 64 | 0.31 |",
+          "confidence": 0.76,
+          "note": "耗时随容量单调下降（0.55 → 0.42 → 0.31），与「容量越大阻塞越少」的常识一致，未见伪造迹象；但原创性只能依文内痕迹推断，无法排除未标注的外部参考，故置信度 0.76"
+        }
+      ],
+      "confidence": 0.76,
+      "needsReview": true
+    }
+  ],
+  "totalScore": 79.9,
+  "total": {
+    "weightIncluded": 100,
+    "weightExcluded": 0.0,
+    "upperBound": 100,
+    "isPartial": false,
+    "grade": null
+  },
+  "review": {
+    "triggered": true,
+    "triggerReason": "R7（0.78）、R12（0.76）两项置信度低于复核阈值 0.80；其中 R7 还涉及结果图证据的真实性判断。",
+    "opinion": "复核 R7：两张结果图在源稿中即标注为「示意图」，Markdown 里没有可核对的终端原始输出，而两张数据表的数值自洽（配置一每组生产/消费总数相等），故维持达标档、不改分。复核 R12：第 4 节第 4、5 步采用控制变量法自设了线程数与容量两组扫描参数并各重复 3 次，数据与代码中 cap 的取值方式一致，未见照抄痕迹，维持优秀档。两项均只上调置信度。",
+    "adjustments": [
+      {
+        "rubricItemId": "R7",
+        "opinion": "逐张核对图题与正文引用：图 3-1、图 6-1、图 6-2 均有图号与题注，但正文没有任何「如图所示」的引用，且两张结果图自述为「（示意图）」；两张数据表虽无表号，但生产/消费总数可互相印证。维持达标档，置信度 0.78 → 0.82，建议教师批阅时人工核验截图真实性。",
+        "confidenceBefore": 0.78,
+        "confidenceAfter": 0.82,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      },
+      {
+        "rubricItemId": "R12",
+        "opinion": "复核第 4 节与第 6 节数据：线程数 1/2/4 与容量 4/8/64 两组扫描参数为自设，且「各运行 3 次」与第 6 节每组只有一个耗时值之间缺少取平均口径的说明，但不构成篡改证据；整体呈个人实验痕迹，维持优秀档，置信度 0.76 → 0.84。",
+        "confidenceBefore": 0.76,
+        "confidenceAfter": 0.84,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      }
+    ],
+    "overallConfidenceBefore": 0.84,
+    "overallConfidenceAfter": 0.85
+  },
+  "feedback": {
+    "overall": "同步机制实现是对的：empty / full / mutex 三个信号量的初值与申请顺序无误，加锁范围完整覆盖环形缓冲区的读写，第 6 节四组配置下生产总数与消费总数完全相等，可以直接证明没有丢数据。主要短板在两个地方：一是第 7 节只是把表格数字念了一遍，没做任何换算或归因——而阻塞次数恰恰是你自己在实验目的里承诺要观察的，也是解释「容量越大越快、线程越多越慢」的关键；二是 main 函数几乎没有参数和返回值校验，换一组输入就可能崩溃或挂住。",
+    "strengths": [
+      "生产者—消费者协议实现正确：三信号量初值设置无误、加解锁严格成对，临界区完整覆盖环形缓冲区的读写（见 5 核心代码）",
+      "第 2 节把「为什么两条 sem_wait 的顺序不能颠倒」讲清楚了，并指出统一申请顺序可以避免循环等待（见 2 实验原理）",
+      "第 6 节配置一的数据显示三组配置下「生产总数 == 消费总数」，为「同步有效、未丢数据」提供了直接证据（见 6 实验结果）",
+      "环境信息含内核版本、gcc 11.4.0、glibc/NPTL 2.35 以及编译与运行命令，具备可复现性（见 3 实验环境）"
+    ],
+    "improvements": [
+      "第 7 节补上量化换算与归因：把三组线程配置换算成单位开销（0.18 s/5 万件 → 3.6 μs/件，0.42 s/10 万件 → 4.2 μs/件，0.97 s/20 万件 → 4.85 μs/件，即单位开销随线程数上升），再配上阻塞次数或上下文切换统计，用来解释「线程越多越慢」与「容量越大越快」这两条趋势",
+      "把第 1 节第 3 条目标承诺的「阻塞次数」变成真实数据：可在 producer / consumer 中统计空缓冲区等待与满缓冲区等待的累计次数，让目标与第 6 节的表格一一对应",
+      "给 main 补上 `argc != 5` 的检查与 `cap > 0 && nprod > 0 && ncons > 0` 的校验，把 ptids / ctids 的 64 改成具名常量并加越界判断，同时检查 calloc、sem_init、pthread_create、pthread_join 的返回值",
+      "让生产与消费的总量严格配对（例如按 nprod × per_producer 算出总量后让消费者只取该数量），避免 nprod ≠ ncons 时消费者永远等不到数据挂起；第 59 行未使用的 ITEMS_PER_PRODUCER 常量建议删除或真正启用；另外「各运行 3 次」但表里只有一个耗时值，请补上取平均的口径说明"
+    ],
+    "tone": "neutral"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "agent": "parser",
+      "inputSummary": "demo/sample-reports/sample-02.md 全文（188 行 / 7,386 字节，Markdown 源稿）",
+      "outputSummary": "切分出 8 个编号章节加参考文献，定位 2 段 C 代码块（§5 共 99 行）、3 处图片引用（图3-1、图6-1、图6-2）与 4 张表格，正文约 1,300 字",
+      "confidence": 0.95,
+      "note": "3 处图片引用均为相对路径 figures/*.png，仓库内未随附图片文件；正文篇幅明显短于 sample-01"
+    },
+    {
+      "step": 2,
+      "agent": "evidence",
+      "inputSummary": "章节树 + Rubric v1.0.0 的 12 个评分点及其证据要求",
+      "outputSummary": "为 R1–R12 逐点定位证据 25 条：text 12 条、code 8 条、table 4 条、figure 1 条；R5 的证据取自 main 函数的参数处理与线程创建段",
+      "confidence": 0.85,
+      "note": "R1 第 3 条目标承诺的「阻塞次数」在第 6、7 节均未检索到，该缺口据实记录，未以编造证据补齐"
+    },
+    {
+      "step": 3,
+      "agent": "grader",
+      "inputSummary": "25 条证据 + Rubric v1.0.0 的 12 个评分点档位标准与扣分梯度",
+      "outputSummary": "逐项判定：优秀 3 项（R2、R3、R12）、达标 8 项、部分达标 1 项（R8）、未达标 0 项；加权总分 79.90",
+      "confidence": 0.86,
+      "note": "R7、R12 置信度低于 0.80，转交 Reviewer 复核；本份无「未找到证据」的评分点"
+    },
+    {
+      "step": 4,
+      "agent": "reviewer",
+      "inputSummary": "R7、R12 两项低置信度判定及其全部证据原文（含 2 张数据表、带「示意图」标注的图题、§4 的扫描参数）",
+      "outputSummary": "维持全部档位与得分不变，仅上调置信度：R7 0.78 → 0.82，R12 0.76 → 0.84；整体置信度 0.84 → 0.85",
+      "confidence": 0.86,
+      "note": "R7 的「示意图」问题与 sample-01 同源，已按同一口径处理，建议教师在批阅时统一核验"
+    },
+    {
+      "step": 5,
+      "agent": "feedback",
+      "inputSummary": "12 项评分明细、2 条复核意见与 25 条证据摘要",
+      "outputSummary": "生成总体评价 1 段、亮点 4 条、改进建议 4 条，语气为中性客观；每条建议均落到具体章节、代码行或数据",
+      "confidence": 0.88,
+      "note": "第 1 条建议直接用第 6 节表格数据换算了单位开销，第 4 条针对 nprod ≠ ncons 的挂起风险与未使用的常量，均为本报告特有问题"
+    }
+  ],
+  "provenance": {
+    "generatorAgent": "LearnBuddy AutoGrader 评阅流水线",
+    "generatedAt": "2026-09-20T06:29:50+08:00",
+    "sourceConversationId": "conversations/03-评阅生产与一致性评测.md#批次A",
+    "resultFingerprint": "sha256:be9cca2a9c0e4df4ad5de146fad4976222b66213f608590b32773f34e461a5d3",
+    "schemaVersion": "1.0.0",
+    "sourceTurnId": "wave3-grading-A"
+  }
+}

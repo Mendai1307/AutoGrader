@@ -8,7 +8,7 @@
 
 只校验合规性，不改写内容。**校验通过 ≠ 判断正确。**
 
-六项检查（与 S5 的「三重校验」对齐）
+六项检查（与 S5 的六项校验对齐）
 -----------------------------------
   1. `schema.structure`      JSON Schema 断言 + 结构级不变式
   2. `weights.sum`           权重和 = 100（scores 与内嵌 rubric 各一次）
@@ -44,6 +44,11 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
+
+# 本脚本 import 同目录的 T4 时，Python 默认会在脚本目录写 `__pycache__/`——那会污染交付包
+# （随包 `rules/` 与脚本同处一个目录树）。关掉字节码落盘：T4 仍被正常导入、共用同一实现，
+# 只是不再生成 .pyc。**只影响本进程**，不改其它脚本的行为。
+sys.dont_write_bytecode = True
 
 import deterministic_calculator as T4  # noqa: E402  共用同一实现，不得各写一套
 
@@ -345,7 +350,7 @@ def check_weights(items: list, errs: list, path_prefix: str = SCORES_KEY) -> flo
     return total
 
 
-def check_bands(levels: list, idx: int, errs: list, path: str, clues: list) -> None:
+def check_bands(levels: list, errs: list, path: str, clues: list) -> None:
     """档位模型检查（契约以 levels[]{level,label,criterion,scoreRatio} 表达档位）。
 
     - 硬错误：levels 空、level 重复、scoreRatio 越界、criterion 空、scoreRatio 非严格单调
@@ -712,13 +717,13 @@ def run(kind: str, doc, schema: dict | None, schema_base: str | None,
     if is_rubric_doc:
         for i, it in enumerate(scores):
             if isinstance(it, dict):
-                check_bands(it.get("levels"), i, errs,
+                check_bands(it.get("levels"), errs,
                             "items[%d].levels" % i, clues)
     else:
         if isinstance(rubric, dict) and isinstance(rubric.get("items"), list):
             for i, it in enumerate(rubric["items"]):
                 if isinstance(it, dict):
-                    check_bands(it.get("levels"), i, errs,
+                    check_bands(it.get("levels"), errs,
                                 "rubric.items[%d].levels" % i, clues)
         check_slots(scores, errs, rubric)
     checks.append({"check": "band.levels",
@@ -868,8 +873,8 @@ def _self_test() -> int:
         return d
 
     def mk(scores, total):
-        return {"schemaVersion": "1.1.0", "scores": scores, "totalScore": total,
-                "provenance": {"schemaVersion": "1.1.0"}}
+        return {"schemaVersion": "1.2.0", "scores": scores, "totalScore": total,
+                "provenance": {"schemaVersion": "1.2.0"}}
 
     good = mk([item("R1", 60, 10, 8, "meeting"), item("R2", 40, 10, 7, "meeting")], 76.0)
     dirty = mk([item("R1", 60, 10, 12, "nope"), item("R1", 30, 10, 7)], 90.0)
@@ -954,16 +959,16 @@ def _self_test() -> int:
     # P3-30/P3-31：scores 缺失时只报「缺 scores」这一个根因，
     # 不得追加一条内容是错的二次错误 weight.sum = 0.0
     out_ns, code_ns = run("review-result",
-                          {"schemaVersion": "1.1.0", "totalScore": 0,
-                           "provenance": {"schemaVersion": "1.1.0"}}, schema, base, algo)
+                          {"schemaVersion": "1.2.0", "totalScore": 0,
+                           "provenance": {"schemaVersion": "1.2.0"}}, schema, base, algo)
     codes_ns = [e["code"] for e in out_ns["errors"]]
     checks["missingScoresNoMisleadingWeightError"] = (
         code_ns == 1 and "schema.required" in codes_ns and "weight.sum" not in codes_ns
         and next(c for c in out_ns["checks"] if c["check"] == "weights.sum")["value"] is None
     )
     out_es, code_es = run("review-result",
-                          {"schemaVersion": "1.1.0", "scores": [], "totalScore": 0,
-                           "provenance": {"schemaVersion": "1.1.0"}}, schema, base, algo)
+                          {"schemaVersion": "1.2.0", "scores": [], "totalScore": 0,
+                           "provenance": {"schemaVersion": "1.2.0"}}, schema, base, algo)
     codes_es = [e["code"] for e in out_es["errors"]]
     checks["emptyScoresNoMisleadingWeightError"] = (
         code_es == 1 and "schema.minItems" in codes_es and "weight.sum" not in codes_es
@@ -1079,8 +1084,15 @@ def main(argv: list[str]) -> int:
     out["fingerprintAlgoPath"] = algo_path
     payload = json.dumps(out, ensure_ascii=False, indent=2, sort_keys=True)
     if args.out:
-        with open(args.out, "w", encoding="utf-8") as f:
-            f.write(payload + "\n")
+        # 与 T1 / T2 / T3 / T6 一致：写输出失败也必须是结构化报错 + 退出码 2，
+        # 不得裸 traceback（tools/README §八 的全局约定覆盖全部六脚本）
+        try:
+            with open(args.out, "w", encoding="utf-8") as f:
+                f.write(payload + "\n")
+        except OSError as exc:
+            print(json.dumps({"tool": "T5", "error": "写输出失败：%s" % exc,
+                              "kind": "output-error"}, ensure_ascii=False))
+            return 2
     else:
         print(payload)
     return code

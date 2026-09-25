@@ -1,6 +1,10 @@
-# AutoGrader · ReviewResult 契约说明（冻结版 1.1.0）
+# AutoGrader · ReviewResult 契约说明（冻结版 1.2.0）
 
-> **状态**：✅ **已冻结**（2026-09-25，路径 0.1 + 路径 0.3 同时闭合）
+> **状态**：✅ **已冻结**（2026-09-25 冻结 1.1.0；**2026-09-26 修订为 1.2.0**，路径 0.1 + 路径 0.3 同时闭合）
+> **1.2.0 相对 1.1.0 的唯一变更**：`total.grade` 的取值域由「四项语义档位枚举」放宽为「**等级名或 `null`**」。
+> 原写法把 `scores[].level` 用的 `ScoreLevel` 误用为等级字段的类型，与生产方 T4 冲突
+> （T4 按 `--grade-bands` 产出 `A/B/C/D/F` 之类的**等级名**）→ 任何满权重结果都会在 T5 的 `schema.structure` 失败。
+> 属**放宽既有字段取值域 = MINOR**（见第二节）。`1.0.0` 与 `1.1.0` 资产**一行不改**继续通过。
 > **冻结基线**：v0.1 `frontend/lib/schema.ts`（589 行 Zod 契约，`SCHEMA_VERSION = '1.0.0'`）
 > **路线**：以 v0.1 为基线的**向后兼容超集**——新增字段一律 optional，故 12 份历史资产一行不改。
 > **机器可读真源**：`contract/ReviewResult.schema.json`、`contract/Rubric.schema.json`
@@ -27,9 +31,10 @@
 ## 二、版本与 `schemaVersion` 递增规范
 
 - 语义化版本 `MAJOR.MINOR.PATCH`，形如 `^\d+\.\d+\.\d+$`
-- **`1.0.0`** = v0.1 历史资产所遵循的版本；**`1.1.0`** = 本次冻结版本（新增 optional 字段 = MINOR）
-- 递增规则：新增 **optional** 字段 → MINOR；新增 **required** 字段或改已有字段语义 → MAJOR；
-  纯文档/注释修订 → PATCH
+- **`1.0.0`** = v0.1 历史资产所遵循的版本；**`1.1.0`** = 2026-09-25 冻结版本（新增 optional 字段 = MINOR）；
+  **`1.2.0`** = 2026-09-26 修订版本（**放宽** `total.grade` 的取值域，见文件头）
+- 递增规则：新增 **optional** 字段 → MINOR；**放宽既有字段的取值域**（接受集合变大、旧数据仍合法）→ MINOR；
+  新增 **required** 字段、或**收紧 / 改变既有字段语义** → MAJOR；纯文档/注释修订 → PATCH
 - ⚠️ 顶层 `schemaVersion` 与 `provenance.schemaVersion` **必须同时更新且一致**
   （由 T5 的 `schema.structure` 检查强制，错误码 `schemaVersion.mismatch`）
 - Evaluation 层据 `schemaVersion` 区分新旧资产，见第七节
@@ -58,7 +63,7 @@
 | `reviewMeta` | object | — | [新] | `{mode: teacher-participated \| ai-only, status: draft \| confirmed}` |
 | `doubts` | array | — | [新] | S3 疑点清单 |
 | `reviewChecklist` | array | — | [新] | S7 入口 A 产出的复核清单 |
-| `selfCheck` | object | — | [新] | S5 三重校验结论 |
+| `selfCheck` | object | — | [新] | S5 六项校验结论 |
 
 ### 3.1 `scores[]`（ScoreItem）
 
@@ -87,7 +92,7 @@
 | `location` | object | ✅ | [旧] | `minProperties: 1`；`{section?, lineStart?, lineEnd?, figureNo?, tableNo?}` |
 | `note` | string | — | [旧] | |
 | `citationValid` | boolean | — | [新] | = T3 `resolved[].valid`；本域缺省表示「未经校验」 |
-| `blockRef` | object | — | [新] | `{blockId, anchor, digest}` = T3 的 `blockId` / `anchor` / `blockDigest` |
+| `blockRef` | object | — | [新] | `{blockId, anchor, digest}` = T3 的 `blockId` / `anchor` / `blockTextDigest` |
 
 ### 3.3 其余子结构
 
@@ -169,6 +174,17 @@
 - **仅当** `weightExcluded === 0` **且** `weightIncluded === 100` 时才映射等级
 - 否则 `grade = null`，并在 `gradeNote` 里说明原因（T4 输出）
 
+**`total.grade` 的取值域（1.2.0 修订）**
+
+| | 内容 |
+|---|---|
+| 类型 | **`string \| null`** —— **不是** `scores[].level` 用的 `ScoreLevel` 枚举 |
+| 语义 | **整体等级名**，由 T4 按档位线映射得到；未映射时为 `null` |
+| 取值域 | **开放**。T4 的默认档位序列是 `A / B / C / D / F`（**跳过 E**），而 `--grade-bands` 允许教师自定义任意数量的档位名 → 不可能用固定枚举表达 |
+| 谁产出 | **只有 T4**。Expert **不得自行填写**（与 `score` 终值同一条纪律） |
+| 谁校验 | T5 的 `schema.structure` 断言类型；**I10** 断言「非 `null` ⟹ `weightExcluded === 0` 且 `weightIncluded === 100`」 |
+| ⚠️ 别混淆 | `scores[].level`（`ScoreLevel`：`excellent / meeting / partial / notMet`）是**逐评分点的语义档位**；`total.grade` 是**整份结果的等级名**。两者同名不同物——1.1.0 的写法就是把后者误当成了前者 |
+
 ---
 
 ## 六、语义正交的两组标记（易踩坑）
@@ -242,7 +258,7 @@
 
 ## 十、T5 的六项检查与 JSON Schema 子集
 
-### 10.1 六项检查（与 S5 的「三重校验」对齐）
+### 10.1 六项检查（与 S5 的六项校验对齐）
 
 | # | `checks[].check` | 内容 |
 |---|---|---|
@@ -276,13 +292,13 @@
 
 | 契约字段 | 来源 |
 |---|---|
-| `evidence[].quote` | T1 `blocks[].text`（逐字，不得改写） |
+| `evidence[].quote` | T1 `blocks[].rawText`（**原文逐字**，不得改写；`text` 是空白规范化后的版本，不得用作引用） |
 | `evidence[].kind` | T1 `blocks[].kind` → 同名映射（`text/code/figure/table`；T1 另有 `heading`/`formula` 时不直接作为证据） |
 | `evidence[].location.section` | T1 `blocks[].anchor` |
 | `evidence[].location.lineStart/lineEnd` | 报告自身行号（T1 提供时） |
 | `evidence[].blockRef.blockId` | T1 `blocks[].blockId` |
 | `evidence[].blockRef.anchor` | T1 `blocks[].anchor` |
-| `evidence[].blockRef.digest` | T3 `resolved[].blockDigest` |
+| `evidence[].blockRef.digest` | T3 `resolved[].blockTextDigest` |
 
 > ⚠️ **T1 的 `anchor` 是顺序合成坐标**（如报告里的「一、实验原理」→ `anchor="1.1"`，
 > 而报告自身的「1.1 设计思路」→ `anchor="2.1"`）。它与报告章节号**数值撞车但语义不同**。
@@ -293,9 +309,9 @@
 | | 内容 |
 |---|---|
 | 入参（候选引用） | `{"items": [{"pointId": "R1", "anchor": "1.2", "quote": "逐字原文"}, …]}` —— **顶层键是 `items`**；`pointId` 对应契约的 `rubricItemId` |
-| 出参 `resolved[]` | `{pointId, valid, anchor, blockId, kind, exactText, blockDigest}` |
-| 出参 `rejected[]` | `{pointId, reason}`，`reason ∈ anchor-not-found \| quote-mismatch \| anchor-out-of-range \| no-locator` |
-| 与契约的对应 | `resolved[].valid` → `evidence[].citationValid`；`resolved[].exactText` → `evidence[].quote`；`blockId/anchor/blockDigest` → `evidence[].blockRef`。**`rejected[]` 里的项不得进入 `evidence[]`** |
+| 出参 `resolved[]` | `{pointId, valid, anchor, blockId, kind, exactText, quoteDigest, blockTextDigest}`（+ 仅给 `quote` 且命中多块时附 `ambiguousHit` / `hitBlockIds`） |
+| 出参 `rejected[]` | `{pointId, reason}`（+ 触发它的坐标），`reason ∈ anchor-not-found \| block-ref-not-found \| quote-mismatch \| no-locator` |
+| 与契约的对应 | `resolved[].valid` → `evidence[].citationValid`；`resolved[].exactText` → `evidence[].quote`；`blockId/anchor/blockTextDigest` → `evidence[].blockRef`。**`rejected[]` 里的项不得进入 `evidence[]`** |
 
 ### 11.3 T4 确定性计算器
 
@@ -320,17 +336,28 @@
 2. **禁止自动回填 `suggestedScore`**：历史资产的 `score` 是「AI 直接给的分」，当时没有终值概念。
    把 `score` 复制成 `suggestedScore` 并置 `overriddenByTeacher: false`，等于**伪造一条「AI 建议 = 终值」的评测数据**，
    会让 Evaluation 的总分 MAE 与逐项命中率变成「自己跟自己比」，恒等于 0 误差
-3. **用 `schemaVersion` 区分**：`1.0.0` = 历史，`1.1.0` = 新产出；
-   差异数据（MAE / 命中率）**只对 `1.1.0` 资产计算**
+3. **用 `schemaVersion` 区分**：`1.0.0` = 历史，`1.1.0` / `1.2.0` = 新产出
+   （**1.1.0 与 1.2.0 在数据形状上等价**——1.2.0 只放宽了 `total.grade` 的类型，未改动任何已有字段）；
+   差异数据（MAE / 命中率）**只对非 `1.0.0` 资产计算**
 4. **可以自动做的**（纯推导、不引入新信息）：按现有 `totalScore` 与 `scores[].weight` 推导
    历史资产的 `total` 子对象（`weightIncluded = 100`、`weightExcluded = 0`、`upperBound = 100`、`isPartial = false`），
    使前端对新旧资产同构渲染
+5. **✅ 已执行（2026-09-26）：`total` 回填到副本，v0.1 原件保持原样**
+
+   | | 内容 |
+   |---|---|
+   | 落点 | **`web/public/results/`**（本工作区内；`项目总纲与同步状态.md` §六「规划中」指定给「评阅结果 JSON 资产」的位置），12 份与 v0.1 同名 |
+   | 为什么**不**原地回填 | v0.1 的 Zod 契约**顶层是 `.strict()`**（`schema.ts:13`）且**无 `total` 字段** → 实测加键后 **12/12 全部判不合格**；且 v0.1 前端 `frontend/lib/data.ts` 读资产时会调 `validateReviewResult`，会让其 `/eval`、`/report/[id]` 页降级。故 v0.1 原件必须原样 |
+   | 推导内容 | `total = { weightIncluded: Σweight, weightExcluded: 0, upperBound: Σweight, isPartial: false, grade: null }`。**`schemaVersion` 保持 `1.0.0`**——它们是历史数据，不是新产出 |
+   | ⚠️ 易漏的一步 | **必须同时重算 `provenance.resultFingerprint`**：指纹覆盖**整个对象**（含新键），只加 `total` 而不重算指纹，T5 的 `fingerprint.recompute` 会报 `fingerprint.mismatch`（本轮实测踩到：12/12 全挂）。规则 4 原文只写了「推导 `total`」，**漏了这一步**，此处补齐（12 份的指纹值因此**全部变化**，属必然） |
+   | 改动面 | 每份**仅**新增 `total` 块（7 行）+ 改写 `resultFingerprint` 1 行，**不动任何已有字段**；行尾保持 LF |
+   | 实测 | **T5 六项全过 12/12 且 `skipped` 为空；契约指纹自洽 12/12**；v0.1 原件对照 **Zod 12/12 未受影响** |
 
 ---
 
-## 十三、尚未闭合的外部要求
+## 十三、外部要求（R1 / R2 均已闭合）
 
 | # | 要求 | 状态 |
 |---|---|---|
-| **R1** | **读入既有 `ReviewResult` 的通道**（S7 模式 3「解释回放」的前置） | ⬜ **仍缺失**。候选：① 扩展 T6 资产库增加 `result` 类别；② 走平台内置读取能力。本契约冻结**不含**此项 |
+| **R1** | **读入既有 `ReviewResult` 的通道**（S7 模式 3「解释回放」的前置） | ✅ **已闭合**（2026-09-26 用户裁决）：**走平台内置读取能力**——教师给出该文件的绝对路径（或把 JSON 内容直接粘进对话），由平台内置的**文件读取**能力逐字读入，必要时再用 T5 校验其合规性。**不改契约、不新增工具、不扩展 T6**（「给 T6 加 `result` 类别」这条路已排除） |
 | R2 | 契约逐项携带「AI 建议分 + 终值 + 是否被教师改」 | ✅ **已闭合**：`suggestedScore` + `score` + `overriddenByTeacher` 三字段到位，并由 I7 强制 |

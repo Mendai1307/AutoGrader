@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "autograder/Rubric/1.1.0",
+  "$id": "autograder/Rubric/1.2.0",
   "title": "AutoGrader Rubric",
-  "description": "AutoGrader 评分量规契约（冻结版 1.1.0）。档位模型为 v0.1 的 levels[]{level,label,criterion,scoreRatio}，即以「语义等级 + 得分系数 + 可判定判据」表达档位，取代数值区间 bands[]{from,to}。口径说明见 docs/contract.md。",
+  "description": "AutoGrader 评分量规契约（冻结版 1.2.0；本文件相对 1.1.0 内容未变，因与 ReviewResult 同属一份契约而同步版本号）。档位模型为 v0.1 的 levels[]{level,label,criterion,scoreRatio}，即以「语义等级 + 得分系数 + 可判定判据」表达档位，取代数值区间 bands[]{from,to}。口径说明见 docs/contract.md。",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "version", "title", "items"],

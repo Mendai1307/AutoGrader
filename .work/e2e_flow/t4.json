@@ -1,0 +1,1 @@
+{"scores": [{"rubricItemId": "R1", "itemName": "a", "score": 9, "maxScore": 10, "weight": 60, "pending": false, "confidence": 0.9, "needsReview": false}, {"rubricItemId": "R2", "itemName": "b", "score": 8, "maxScore": 10, "weight": 40, "pending": false, "confidence": 0.9, "needsReview": false}]}

@@ -1,0 +1,1499 @@
+{
+  "rubricId": "rubric-cs-lab-report-generic",
+  "rubricVersion": "1.0.0",
+  "schemaVersion": "1.0.0",
+  "generatedBy": "learnbuddy://expert/autograder-rubric-designer",
+  "totalScoreFormula": "round2(Σ(score_i / maxScore_i × weight_i))",
+  "wordCountBasis": "正文字数 = 汉字数 + 英文单词数（不计代码块、不计 Markdown 标记与空白）",
+  "note": "全部样例为合成脱敏数据：学生一律使用「学生A」类泛指代号，学校统一写作「某某大学计算机学院」，代码与数据均为教学示例，不含任何真实姓名、学号、学校名或真实项目引用。goldTotalScore 已逐份按契约公式手工核算，与 expectedItemScores 自洽。",
+  "reports": [
+    {
+      "id": "sample-01",
+      "fileName": "sample-01.md",
+      "title": "多线程共享计数器的同步与互斥",
+      "course": "操作系统原理",
+      "topicId": "os-thread-sync",
+      "topic": "进程 / 线程同步",
+      "tier": "优",
+      "wordCount": 2334,
+      "codeBlockCount": 2,
+      "figureCount": 4,
+      "goldTotalScore": 99,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 20
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 15
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 5
+        }
+      ],
+      "summary": "原理、代码、数据与反思四项俱佳，用 45.31% 的丢失率与 0.09 的加速比给出量化归因，仅代码注释略有不足。"
+    },
+    {
+      "id": "sample-02",
+      "fileName": "sample-02.md",
+      "title": "有界缓冲区的生产者—消费者同步",
+      "course": "操作系统原理",
+      "topicId": "os-thread-sync",
+      "topic": "进程 / 线程同步",
+      "tier": "良",
+      "wordCount": 1204,
+      "codeBlockCount": 2,
+      "figureCount": 3,
+      "goldTotalScore": 78.5,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 16
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 7.5
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 5
+        }
+      ],
+      "summary": "三信号量加互斥量的实现正确、环境步骤完整，但结果分析只罗列数值而无加速比计算与成因归因。"
+    },
+    {
+      "id": "sample-03",
+      "fileName": "sample-03.md",
+      "title": "读者—写者问题",
+      "course": "操作系统原理",
+      "topicId": "os-thread-sync",
+      "topic": "进程 / 线程同步",
+      "tier": "中",
+      "wordCount": 751,
+      "codeBlockCount": 1,
+      "figureCount": 1,
+      "goldTotalScore": 52.2,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 4
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 2.5
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 4
+        }
+      ],
+      "summary": "环境无版本号、readcount 未加锁且 sem_init 初值写错，仅 1 张截图、无数据分析、反思空洞。"
+    },
+    {
+      "id": "sample-04",
+      "fileName": "sample-04.md",
+      "title": "线程同步",
+      "course": "操作系统原理",
+      "topicId": "os-thread-sync",
+      "topic": "进程 / 线程同步",
+      "tier": "差",
+      "wordCount": 425,
+      "codeBlockCount": 1,
+      "figureCount": 1,
+      "goldTotalScore": 31.6,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 2.5
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 4
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 4
+        }
+      ],
+      "summary": "篇幅严重不足，用全局标志加 sleep 代替同步原语，无结果截图、无数据分析、无总结反思。"
+    },
+    {
+      "id": "sample-05",
+      "fileName": "sample-05.md",
+      "title": "基于 TCP 的并发回射服务器设计与实现",
+      "course": "计算机网络",
+      "topicId": "socket-network",
+      "topic": "Socket 网络编程",
+      "tier": "优",
+      "wordCount": 2205,
+      "codeBlockCount": 2,
+      "figureCount": 4,
+      "goldTotalScore": 98.6,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 20
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 15
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 5
+        }
+      ],
+      "summary": "以长度头协议彻底解决粘包，recv_exact 处理部分收发，三组数据做摊销与边际收益归因，问题排查有定位手段。"
+    },
+    {
+      "id": "sample-06",
+      "fileName": "sample-06.md",
+      "title": "基于 TCP 的文件传输程序设计",
+      "course": "计算机网络",
+      "topicId": "socket-network",
+      "topic": "Socket 网络编程",
+      "tier": "良",
+      "wordCount": 1282,
+      "codeBlockCount": 2,
+      "figureCount": 4,
+      "goldTotalScore": 80.6,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 4
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 16
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 7.5
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 5
+        }
+      ],
+      "summary": "文件传输正确且 md5 校验齐全，但代码未检查 send/recv 返回值，分析停留在耗时对比而未解释成因。"
+    },
+    {
+      "id": "sample-07",
+      "fileName": "sample-07.md",
+      "title": "简单的 TCP 客户端与服务端通信程序",
+      "course": "计算机网络",
+      "topicId": "socket-network",
+      "topic": "Socket 网络编程",
+      "tier": "中",
+      "wordCount": 758,
+      "codeBlockCount": 2,
+      "figureCount": 1,
+      "goldTotalScore": 50.7,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 4
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 4
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 4
+        }
+      ],
+      "summary": "未做字节序转换与返回值检查、缓冲区未清零，仅 1 张无编号截图，缺数据分析章节。"
+    },
+    {
+      "id": "sample-08",
+      "fileName": "sample-08.md",
+      "title": "网络程序",
+      "course": "计算机网络",
+      "topicId": "socket-network",
+      "topic": "Socket 网络编程",
+      "tier": "差",
+      "wordCount": 447,
+      "codeBlockCount": 1,
+      "figureCount": 1,
+      "goldTotalScore": 28,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 2.5
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 2.5
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 2.5
+        }
+      ],
+      "summary": "直接调用现成模块回避 socket 关键 API，服务端阻塞在 serve_forever 导致客户端永不执行，无结果截图与总结。"
+    },
+    {
+      "id": "sample-09",
+      "fileName": "sample-09.md",
+      "title": "四种内部排序算法的性能对比与分析",
+      "course": "数据结构与算法",
+      "topicId": "sort-bench",
+      "topic": "排序算法性能对比",
+      "tier": "优",
+      "wordCount": 2455,
+      "codeBlockCount": 3,
+      "figureCount": 4,
+      "goldTotalScore": 99.4,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 20
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 15
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 5
+        }
+      ],
+      "summary": "自实现四种算法并做正确性校验，用增长倍数验证阶、用 2.31 倍常数差解释局部性、实测拐点 n≈48，仅缺参考文献。"
+    },
+    {
+      "id": "sample-10",
+      "fileName": "sample-10.md",
+      "title": "冒泡排序、选择排序与快速排序的性能对比",
+      "course": "数据结构与算法",
+      "topicId": "sort-bench",
+      "topic": "排序算法性能对比",
+      "tier": "良",
+      "wordCount": 1279,
+      "codeBlockCount": 1,
+      "figureCount": 3,
+      "goldTotalScore": 80.4,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 16
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 7.5
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "excellent",
+          "levelScoreRatio": 1,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 5
+        }
+      ],
+      "summary": "三算法实现正确、环境与步骤完整，但命名为拼音、无注释，分析只描述快慢而未做量化归因。"
+    },
+    {
+      "id": "sample-11",
+      "fileName": "sample-11.md",
+      "title": "三种排序算法的比较",
+      "course": "数据结构与算法",
+      "topicId": "sort-bench",
+      "topic": "排序算法性能对比",
+      "tier": "中",
+      "wordCount": 704,
+      "codeBlockCount": 1,
+      "figureCount": 1,
+      "goldTotalScore": 50.2,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 4
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 4
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 8
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "meeting",
+          "levelScoreRatio": 0.8,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 4
+        }
+      ],
+      "summary": "原理把快排最坏复杂度写错，选择排序最小值比较基准写错导致结果不可靠，缺数据分析与反思。"
+    },
+    {
+      "id": "sample-12",
+      "fileName": "sample-12.md",
+      "title": "排序",
+      "course": "数据结构与算法",
+      "topicId": "sort-bench",
+      "topic": "排序算法性能对比",
+      "tier": "差",
+      "wordCount": 432,
+      "codeBlockCount": 1,
+      "figureCount": 1,
+      "goldTotalScore": 29.5,
+      "expectedItemScores": [
+        {
+          "rubricItemId": "R1",
+          "itemName": "实验目的理解",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 2.5
+        },
+        {
+          "rubricItemId": "R2",
+          "itemName": "原理阐述",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 12,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R3",
+          "itemName": "实验环境配置",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 5,
+          "weight": 5,
+          "score": 2.5
+        },
+        {
+          "rubricItemId": "R4",
+          "itemName": "实验步骤完整性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R5",
+          "itemName": "核心代码正确性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 20,
+          "weight": 20,
+          "score": 10
+        },
+        {
+          "rubricItemId": "R6",
+          "itemName": "关键 API / 算法使用",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 10,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R7",
+          "itemName": "实验结果与截图",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 11,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R8",
+          "itemName": "数据分析与讨论",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 15,
+          "weight": 13,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R9",
+          "itemName": "问题排查与反思",
+          "level": "notMet",
+          "levelScoreRatio": 0,
+          "maxScore": 10,
+          "weight": 7,
+          "score": 0
+        },
+        {
+          "rubricItemId": "R10",
+          "itemName": "代码规范",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 5,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R11",
+          "itemName": "格式规范",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 10,
+          "weight": 3,
+          "score": 5
+        },
+        {
+          "rubricItemId": "R12",
+          "itemName": "原创性",
+          "level": "partial",
+          "levelScoreRatio": 0.5,
+          "maxScore": 5,
+          "weight": 2,
+          "score": 2.5
+        }
+      ],
+      "summary": "未实现任何排序算法而直接调用内置 sort，第二次计时输入已有序致数据不可比，无截图与总结。"
+    }
+  ]
+}

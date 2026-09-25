@@ -1,0 +1,945 @@
+{
+  "schemaVersion": "1.0.0",
+  "report": {
+    "reportId": "sample-04",
+    "title": "实验报告：线程同步",
+    "course": "操作系统原理",
+    "studentCode": "学生D"
+  },
+  "rubricVersion": "1.0.0",
+  "rubric": {
+    "id": "rubric-cs-lab-report-generic",
+    "version": "1.0.0",
+    "title": "高校计算机专业实验报告通用 Rubric（进程线程同步 / Socket 网络编程 / 排序算法性能对比）",
+    "items": [
+      {
+        "id": "R1",
+        "name": "实验目的理解",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text。要求报告「实验目的」章节中明确列出本次实验要验证/实现的 2 条以上目标，且目标动词具体（如「验证信号量对临界区的保护作用」「对比三种排序在 10 万级数据下的耗时」），能与后文实验内容与结论一一对应。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "列出 3 条以上具体目标，覆盖知识目标（要懂什么）与能力目标（要做出什么），且后文每个目标都有对应结果与结论回应",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "列出 2–3 条目标，表述基本清晰，与后文内容大体对应，但个别目标缺少结果回应",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 条笼统目标（如「学习多线程编程」），或目标抄自实验指导书而无个人化表述",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验目的章节，或目的与本次实验主题明显无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "在档位基础上浮动：目标条目数达标但存在 1 条与后文无对应，降一档处理（如优秀降达标）；出现与实验主题无关的目标，每条再扣 0.5 分（最低降至未达标）。"
+      },
+      {
+        "id": "R2",
+        "name": "原理阐述",
+        "weight": 12,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告「实验原理」章节正确阐述核心概念（如临界区与互斥、TCP 三次握手与粘包、排序复杂度与主存访问局部性），术语使用准确，能结合本次实验的关键数据结构或系统调用说明机制；原理中提到的机制须能在后文代码中找到对应实现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "概念定义准确且完整，能说明机制「为什么成立」（如信号量 PV 操作为何能保证互斥、TCP 为何是字节流），并结合代码/数据结构给出具体说明，无科学性错误",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "核心概念表述正确，覆盖了主要机制，但停留在定义复述层面，未深入解释成因或与代码的对应关系偏弱",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅零散提及术语，存在概念混淆（如把进程与线程混为一谈、把互斥与同步混为一谈、错误描述平均/最坏时间复杂度），篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全缺失原理阐述，或阐述存在原则性科学错误（如认为信号量可以解决一切死锁、认为 TCP 天然保证消息边界）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每出现一处科学性错误在档位基础上再扣 2 分，出现原则性错误直接判未达标；原理与实现完全脱节（阐述 A 机制却实现 B）扣 3 分；整段照抄教材且无任何自己的归纳表述扣 1 分。"
+      },
+      {
+        "id": "R3",
+        "name": "实验环境配置",
+        "weight": 5,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告给出可复现的环境信息：操作系统与版本、编译器/解释器与版本、关键依赖库或内核头文件版本、编译命令或运行命令；建议以表格或截图形式呈现。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "OS、语言/编译器版本、依赖库版本、编译与运行命令四要素齐全，并给出关键版本号（如 gcc 11.4.0、Python 3.11.6、glibc 2.35），他人可据此复现",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "给出了 OS 与主要工具版本，缺少个别次要信息（如未给依赖库版本或未给编译命令），基本可复现",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只写了工具名称而无版本号（如仅写「Ubuntu + gcc」），或只给了一张无法辨识版本信息的截图",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未交代环境信息",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺版本号每处扣 1 分；缺编译/运行命令扣 1 分；版本号与实际代码语法明显矛盾（如写 Python 2 却用 f-string）扣 2 分；仅以截图呈现且图中文字不可辨识，降一档处理。"
+      },
+      {
+        "id": "R4",
+        "name": "实验步骤完整性",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告给出可操作的步骤序列：环境准备 → 代码编写 → 编译/构建 → 运行与参数 → 观察记录 → 结果导出，步骤顺序合理、有编号，关键步骤附命令或截图。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "步骤编号完整且与实验流程一致，覆盖准备、实现、编译、运行、记录、导出六个环节，关键步骤给出具体命令与参数，他人可按步骤复现实验",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "步骤基本完整且顺序合理，覆盖主要环节，但个别环节无命令或参数说明，缺少结果导出/归档环节",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只有粗略的几步（如「写代码→运行」），缺少编译、参数、记录等关键环节，或步骤顺序混乱",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无实验步骤章节，或步骤与本次实验内容无关",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个关键环节（编译/运行参数/结果记录）扣 2 分；步骤编号缺失或顺序颠倒扣 1 分；步骤中出现与代码不一致的命令（如源文件名对不上）每处扣 1 分。"
+      },
+      {
+        "id": "R5",
+        "name": "核心代码正确性",
+        "weight": 20,
+        "maxScore": 20,
+        "evidenceRequirement": "证据类型：code、text。要求报告给出核心实现的代码块（带语言标注），代码能完成实验要求的核心功能且逻辑正确：临界区保护无遗漏、套接字收发与关闭正确、排序结果有序且稳定；须关注边界条件（空输入、单元素、并发冲突、连接异常断开）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "核心功能完全正确，边界条件处理完备（如空输入/单元素/连接异常/并发极端情况），无资源泄漏（锁必然释放、fd 必然关闭、内存必然回收），并有错误处理与返回值检查",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "主要功能正确，常规输入下结果正确，但边界条件或异常处理有遗漏（如未检查系统调用返回值、未处理连接断开），不影响主流程",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "代码存在可指出的明确缺陷（如锁的粒度错误、未加锁保护共享变量、recv 返回值未处理导致粘包、排序比较逻辑有误），在部分输入下会产生错误结果",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "无核心代码块，或代码无法通过编译/运行，或核心逻辑完全错误（如根本未使用实验要求的机制）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处明确 bug 扣 3 分（资源泄漏每处额外扣 2 分）；代码无法编译直接判未达标；仅贴出运行结果而无代码，判未达标；核心代码与实验要求机制不符（如要求用信号量却用忙等）扣 5 分。"
+      },
+      {
+        "id": "R6",
+        "name": "关键 API / 算法使用",
+        "weight": 10,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code、text。要求报告正确使用了本实验的关键 API 或算法：如 pthread_mutex_lock/unlock、sem_wait/sem_post、socket/bind/listen/accept/send/recv、快排分区与递归、归并合并等；调用参数与惯用法正确，并在正文中说明为何选用该 API/算法。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "关键 API/算法选用恰当且调用惯用法完全正确，参数与返回值处理规范，并说明了选型理由与替代方案对比",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "使用了正确的关键 API/算法，调用基本规范，但未说明选型理由，或个别参数使用不够地道（如未复用地址、未设置超时）",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "使用了实验要求的 API/算法但用法有误（如互斥锁与条件变量配合错误、忘记 setsockopt、递归终止条件写错），或回避了关键 API 而用简化替代实现",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全未使用实验要求的关键 API/算法（如要求用 socket 却直接用现成框架、要求实现快排却直接调用库排序且未作说明）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "关键 API 参数错误每处扣 2 分；调用了被废弃/不安全的接口（如 strcpy、gets）每处扣 2 分；使用了库函数但明确说明并对比了自实现版本，不扣分。"
+      },
+      {
+        "id": "R7",
+        "name": "实验结果与截图",
+        "weight": 11,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：figure、table、text。要求报告提供支撑结论的原始结果：终端运行输出截图、程序界面/输出窗口截图、性能数据表格等；每张图须有编号与图题，图题说明该图展示了什么，图中关键数据可辨识，并在正文中被引用（如「如图 3-2 所示」）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "提供 3 张以上结果截图/表格，覆盖主要实验场景（如并发前后对比、多组规模数据），每张有编号与图题，图中关键数据清晰可辨识，且正文逐一引用并解读",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "提供了 2 张左右结果截图，编号与图题基本齐全，能支撑主要结论，但个别场景缺少截图或图中部分数据不可辨识",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅有 1 张截图，或截图缺少编号/图题，或截图与实验内容不匹配（如只截了代码编辑界面而无运行结果），不足以支撑结论",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有结果截图或结果数据，结论无证据支撑",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "截图无编号或图题每张扣 1 分；截图未被正文引用每张扣 1 分；截图为伪造/明显与实验无关（如网络图片、仅截代码）判部分达标并扣 3 分；结果数据未以表格呈现导致难以比对，扣 2 分。"
+      },
+      {
+        "id": "R8",
+        "name": "数据分析与讨论",
+        "weight": 13,
+        "maxScore": 15,
+        "evidenceRequirement": "证据类型：text、table、figure。要求报告对结果数据做量化分析而非现象罗列：给出具体数值与对比（如加速比、耗时增长率、并发下错误计数差值），解释数据背后的成因（如缓存局部性、锁竞争开销、Nagle 算法影响），并能与理论预期做对照，说明偏差原因。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "给出多组量化数据对比与计算（如加速比、增长率、相对误差），结合原理深入解释成因，明确指出与理论预期的偏差并给出可信解释，讨论有个人见解",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "有量化数据对比与基本解释，能说明主要趋势（如规模增大耗时上升、加锁后吞吐下降），但归因较浅或未与理论值对照",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "只罗列现象而无量化分析（如「加了锁之后变慢了」却不给数值），或仅有结论无数据支撑，分析泛泛而谈",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全没有数据分析与讨论，直接跳到总结",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "数据存在明显矛盾（图表数值与正文描述不一致）每处扣 3 分；仅重复描述截图内容而无分析，降一档；量化样本量过少（仅 1 组数据即下结论）扣 3 分；结论超出数据支持范围（过度外推）扣 2 分。"
+      },
+      {
+        "id": "R9",
+        "name": "问题排查与反思",
+        "weight": 7,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、code、figure。要求报告记录实验过程中遇到的真实问题（编译报错、死锁、结果不稳定、性能异常等），给出排查过程与解决办法，并反思方案局限与改进方向；问题须具体可复现，而非泛泛而谈。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "记录 2 个以上具体问题，含现象、定位过程（用了什么手段定位）、根因与解决办法，并给出方案局限与至少 1 条可执行的改进方向",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "记录了 1–2 个问题并给出解决办法，但排查过程描述简略，或反思偏套话、缺乏可执行改进方向",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "仅笼统提到「遇到了一些困难」而未说明具体问题与解决办法，或只写了反思而无问题记录",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "完全无问题排查与反思内容",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "问题已提出但未给出解决办法，每个扣 2 分；解决办法与问题不匹配（如把编译错误当成逻辑错误处理）扣 3 分；反思内容空洞套话（如「以后要更加努力」）扣 2 分。"
+      },
+      {
+        "id": "R10",
+        "name": "代码规范",
+        "weight": 5,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：code。要求代码块带语言标注，命名有意义且风格统一，缩进一致，关键分支与函数有注释说明意图，无魔法数字（或已定义为常量），无调试残留（printf 调试语句、注释掉的大段代码）。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "命名规范统一，缩进与空行一致，关键函数与复杂逻辑有注释说明「为什么」，常量已提取命名，无调试残留，代码块均带语言标注",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体可读，命名与缩进基本规范，但注释偏少或仅描述「做了什么」，存在个别魔法数字或少量调试残留",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "命名随意（a、b、tmp1）或缩进混乱，几乎无注释，代码块缺少语言标注，存在大段注释掉的代码",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "代码以截图形式给出无法复制、或代码完全无法辨认、或未给出任何代码块",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "每处无意义命名扣 0.5 分；每处调试残留（调试打印、注释掉的整段代码）扣 1 分；代码块缺语言标注每处扣 1 分；代码以图片代替文本直接降一档。"
+      },
+      {
+        "id": "R11",
+        "name": "格式规范",
+        "weight": 3,
+        "maxScore": 10,
+        "evidenceRequirement": "证据类型：text、figure、table。要求报告具备完整结构（目的/原理/环境/步骤/代码/结果/分析/总结），标题层级清晰，图表有编号与题注，参考文献（如教材、RFC、官方文档）标注规范，无大面积空白或排版错乱。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "章节结构完整，标题层级清晰，图表编号连续且题注规范，引用标注规范，排版整洁",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "结构基本完整，图表有编号，但存在个别章节缺失、编号不连续或参考文献格式不统一",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "缺少 2 个以上必要章节，或标题层级混乱，图表无编号，篇幅明显不足",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "结构严重缺失（如只有代码没有正文），或全文无标题层级、无法辨识章节",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "缺失一个必要章节扣 2 分；图表编号缺失或不连续每处扣 0.5 分；篇幅低于本实验规定下限（如优档 < 1500 字）扣 2 分；复制他人排版模板未改（出现其他实验的残留标题）扣 2 分。"
+      },
+      {
+        "id": "R12",
+        "name": "原创性",
+        "weight": 2,
+        "maxScore": 5,
+        "evidenceRequirement": "证据类型：text、code。要求报告体现个人独立完成痕迹：参数选取、测试用例设计、数据表格由本人实验产生，核心代码非整段照抄网络或同学；引用他人代码或资料须注明出处。",
+        "levels": [
+          {
+            "level": "excellent",
+            "label": "优秀",
+            "criterion": "参数与测试用例有个人设计痕迹（如自行设定的并发规模、数据集构造方式），数据与代码一致，引用处均注明出处",
+            "scoreRatio": 1
+          },
+          {
+            "level": "meeting",
+            "label": "达标",
+            "criterion": "整体为独立完成，个别片段参考公开资料但未注明出处，或参数完全照搬实验指导书默认值",
+            "scoreRatio": 0.8
+          },
+          {
+            "level": "partial",
+            "label": "部分达标",
+            "criterion": "存在明显照抄痕迹（代码风格与正文描述割裂、数据与他人雷同），但未发现直接复制的整段内容",
+            "scoreRatio": 0.5
+          },
+          {
+            "level": "notMet",
+            "label": "未达标",
+            "criterion": "确认存在整段抄袭（代码或正文与他人完全一致且无引用标注）",
+            "scoreRatio": 0
+          }
+        ],
+        "deductionNotes": "发现未标注引用的参考内容每段扣 1 分；数据明显伪造（如性能数据违背基本规律）扣 2 分；确认抄袭直接判未达标并按课程学术规范另行处理，本项不得分。"
+      }
+    ]
+  },
+  "scores": [
+    {
+      "rubricItemId": "R1",
+      "itemName": "实验目的理解",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 2.5,
+      "deductionReason": "第 1 节只有一句「学习多线程编程。」，为单条笼统目标，既没有说明要验证/实现什么，也没有与后文的实验内容或结论建立对应，与部分达标档点名的「仅有 1 条笼统目标（如「学习多线程编程」）」情形一致。按部分达标档（满分 5 × 0.5）计 2.5 分。",
+      "evidence": [
+        {
+          "id": "E1",
+          "kind": "text",
+          "location": {
+            "section": "1 实验目的",
+            "lineStart": 11,
+            "lineEnd": 11
+          },
+          "quote": "学习多线程编程。",
+          "confidence": 0.95,
+          "note": "全节仅此一句，无可验证的目标动词，后文也没有对目标的回应"
+        }
+      ],
+      "confidence": 0.95,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R2",
+      "itemName": "原理阐述",
+      "weight": 12,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "第 2 节对「互斥」的定义本身正确（同一时间只能有一个线程操作），但随即用「这两个概念差不多」把互斥与同步混为一谈，正是部分达标档点名的典型情形，且全节仅三段。更关键的是阐述的核心机制不成立：用「先看 flag、为 0 就置 1」的检查—置位方案代替锁，而这两个步骤并不原子，两个线程完全可能同时通过检查、同时进入临界区，正文却断言「这样应该能保证同一时间只有一个线程在改 cnt，计数就不会错」，并把该方案说成「锁大概也是类似的道理」；学生随后又自述「这个写法能不能真的保证不出问题我也不是很确定」，以「反正跑出来的结果看起来是对的」作为正确性依据。鉴于阐述并非「完全缺失」（flag 轮询在后文代码中确有对应实现），未判未达标，但机制不成立 + 术语混用明显，按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E2",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 15,
+            "lineEnd": 15
+          },
+          "quote": "多个线程同时运行时会互相影响，所以要让它们按顺序来。同步就是让线程之间有先后的关系，互斥是同一时间只能有一个线程操作。这两个概念差不多，实现的时候让线程等待一下就可以。",
+          "confidence": 0.9,
+          "note": "两个术语各自的定义基本正确，但「这两个概念差不多」把互斥与同步混为一谈"
+        },
+        {
+          "id": "E3",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 17,
+            "lineEnd": 17
+          },
+          "quote": "全局变量是多个线程都能看到的，所以可以用来传递信息。这次的做法是设一个 flag，等于 0 的时候表示没人用，等于 1 的时候表示有人在改数据。线程进来之前先看 flag，如果是 1 就睡一秒再看，如果是 0 就把它设成 1 然后开始改，改完再设回 0。这样应该能保证同一时间只有一个线程在改 cnt，计数就不会错。锁这个东西大概也是类似的道理，不过这个实验里我没有用锁。",
+          "confidence": 0.88,
+          "note": "「看 flag 是否为 0」与「把 flag 设为 1」两步非原子，方案不能保证互斥；正文却断言「应该能保证」，并把该方案等同于锁"
+        },
+        {
+          "id": "E4",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 19,
+            "lineEnd": 19
+          },
+          "quote": "程序里 sleep 的作用是让等待的线程不要一直占着 CPU，不然循环会跑得很快，其他线程就没机会运行了。这个写法能不能真的保证不出问题我也不是很确定，反正跑出来的结果看起来是对的。",
+          "confidence": 0.86,
+          "note": "sleep 的作用解释基本正确；末句承认对正确性没有把握，并以「结果看起来是对的」作为正确性依据"
+        }
+      ],
+      "confidence": 0.66,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R3",
+      "itemName": "实验环境配置",
+      "weight": 5,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "给出了操作系统与编译器的大版本（Ubuntu 22.04、gcc 11.4），具备基本可复现的基础；但缺少依赖库/内核头文件信息，也完全没有给出编译命令与编译选项（第 4 节第 2 步仅写「用 gcc 编译」），且版本号精度不足（未到 22.04.x 与 11.4.0）。按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E5",
+          "kind": "text",
+          "location": {
+            "section": "3 实验环境",
+            "lineStart": 23,
+            "lineEnd": 25
+          },
+          "quote": "- 操作系统：Ubuntu 22.04\n- 编译器：gcc 11.4\n- 编辑器：vim",
+          "confidence": 0.85,
+          "note": "有版本号但缺依赖库信息与编译命令，编辑器信息不构成可复现要素"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R4",
+      "itemName": "实验步骤完整性",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "第 4 节只有三步粗略动作（打开 vim 写程序、用 gcc 编译、运行看结果），没有任何具体命令、源文件名、编译选项或运行参数，也没有观察记录与结果导出环节，与部分达标档点名的「只有粗略的几步」情形一致。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E6",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 29,
+            "lineEnd": 31
+          },
+          "quote": "1. 打开 vim 写程序。\n2. 用 gcc 编译。\n3. 运行看结果。",
+          "confidence": 0.95,
+          "note": "三步都没有可执行的命令或参数，他人无法据此复现"
+        }
+      ],
+      "confidence": 0.95,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R5",
+      "itemName": "核心代码正确性",
+      "weight": 20,
+      "maxScore": 20,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 10,
+      "deductionReason": "代码存在明确缺陷：`while (flag == 1) { sleep(1); }` 与随后的 `flag = 1` 构成「检查—置位」序列，两步之间并不原子，两个线程可以同时通过检查而同时进入临界区执行 `cnt = cnt + 1`，属未加锁保护共享变量；flag 与 cnt 都是普通全局变量，对它们的并发读写构成 C 语言层面的数据竞争。此外全文未使用任何同步原语（既无 pthread_mutex_t 也无 sem_t），以忙等轮询替代了实验要求的机制，第 2 节亦自述「这个实验里我没有用锁」；pthread_create / pthread_join 返回值未检查；且两个线程各只自增一次，即便存在竞态，单次运行打印 cnt=2 也几乎不可能暴露，无法据此判定正确性。按部分达标档（满分 20 × 0.5）计 10 分。需说明：本项落在「部分达标 / 未达标」边界（若按「根本未使用实验要求的机制」解读则应判未达标），已置 needsReview 交 Reviewer 复核，并保留教师人工确认的可能。",
+      "evidence": [
+        {
+          "id": "E7",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 43,
+            "lineEnd": 49
+          },
+          "quote": "void* t1(void* a) {\n    while (flag == 1) { sleep(1); }\n    flag = 1;\n    cnt = cnt + 1;\n    flag = 0;\n    return NULL;\n}",
+          "confidence": 0.88,
+          "note": "检查 flag 与置位 flag 之间不原子，两个线程可同时通过检查后各自进入；flag / cnt 均为普通全局变量，无原子性与内存序约束"
+        },
+        {
+          "id": "E8",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 40,
+            "lineEnd": 41
+          },
+          "quote": "int flag = 0;\nint cnt = 0;",
+          "confidence": 0.88,
+          "note": "全文没有任何同步原语：既无 pthread_mutex_t 也无 sem_t，被保护的对象是裸全局变量"
+        },
+        {
+          "id": "E9",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 59,
+            "lineEnd": 67
+          },
+          "quote": "int main() {\n    pthread_t a1, a2;\n    pthread_create(&a1, NULL, t1, NULL);\n    pthread_create(&a2, NULL, t2, NULL);\n    pthread_join(a1, NULL);\n    pthread_join(a2, NULL);\n    printf(\"cnt=%d\\n\", cnt);\n    return 0;\n}",
+          "confidence": 0.86,
+          "note": "pthread_create / pthread_join 返回值未检查；每线程仅自增一次，竞争窗口极小，即使有竞态也几乎观测不到"
+        }
+      ],
+      "confidence": 0.76,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R6",
+      "itemName": "关键 API / 算法使用",
+      "weight": 10,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "本实验应使用的关键 API 在全文一次都未出现：既没有 pthread_mutex_lock / pthread_mutex_unlock，也没有 sem_wait / sem_post，取而代之的是自制的 flag 忙等轮询，属部分达标档点名的「回避了关键 API 而用简化替代实现」；唯一用到的 pthread_create / pthread_join 返回值也未检查。学生在第 2 节自述「这个实验里我没有用锁」，但未说明理由，也没有与互斥量或信号量方案作任何对比。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E10",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 43,
+            "lineEnd": 48
+          },
+          "quote": "void* t1(void* a) {\n    while (flag == 1) { sleep(1); }\n    flag = 1;\n    cnt = cnt + 1;\n    flag = 0;\n    return NULL;\n}",
+          "confidence": 0.88,
+          "note": "线程体中没有出现任何同步 API，临界区保护完全由自制的 flag 轮询承担"
+        },
+        {
+          "id": "E11",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 17,
+            "lineEnd": 17
+          },
+          "quote": "锁这个东西大概也是类似的道理，不过这个实验里我没有用锁。",
+          "confidence": 0.86,
+          "note": "学生自己承认未使用锁，但既未说明原因，也未与互斥量/信号量方案作任何比较"
+        },
+        {
+          "id": "E12",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 61,
+            "lineEnd": 64
+          },
+          "quote": "    pthread_create(&a1, NULL, t1, NULL);\n    pthread_create(&a2, NULL, t2, NULL);\n    pthread_join(a1, NULL);\n    pthread_join(a2, NULL);",
+          "confidence": 0.86,
+          "note": "线程 API 的调用形式本身无误，但两处返回值都没有检查"
+        }
+      ],
+      "confidence": 0.85,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R7",
+      "itemName": "实验结果与截图",
+      "weight": 11,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "第 6 节只有一句「程序跑起来了，输出了 cnt 的值，看起来是对的」，既没有 cnt 的实际数值，也没有终端输出片段或数据表格，结论无从核对；唯一的插图图题自述为「代码编辑界面截图（示意图）」，属部分达标档点名的「截图与实验内容不匹配（如只截了代码编辑界面而无运行结果）」，且该图没有图号、正文也未引用。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E13",
+          "kind": "text",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 72,
+            "lineEnd": 72
+          },
+          "quote": "程序跑起来了，输出了 cnt 的值，看起来是对的。",
+          "confidence": 0.9,
+          "note": "全节仅此一句，无任何数值或输出片段，「看起来是对的」不构成可核对的证据"
+        },
+        {
+          "id": "E14",
+          "kind": "figure",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 74,
+            "lineEnd": 74
+          },
+          "quote": "图题原文：代码编辑界面截图（示意图）",
+          "confidence": 0.8,
+          "note": "图题自述为代码编辑界面截图，与「程序运行结果」不匹配；无图号、正文未引用，图片资源 figures/os-04-fig1.png 未随仓库提供"
+        }
+      ],
+      "confidence": 0.88,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R8",
+      "itemName": "数据分析与讨论",
+      "weight": 13,
+      "maxScore": 15,
+      "level": "notMet",
+      "levelScoreRatio": 0,
+      "score": 0,
+      "deductionReason": "未找到相关证据：报告没有结果分析章节，第 6 节只有一句「程序跑起来了，输出了 cnt 的值，看起来是对的」，全文没有任何量化数据（没有 cnt 的具体数值，没有耗时或吞吐，没有重复运行次数与统计），也没有对现象的任何讨论或对成因的归因，属「完全没有数据分析与讨论」。按契约「未找到证据不得编造」处理，置未达标档、0 分。",
+      "evidence": [],
+      "confidence": 0.92,
+      "needsReview": true
+    },
+    {
+      "rubricItemId": "R9",
+      "itemName": "问题排查与反思",
+      "weight": 7,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "报告没有「问题排查与反思」章节，全篇未记录任何实际遇到的问题（无编译报错、无运行异常、无死锁或结果不稳定现象），也没有任何定位过程与解决办法。唯一带反思意味的是第 2 节末句「这个写法能不能真的保证不出问题我也不是很确定，反正跑出来的结果看起来是对的」——属于「只写了反思而无问题记录」，且停留在自我怀疑层面：既未给出验证手段，也未指出方案局限或提出任何可执行的改进方向。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E15",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 19,
+            "lineEnd": 19
+          },
+          "quote": "这个写法能不能真的保证不出问题我也不是很确定，反正跑出来的结果看起来是对的。",
+          "confidence": 0.82,
+          "note": "有主动的自我怀疑（可视为零星的方案反思），但全篇没有任何问题记录、定位过程与改进方向"
+        }
+      ],
+      "confidence": 0.8,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R10",
+      "itemName": "代码规范",
+      "weight": 5,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "代码块带 ```c 语言标注、缩进一致、无调试残留；但命名随意——`t1` / `t2` 无法区分两个线程各自的角色，形参直接叫 `a`，线程句柄叫 `a1` / `a2`，与部分达标档点名的「命名随意（a、b、tmp1）」情形一致；全文代码注释数为 0；flag 的 0/1 语义与 sleep(1) 的时长均为魔法值，未提炼为具名常量；而且 t1 与 t2 函数体完全重复，本可合并为一个带参线程函数。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E16",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 43,
+            "lineEnd": 44
+          },
+          "quote": "void* t1(void* a) {\n    while (flag == 1) { sleep(1); }",
+          "confidence": 0.88,
+          "note": "函数名 t1/t2 无角色语义、形参名 a 无语义，且完全没有注释解释 flag 协议"
+        },
+        {
+          "id": "E17",
+          "kind": "code",
+          "location": {
+            "section": "5 核心代码",
+            "lineStart": 40,
+            "lineEnd": 41
+          },
+          "quote": "int flag = 0;\nint cnt = 0;",
+          "confidence": 0.86,
+          "note": "flag 的 0/1 语义（空闲/占用）未定义为具名常量，sleep(1) 的时长亦为魔法值"
+        }
+      ],
+      "confidence": 0.88,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R11",
+      "itemName": "格式规范",
+      "weight": 3,
+      "maxScore": 10,
+      "level": "partial",
+      "levelScoreRatio": 0.5,
+      "score": 5,
+      "deductionReason": "结构严重不完整：全篇只有 6 个章节，第 6 节之后即结束，缺少「结果分析」「实验总结」「参考文献」三个必要章节；正文约 250 字，篇幅明显不足；唯一的插图没有图号与规范题注，全篇也没有任何表格。按部分达标档（满分 10 × 0.5）计 5 分。",
+      "evidence": [
+        {
+          "id": "E18",
+          "kind": "text",
+          "location": {
+            "section": "6 实验结果",
+            "lineStart": 70,
+            "lineEnd": 74
+          },
+          "quote": "## 6 实验结果\n\n程序跑起来了，输出了 cnt 的值，看起来是对的。\n\n![代码编辑界面截图（示意图）](figures/os-04-fig1.png)",
+          "confidence": 0.9,
+          "note": "该章节是全文最后一节，其后没有结果分析、实验总结与参考文献；插图题注无图号"
+        }
+      ],
+      "confidence": 0.92,
+      "needsReview": false
+    },
+    {
+      "rubricItemId": "R12",
+      "itemName": "原创性",
+      "weight": 2,
+      "maxScore": 5,
+      "level": "meeting",
+      "levelScoreRatio": 0.8,
+      "score": 4,
+      "deductionReason": "未发现照抄痕迹：flag 轮询是本人自拟的方案（标准做法应为互斥量或信号量），行文中「这个实验里我没有用锁」「我也不是很确定」等表述也呈明显的个人写作特征，符合「整体为独立完成」的达标档；但报告没有任何参数或测试用例设计（第 4 节只有三步），没有由本人实验产生的数据，也没有任何引用标注，个人实验痕迹无从核验。按达标档（满分 5 × 0.8）计 4 分。",
+      "evidence": [
+        {
+          "id": "E19",
+          "kind": "text",
+          "location": {
+            "section": "2 实验原理",
+            "lineStart": 17,
+            "lineEnd": 17
+          },
+          "quote": "这次的做法是设一个 flag，等于 0 的时候表示没人用，等于 1 的时候表示有人在改数据。线程进来之前先看 flag，如果是 1 就睡一秒再看，如果是 0 就把它设成 1 然后开始改，改完再设回 0。",
+          "confidence": 0.72,
+          "note": "方案与任何标准同步原语都不同，呈个人自拟特征；但无法据此判断代码是否由本人独立编写"
+        },
+        {
+          "id": "E20",
+          "kind": "text",
+          "location": {
+            "section": "4 实验步骤",
+            "lineStart": 29,
+            "lineEnd": 31
+          },
+          "quote": "1. 打开 vim 写程序。\n2. 用 gcc 编译。\n3. 运行看结果。",
+          "confidence": 0.7,
+          "note": "没有任何参数、测试用例或数据记录设计，缺少可核验的个人实验痕迹"
+        }
+      ],
+      "confidence": 0.66,
+      "needsReview": true
+    }
+  ],
+  "totalScore": 45.6,
+  "total": {
+    "weightIncluded": 100,
+    "weightExcluded": 0.0,
+    "upperBound": 100,
+    "isPartial": false,
+    "grade": null
+  },
+  "review": {
+    "triggered": true,
+    "triggerReason": "R2（0.66）、R5（0.76）、R12（0.66）三项置信度低于复核阈值 0.80；R8 因证据数组为空亦置 needsReview（契约第三节触发条件）。",
+    "opinion": "本轮复核集中在两个档位边界。其一，R2：第 2 节对「互斥」的定义正确，但用「这两个概念差不多」把互斥与同步混为一谈，并把非原子的检查—置位方案说成「应该能保证同一时间只有一个线程在改 cnt」；因阐述并非完全缺失，维持部分达标档而不上升也不下降到未达标。其二，R5：全文未使用任何同步原语（既无互斥量也无信号量），以 flag 忙等替代，处于「部分达标 / 未达标」边界——依契约扣分梯度中「核心代码与实验要求机制不符（如要求用信号量却用忙等）扣 5 分」的口径，该情形是被计分而非直接判未达标的，故维持部分达标档，但请教师注意本项与未达标档仅一步之遥，且所贴代码无法证明其自身结论。R12 维持达标档：无数据与参数设计，亦无抄袭实证。R8 经复核确认为证据缺失项，依契约处理为未达标、0 分，不得编造证据。三项复核均只上调置信度、不改动档位与得分。",
+    "adjustments": [
+      {
+        "rubricItemId": "R2",
+        "opinion": "逐句核对第 2 节：互斥与同步的定义分别正确，但「这两个概念差不多」确为概念混淆；flag 方案的检查—置位非原子，正文「这样应该能保证同一时间只有一个线程在改 cnt」的判断不能成立，且末句自述「我也不是很确定」。维持部分达标档，置信度 0.66 → 0.72，仍低于 0.80，保留复核标记。",
+        "confidenceBefore": 0.66,
+        "confidenceAfter": 0.72,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      },
+      {
+        "rubricItemId": "R5",
+        "opinion": "逐行核对 §5：全文无任何同步原语，临界区仅由 `while (flag == 1) { sleep(1); }` 加 `flag = 1` 保护，两线程可同时通过检查；pthread_create / pthread_join 返回值未检查亦属实。依扣分梯度「要求用信号量却用忙等扣 5 分」维持部分达标档（若按「根本未使用实验要求的机制」解读则应为未达标），置信度 0.76 → 0.80。",
+        "confidenceBefore": 0.76,
+        "confidenceAfter": 0.8,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      },
+      {
+        "rubricItemId": "R12",
+        "opinion": "flag 轮询为本人自拟方案、行文含明显的个人叙述，未见照抄痕迹；但第 4 节无参数设计、第 6 节无数据，个人实验痕迹无从核验。维持达标档，置信度 0.66 → 0.74。",
+        "confidenceBefore": 0.66,
+        "confidenceAfter": 0.74,
+        "scoreBefore": null,
+        "scoreAfter": null,
+        "changed": false
+      }
+    ],
+    "overallConfidenceBefore": 0.84,
+    "overallConfidenceAfter": 0.86
+  },
+  "feedback": {
+    "overall": "报告能写出完整可编译的程序，也如实说明了自己没有用锁、并对方案的正确性公开存疑，这份诚实是很好的起点。但核心问题必须指出：`while (flag == 1) { sleep(1); }` 与紧接着的 `flag = 1` 是两步操作，中间并不原子，两个线程完全可能同时通过检查、同时执行 `cnt = cnt + 1`，所以它并不能像第 2 节所说的那样「保证同一时间只有一个线程在改 cnt」；而且全文没有用到任何同步原语，等于回避了本次实验要求的机制。另外两个线程各只自增一次，打印出 cnt=2 也说明不了正确性——要暴露竞态，需要把自增次数放大到百万级并重复多次。最后，第 6 节没有给出 cnt 的实际数值，唯一的插图截的是代码编辑界面而非运行结果，全篇也缺少结果分析、实验总结与参考文献。",
+    "strengths": [
+      "如实说明自己没有使用锁，并主动对方案的正确性表达怀疑——「这个写法能不能真的保证不出问题我也不是很确定」，这种自我审视是很好的起点（见 2 实验原理）",
+      "对「互斥」的定义本身是正确的：同一时间只能有一个线程操作（见 2 实验原理）",
+      "第 5 节代码完整可编译，线程的创建与回收（pthread_create / pthread_join）配对齐全，缩进规范（见 5 核心代码）",
+      "环境信息给出了操作系统与编译器的大版本（Ubuntu 22.04 / gcc 11.4），方向是对的（见 3 实验环境）"
+    ],
+    "improvements": [
+      "把 flag 方案换成真正的同步原语：用 `pthread_mutex_t` 包住 `cnt = cnt + 1`（`pthread_mutex_lock` / `pthread_mutex_unlock`），或改用 `sem_wait` / `sem_post`——因为「看 flag 是否为 0」和「把 flag 设为 1」之间不原子，两个线程会同时进来",
+      "把竞争窗口放大到能被观测：让每个线程自增 100 万次而不是 1 次，程序重复运行 10 次，每次打印 cnt 与期望值 2000000 的差值；这样「加锁版差值为 0、忙等版差值不为 0」才有数据可看",
+      "第 6 节补上可核对的结果：写出 cnt 的实际数值与完整终端输出片段，并用表格汇总重复运行结果；把截图换成能看到输出的终端截图（而不是代码编辑界面），并给图加上图号与题注",
+      "补齐缺失章节：新增「结果分析」（对 cnt 与期望值的偏差做量化说明）、「实验总结」（写清本次踩到的坑与下一步改进）、「参考文献」；第 4 节把「用 gcc 编译」写成具体命令（如 `gcc -O2 -pthread -o ts ts.c`）并注明运行命令与参数",
+      "重写第 2 节：互斥与同步不是「差不多」，而是两类不同约束——互斥解决资源独占，同步解决线程间的协作时序；同时补上 flag 方案失败的反例说明，并在代码里检查 pthread_create / pthread_join 的返回值"
+    ],
+    "tone": "critical"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "agent": "parser",
+      "inputSummary": "demo/sample-reports/sample-04.md 全文（75 行 / 2,113 字节，Markdown 源稿）",
+      "outputSummary": "切分出 6 个编号章节（无结果分析、无实验总结、无参考文献），定位 1 段 C 代码块（§5，33 行）、1 处图片引用（无图号）与 0 张数据表，正文约 250 字",
+      "confidence": 0.95,
+      "note": "为 12 份样例中最短的一份，正文不足 sample-01 的十分之一"
+    },
+    {
+      "step": 2,
+      "agent": "evidence",
+      "inputSummary": "章节树 + Rubric v1.0.0 的 12 个评分点及其证据要求",
+      "outputSummary": "为 R1–R12 定位证据 20 条：text 12 条、code 7 条、figure 1 条、table 0 条；R8 未找到任何有效证据，按契约保留空数组不编造",
+      "confidence": 0.86,
+      "note": "R5、R6、R10 的证据取自同一段代码的不同侧面（加锁缺失 / API 缺失 / 命名与注释），已在各自 note 中标注，避免重复计分时混淆口径"
+    },
+    {
+      "step": 3,
+      "agent": "grader",
+      "inputSummary": "20 条证据 + Rubric v1.0.0 的 12 个评分点档位标准与扣分梯度",
+      "outputSummary": "逐项判定：优秀 0 项、达标 2 项（R3、R12）、部分达标 9 项（R1、R2、R4、R5、R6、R7、R9、R10、R11）、未达标 1 项（R8，证据缺失）；加权总分 45.60",
+      "confidence": 0.84,
+      "note": "R2、R5、R12 置信度低于 0.80 转交 Reviewer；R5 处于「部分达标 / 未达标」边界"
+    },
+    {
+      "step": 4,
+      "agent": "reviewer",
+      "inputSummary": "R2、R5、R12 的判定与全部证据原文，以及 R8 的证据缺失情况",
+      "outputSummary": "维持全部档位与得分不变，仅上调置信度：R2 0.66 → 0.72、R5 0.76 → 0.80、R12 0.66 → 0.74；整体置信度 0.84 → 0.86",
+      "confidence": 0.84,
+      "note": "R5 依「要求用信号量却用忙等扣 5 分」的扣分梯度维持部分达标档而未判未达标，理由已写入复核意见备查"
+    },
+    {
+      "step": 5,
+      "agent": "feedback",
+      "inputSummary": "12 项评分明细、3 条复核意见与 20 条证据摘要",
+      "outputSummary": "生成总体评价 1 段、亮点 4 条、改进建议 5 条，语气为严格指出问题；每条建议均指向具体代码行或章节",
+      "confidence": 0.86,
+      "note": "第 1、2 条建议给出替换 flag 方案与放大竞争窗口的最小可行修改，第 3、4 条针对结果数据与缺失章节"
+    }
+  ],
+  "provenance": {
+    "generatorAgent": "LearnBuddy AutoGrader 评阅流水线",
+    "generatedAt": "2026-09-20T06:29:50+08:00",
+    "sourceConversationId": "conversations/03-评阅生产与一致性评测.md#批次A",
+    "resultFingerprint": "sha256:1a4c3ccbb17ec9abe6ea75016d5044a5638b2360cf9b691062a650164980937b",
+    "schemaVersion": "1.0.0",
+    "sourceTurnId": "wave3-grading-A"
+  }
+}

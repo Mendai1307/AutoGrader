@@ -234,38 +234,31 @@ def build(manifest: dict, target: str, dry_run: bool = False) -> list:
     return sorted(set(written))
 
 
-def prune_stale(target: str, written: list, keep_top: tuple = ("avatars",)) -> list:
-    """删除目标目录里**不在本次装配清单内**的文件，返回被删项。
+def stale_items(target: str, written: list, keep_top: tuple = ("avatars",)) -> list:
+    """列出目标目录里**不在本次装配清单内**的文件（**只报告，不删除**）。
 
-    与「先整体删目录、再写入」的做法不同：正常情况下这里**删 0 个** ——
-    既不会误删用户在 `avatars/` 放的头像，也不会触发宿主「单轮删除超过阈值需确认」的安全闸
-    （那个闸会在半途打断装配，留下一个不完整的包）。
+    为什么是「只报告」：这个函数最初写成「顺手删掉残留」，实测**误删了 24 个目录**（含 `agents/`、`.codebuddy-plugin/`），
+    把装配好的包打坏在半途；另外宿主对「单轮批量删除」还有安全闸，会在中途打断装配。
+    **装配器不该具备破坏性**——清理残留是人的判断，不是工具的自作主张。
+    真要删，显式加 `--prune`；默认只把残留列出来让人看。
 
-    `avatars/` 顶层目录与 `.created-by-session` 会话标记始终保留。
+    `avatars/` 顶层目录与 `.created-by-session` 会话标记永远不算残留。
     """
     keep_rel = {f.replace("/", os.sep) for f in written}
     keep_rel.add(".created-by-session")
-    removed: list = []
+    stale: list = []
     if not os.path.isdir(target):
-        return removed
-    for root, dirs, files in os.walk(target, topdown=False):
+        return stale
+    for root, _dirs, files in os.walk(target):
         rel_root = os.path.relpath(root, target)
-        top = rel_root.split(os.sep)[0]
-        if rel_root != "." and top in keep_top:
+        if rel_root != "." and rel_root.split(os.sep)[0] in keep_top:
             continue
         for name in sorted(files):
-            rel = name if rel_root == "." else os.path.join(rel_root, name)
+            rel = name if rel_root == "." else os.path.relpath(os.path.join(root, name), target)
             if rel.split(os.sep)[0] in keep_top or rel in keep_rel:
                 continue
-            os.remove(os.path.join(root, name))
-            removed.append(rel)
-        if rel_root != ".":
-            try:
-                os.rmdir(root)  # 只在确实已空时成功
-                removed.append(rel_root + os.sep)
-            except OSError:
-                pass
-    return removed
+            stale.append(rel.replace(os.sep, "/"))
+    return sorted(stale)
 
 
 # --------------------------------------------------------------------------- #
@@ -299,6 +292,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--session-id", help="注册时写入 .created-by-session 的会话 id")
     ap.add_argument("--tools-dir", help="expert-manager 技能目录（含 scripts/）")
     ap.add_argument("--dry-run", action="store_true", help="只打印将写入的文件，不落盘")
+    ap.add_argument("--prune", action="store_true",
+                    help="删除目标目录里不在本次清单内的残留（**默认只报告、不删除**）")
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args(argv)
 
@@ -323,9 +318,21 @@ def main(argv: list[str]) -> int:
         return 2
     print("   ✅ 写入 %d 个文件" % len(files))
     if not args.dry_run:
-        removed = prune_stale(target, files)
-        print("   ↺ 清理不在本次清单内的残留：%d 个%s"
-              % (len(removed), ("（%s）" % "、".join(removed[:5])) if removed else ""))
+        stale = stale_items(target, files)
+        if stale:
+            print("   ⚠️ 发现 %d 个不在本次清单内的残留文件（**默认不删**）：" % len(stale))
+            for s in stale[:10]:
+                print("      %s" % s)
+            if len(stale) > 10:
+                print("      …（其余 %d 个）" % (len(stale) - 10))
+            if args.prune:
+                for s in stale:
+                    os.remove(os.path.join(target, s.replace("/", os.sep)))
+                print("   ↺ 已按 --prune 删除上述 %d 个残留" % len(stale))
+            else:
+                print("   ℹ️ 如需删除请显式加 --prune；装配器默认不做破坏性动作")
+        else:
+            print("   ✅ 无残留（目标目录内容与本次清单一致）")
     if args.dry_run:
         for f in files:
             print("      %s" % f)
@@ -459,27 +466,28 @@ def _self_test() -> int:
     checks["agentNameMatchesTarget"] = mn["agent"]["target"].endswith("%s.md" % pj["agentName"])
     checks["noTodoPlaceholders"] = "[TODO" not in json.dumps(mn, ensure_ascii=False)
 
-    # 增量清理：只删「不在本次清单内」的文件；avatars/ 与会话标记必须保留
-    # （防误删用户自己放的头像；也避免「整体删除」触发宿主的安全删除闸而把装配打断在半途）
+    # 残留识别：**只报告、不删除** —— 装配器绝不具备破坏性（见 stale_items 的说明）
     import tempfile
     with tempfile.TemporaryDirectory() as td:
         os.makedirs(os.path.join(td, "agents"))
         os.makedirs(os.path.join(td, "avatars"))
         os.makedirs(os.path.join(td, "skills", "old-skill"))
-        for rel in ("agents/a.md", "avatars/expert.png", ".created-by-session",
-                    "skills/old-skill/SKILL.md", "stray.txt"):
+        for rel in ("agents/a.md", "agents/old.md", "avatars/expert.png",
+                    ".created-by-session", "skills/old-skill/SKILL.md", "stray.txt"):
             open(os.path.join(td, rel), "w").close()
-        removed = prune_stale(td, ["agents/a.md"])
+        stale = stale_items(td, ["agents/a.md"])
         left = set()
         for root, _dirs, fs in os.walk(td):
             for f in fs:
                 left.add(os.path.relpath(os.path.join(root, f), td).replace("\\", "/"))
-        checks["pruneKeepsDeclared"] = "agents/a.md" in left
-        checks["pruneKeepsAvatars"] = "avatars/expert.png" in left
-        checks["pruneKeepsSessionMarker"] = ".created-by-session" in left
-        checks["pruneRemovesStale"] = ("stray.txt" not in left
-                                       and "skills/old-skill/SKILL.md" not in left)
-        checks["pruneReportsRemoved"] = any("stray" in r for r in removed)
+        checks["staleReportsStray"] = ("stray.txt" in stale and "agents/old.md" in stale
+                                      and "skills/old-skill/SKILL.md" in stale)
+        checks["staleKeepsDeclared"] = "agents/a.md" not in stale
+        checks["staleNeverDeletes"] = left == {"agents/a.md", "agents/old.md", "avatars/expert.png",
+                                               ".created-by-session", "skills/old-skill/SKILL.md",
+                                               "stray.txt"}
+        checks["staleKeepsAvatars"] = not any(s.startswith("avatars/") for s in stale)
+        checks["staleKeepsSessionMarker"] = ".created-by-session" not in stale
 
     bad = [k for k, v in checks.items() if not v]
     print(json.dumps({"tool": "build-expert", "checks": checks}, ensure_ascii=False,

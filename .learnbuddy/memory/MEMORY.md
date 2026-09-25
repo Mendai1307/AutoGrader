@@ -225,7 +225,16 @@ Evaluation 层再加 **27 项** = `evaluate.py` 17 / `regression_gate.py` 10。
 - `package_expert.py` 排除 `__pycache__` / `node_modules` / 根 `dist` / `.gitkeep` / 其他隐藏路径（仅允许 `.codebuddy-plugin`）
 - 装配脚本写文件必须 `newline="\n"`（否则 Windows 下 LF→CRLF）
 
-**仍未做**：**头像**（`avatars/` 为空；生成需图像生成工具、会产生额外额度消耗，未执行）；两种编排形态的实跑对照。
+**仍未做**：**头像**（`avatars/` 为空）。⚠️ **本环境不可用图像生成工具**（2026-09-26 实测：
+`ToolSearch` 精确名 `ImageGen` 无匹配 → 关键词检索只出 `VideoGen`/Ardot → `DeferExecuteTool` 直呼返回
+`Tool "ImageGen" is not available in the current environment or configuration`）。**不要再盲试**；
+按官方头像规范的「生成失败处理」条款办 —— 推荐 prompt 与两种补法已写进 `packaging/PLUGIN_README.md` §六。
+另：两种编排形态的实跑对照需真实会话。
+
+**装配器的铁律**：`build_expert.py` **绝不做破坏性动作**。历史教训（2026-09-26）：最初的
+「先整体删目录再写入」被宿主「单轮删除 >50 项需确认」的安全闸**打断在半途**、把包打坏；
+改成「增量删除」后又**误删 24 个目录**（自测 `pruneKeepsDeclared` 抓到）。
+现为 `stale_items()` **只报告不删除**，要删须显式 `--prune`。
 
 ## 九、docx 修订链路（可复用，实测通过）
 
@@ -333,5 +342,18 @@ Evaluation 层再加 **27 项** = `evaluate.py` 17 / `regression_gate.py` 10。
   （已实测：跑完 T5 全流程后 `scripts/` 与 `contract/` 都不再出现缓存）。
   **一次性核对脚本自己 import `fingerprint.py` 时仍会建缓存** → 跑完顺手清
 - 删目录：`rm -rf` 会被 safe-delete 钩子按 MSYS 路径拒绝（must be absolute），
-  须用 PowerShell `Remove-Item -LiteralPath "<绝对路径>" -Recurse -Force -Confirm:$false`
-  （该命令常返回 exit 1 但实际成功，**以 `Test-Path` / `ls` 复核为准**）
+  须用 PowerShell `Remove-Item -LiteralPath "<绝对路径>" -Recurse -Force -Confirm:$false`。
+  ⚠️ 另有**批量闸**：单轮删除 >50 项会要求确认（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`），
+  会把半途的批量操作打断 —— **所以任何脚本都不要做整体删除**（`build_expert.py` 已改成只报告不删除）
+- **校验读数以 Python 为准**：**PowerShell 工具在本沙箱不回显 stdout**（多次 exit 0/1 却无输出），
+  不要用它做校验。可靠做法：Python 脚本化 `os.walk` + `os.path.exists` / `json.load`
+- **⚠️ `.created-by-session` 会被外部清掉**（2026-09-26 观察）：`register_expert.py` 刚写完时确实在
+  （同一进程链内 Python 复核 = 55 文件、标记存在），但**稍后的独立进程再看就只有 54 文件、标记没了**。
+  **参考包 `frontend-design-expert/` 同样没有这个文件** → 最可能是宿主对市场目录的同步/规范化行为，
+  **不是缺陷，也不必反复「修复」**。判断包完整性的口径 = **54 个交付文件**
+  （官方 `package_expert.py` 打出的 zip 为 52，差额是 2 个 `.gitkeep`）。
+  ⚠️ 我一度把此现象写成「bash 对混合分隔符路径读数不可靠」——**那是错的**：
+  bash 当初读到的「54 + 缺失」才是事实，矛盾来自**时间差**而非路径
+- **本环境不可用图像生成工具**（2026-09-26 实测）：`ToolSearch` 精确名 `ImageGen` 无匹配、
+  关键词检索只出 `VideoGen` 与 Ardot 系列、`DeferExecuteTool` 直呼返回
+  `Tool "ImageGen" is not available in the current environment or configuration`。**不要再盲试**

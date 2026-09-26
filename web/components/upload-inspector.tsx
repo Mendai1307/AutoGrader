@@ -240,13 +240,13 @@ export function UploadInspector({
           )}
         >
           <FileUp className="h-5 w-5 text-primary" />
-          <p className="text-[13px] font-medium">把报告拖到这里，或选择文件</p>
+          <p className="text-[13px] font-medium">将报告拖至此处，或选择文件</p>
           <p className="text-[11.5px] leading-relaxed text-muted-foreground">
             支持 <code className="font-mono">.md</code> / <code className="font-mono">.txt</code> /{' '}
             <code className="font-mono">.docx</code>，上限 {MAX_FILE_MB} MB。
             <span className="text-foreground">文件不会离开这台机器</span>
           </p>
-          <Note summary="为什么「不会离开这台机器」">
+          <Note summary="数据不出本机的依据">
             解压、切分、核查全部在浏览器本地完成，没有后端、没有 AI 调用、没有网络请求。
           </Note>
           <div className="flex flex-wrap items-center justify-center gap-2">
@@ -403,7 +403,7 @@ function InspectionResult({ outcome, corpusSize }: { outcome: Outcome; corpusSiz
                 解析状态为 <code className="font-mono text-foreground">{document.status}</code>
                 {document.failures.length === 0 ? '。' : `：${document.failures.map((f) => f.reason).join('；')}`}
                 {document.status === 'partial' && document.failures.some((f) => f.reason.startsWith('structure-not-recognized'))
-                  ? ' —— 此时**章节存在性无法判定**，下面的结构规则会全部标注为「不适用」，而不是判定为「缺失」。'
+                  ? ' —— 此时章节存在性无法判定，下方结构规则会全部标注为「不适用」，而非判定为「缺失」。'
                   : null}
               </span>
             </p>
@@ -412,7 +412,7 @@ function InspectionResult({ outcome, corpusSize }: { outcome: Outcome; corpusSiz
           <p className="mt-3 text-[11.5px] leading-relaxed text-muted-foreground">
             文件指纹 <code className="break-all font-mono">{document.sourceFile.digest || '（未计算）'}</code>
             ；规则集摘要 <code className="font-mono">{inspection.rulesetDigest.rulesetDigest.slice(0, 22)}…</code>。
-            <Note summary="这两个摘要用来做什么">
+            <Note summary="两个摘要的用途">
               与工具链 T2 的输出应当逐字相同（构建期由 <code className="font-mono">npm run audit:cross-end</code> 复核）。
             </Note>
           </p>
@@ -432,8 +432,8 @@ function InspectionResult({ outcome, corpusSize }: { outcome: Outcome; corpusSiz
             ))}
           </ul>
           <Note summary="「不适用」与「不通过」的区别" className="mt-2">
-            前者是这条规则在当前输入上无法判定，后者才表示核查发现了问题。
-            把两者混为一谈，会把「没解析出来」误报成「学生没写」。
+            前者表示该规则在当前输入上无法判定，后者才表示核查发现了问题。
+            二者若不加区分，会把「未能解析」误报为「学生未撰写」。
           </Note>
         </Card>
       )}
@@ -462,8 +462,8 @@ function InspectionResult({ outcome, corpusSize }: { outcome: Outcome; corpusSiz
       </Card>
 
       <Note summary="相似度不构成抄袭结论">
-        相似度是与内置语料库（{corpusSize} 份样例报告）比对得出的**文本指纹接近度**，
-        只表示「值得看一眼」，<span className="text-foreground">不构成任何抄袭结论</span>；
+        相似度是与内置语料库（{corpusSize} 份样例报告）比对得出的文本指纹接近度，
+        仅表示「值得人工核对」，<span className="text-foreground">不构成任何抄袭结论</span>；
         最终判断须由教师结合原创性评分点完成。
       </Note>
     </div>

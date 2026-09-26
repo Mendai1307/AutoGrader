@@ -77,7 +77,7 @@ const AI_FACTS = [
   {
     icon: Fingerprint,
     title: '每个结论都可回溯',
-    body: '评分点、证据原文、档位系数、复核置信度变化、结果指纹与来源对话轮次全部固化为 JSON 资产，评审可逐条复核，AI 不是黑箱。',
+    body: '评分点、证据原文、档位系数、复核置信度变化、结果指纹与来源对话轮次全部固化为 JSON 资产，评审可逐条复核，评阅过程并非不可审计的黑箱。',
   },
 ] as const;
 
@@ -154,10 +154,10 @@ export default function HomePage() {
                 <CardTitle className="text-lg">AI 能力来源声明</CardTitle>
               </div>
               <p className="text-base font-medium leading-relaxed text-foreground">{AI_SOURCE_STATEMENT}</p>
-              <Note summary="Compile-time AI 范式是什么">
-                AI 推理在开发期的 LearnBuddy 对话侧完成并固化为仓库内的静态 JSON 资产；
+              <Note summary="关于 Compile-time AI 范式">
+                AI 推理在开发期的 LearnBuddy 对话侧完成，并固化为仓库内的静态 JSON 资产；
                 Web 端不复用任何模型、不发起任何网络推理请求，只按契约做确定性渲染。
-                这样做的直接好处是评分口径可复现、可审计、可离线演示，也不会出现「同一份报告两次评阅得到不同分数」。
+                其直接收益是评分口径可复现、可审计、可离线演示，并杜绝「同一份报告两次评阅得到不同分数」的情况。
               </Note>
             </CardHeader>
             <CardContent>
@@ -190,7 +190,7 @@ export default function HomePage() {
               <h2 className="text-xl font-semibold tracking-tight">五 Agent 评阅流水线</h2>
               <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                 每一步都产出结构化的中间结果并记录置信度，供教师逐环节核查；
-                置信度低于 0.80 的判定会自动进入 Reviewer 复核环节，而不是直接落到分数上。
+                置信度低于 0.80 的判定会自动进入 Reviewer 复核环节，而非直接计入分数。
               </p>
             </div>
             <Link
@@ -212,9 +212,9 @@ export default function HomePage() {
 
         {/* ========================== 页面入口 ========================== */}
         <section className="py-12">
-          <h2 className="text-xl font-semibold tracking-tight">从哪里开始看</h2>
+          <h2 className="text-xl font-semibold tracking-tight">浏览指引</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            三个入口对应「单份报告怎么评」「评得准不准」「凭什么相信它」三个问题。
+            三个入口分别回答三个问题：单份报告如何评阅、评分是否准确、结论为何可信。
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-3">

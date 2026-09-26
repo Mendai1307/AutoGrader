@@ -256,7 +256,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                   <div className="rounded-md border border-rule bg-secondary/40 px-3 py-2.5">
                     <div className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground">
                       <Sigma className="h-3.5 w-3.5" />
-                      总分口径（可自己复算）
+                      总分口径（可自行复算）
                     </div>
                     <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px]">
                       <div className="flex items-baseline justify-between gap-2">
@@ -383,12 +383,12 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
 
                 <Note summary="分数自证（构建期复算）">
                   <p>
-                    先逐项核验「得分 = 满分 × 档位系数」
+                    首先逐项核验「得分 = 满分 × 档位系数」
                     {summary.itemFailures.length === 0
                       ? `，全部 ${state.data.scores.length} 项在 0.01 容差内一致；`
                       : `，其中 ${summary.itemFailures.length} 项（${summary.itemFailures.join(' / ')}）不一致；`}
-                    再按加权口径复算总分并与结果文件中声明的 totalScore 比对。两项自证同时成立，
-                    即说明本页显示的每一个分数都由档位系数机械推出，而非事后手工填写。
+                    再按加权口径复算总分，并与结果文件中声明的 totalScore 比对。两项自证同时成立，
+                    即表明本页显示的每一个分数均由档位系数机械推导得出，而非事后手工填写。
                   </p>
                 </Note>
               </div>
@@ -430,7 +430,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                   </div>
                 </dl>
 
-                <Note summary="金标准分是怎么来的">
+                <Note summary="金标准分的产生方式">
                   金标准分由教师按同一 rubric 档位标准逐项人工标注后，用与 AI 完全相同的加权口径核算，
                   因此可直接作为一致性评测的参照。
                 </Note>
@@ -448,7 +448,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                 <h2 className={cn('text-sm font-semibold', TONE.bad.text)}>
                   {state.file} 存在，但未通过 ReviewResult 契约校验，因此不予渲染
                 </h2>
-                <Note summary="为什么不渲染不合格结果">
+                <Note summary="不渲染不合规结果的原因">
                   按契约约定，结构校验与口径校验都不通过时不得渲染结果，避免把不合规的分数展示给教师。
                 </Note>
                 <ul className="mt-2 space-y-1">
@@ -653,7 +653,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                       人工标注 · 非 AI 输出
                     </Badge>
                   </div>
-                  <Note summary="这条基线怎么用">
+                  <Note summary="该基线的用途">
                     这是教师按 rubric 档位标准逐项标注的应有得分，也是 AI 结果产出后一致性评测的参照。
                     它不代表 AI 判定，本页不会将其当作评阅结果展示。
                   </Note>

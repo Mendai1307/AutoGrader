@@ -173,10 +173,10 @@ export function CalibrationChart({ buckets, labels, className }: CalibrationChar
         {/* 右侧图例与口径 */}
         <g transform={`translate(${RIGHT_X}, ${PLOT.y + 6})`}>
           <text x={0} y={0} fontSize={11} fontWeight={600} fill="currentColor">
-            怎么读
+            阅读说明
           </text>
           <text x={0} y={18} fontSize={10} fill="currentColor" fillOpacity={0.65}>
-            对角线：说到做到
+            对角线：校准理想
           </text>
           <line x1={0} y1={34} x2={26} y2={34} stroke="currentColor" strokeOpacity={0.75} strokeWidth={2} />
           <text x={32} y={37} fontSize={10} fill="currentColor" fillOpacity={0.65}>
@@ -199,7 +199,7 @@ export function CalibrationChart({ buckets, labels, className }: CalibrationChar
             虚线：偏保守
           </text>
           <text x={32} y={84} fontSize={10} fill="currentColor" fillOpacity={0.45}>
-            （低估了自己）
+            （置信度偏低）
           </text>
           <circle cx={13} cy={104} r={7} fill="currentColor" fillOpacity={0.85} />
           <text x={32} y={107} fontSize={10} fill="currentColor" fillOpacity={0.65}>

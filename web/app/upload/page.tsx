@@ -60,9 +60,9 @@ export default function UploadPage() {
 
           <h1 className="mt-4 text-3xl font-bold tracking-tight">上传核查 · 确定性事实</h1>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            上传或粘贴一份实验报告，立刻得到四类**机器可确切判定的事实**：
+            上传或粘贴一份实验报告，即时获得四类可由机器确切判定的事实：
             章节完整性、代码块与关键 API 命中、统计特征、查重指纹。
-            全过程在本机浏览器内完成，文件不上传。
+            全过程在本机浏览器内完成，文件不会离开本机。
           </p>
 
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -72,8 +72,8 @@ export default function UploadPage() {
               hint={`章节 ${kindCount.get('structure') ?? 0} · 代码 ${kindCount.get('code') ?? 0} · 统计 ${kindCount.get('statistics') ?? 0} · 查重 ${kindCount.get('similarity') ?? 0}`}
             />
             <StatCard label="查重语料" value={corpus.length} hint="份样例报告，与页面同源" />
-            <StatCard label="支持格式" value="md / txt / docx" hint="PDF 不提供：浏览器端无法保证口径一致" />
-            <StatCard label="跨端对拍" value="12 / 12" hint="构建期逐条比对 T1 + T2，12 份全绿" />
+            <StatCard label="支持格式" value="md / txt / docx" hint="不支持 PDF：浏览器端无法保证口径一致" />
+            <StatCard label="跨端对拍" value="12 / 12" hint="构建期逐条比对 T1 + T2，12 份全部一致" />
           </div>
         </section>
 
@@ -89,7 +89,7 @@ export default function UploadPage() {
 
         {/* ==================== 能力边界与实现说明 ==================== */}
         <section className="border-b border-border py-8">
-          <Note summary="这一页怎么做出来的 · 实现与能力边界">
+          <Note summary="实现说明与能力边界">
             <p>
               <span className="font-medium text-foreground">与工具链同源：</span>
               解析与核查逻辑是评阅工具链（T1 文档解析 / T2 规则核查）的同源移植，
@@ -101,24 +101,24 @@ export default function UploadPage() {
               不支持时会提示改用 md / txt；超过 8 MB 的文件直接拒绝。
             </p>
             <p>
-              核查器只陈述事实，不评价论证、不判断代码对错、不给出抄袭结论；
-              每条事实都带取值、阈值与原文锚点。查重语料为 12 份样例报告，
-              相似度只表示文本指纹接近，不构成抄袭结论。
+              核查器只陈述事实，不评价论证、不判断代码正确性、不给出抄袭结论；
+              每条事实都附取值、阈值与原文锚点。查重语料为 12 份样例报告，
+              相似度仅表示文本指纹接近，不构成抄袭结论。
             </p>
           </Note>
         </section>
 
         <section className="py-8">
           <p className="text-[12px] leading-relaxed text-muted-foreground">
-            想看核查结果与教师金标准的差距？去{' '}
+            如需查看核查结果与教师金标准的对比，请前往{' '}
             <Link href="/eval" className="text-primary hover:underline">
               一致性评测
             </Link>
-            ；想先看一份完整评阅结果？去{' '}
+            ；如需查看一份完整的评阅结果，可在{' '}
             <Link href="/grade" className="text-primary hover:underline">
               评阅工作台
             </Link>
-            挑一份样例。
+            中选择任意样例。
           </p>
         </section>
       </main>

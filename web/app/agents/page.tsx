@@ -130,9 +130,9 @@ export default function AgentsPage() {
         'T1 文档解析 / T2 客观核查 / T3 引用解析 / T4 确定性计算 / T5 契约校验 / T6 资产库。全部是纯函数命令行脚本：仅 Python 标准库、无网络、无 AI 调用，同一输入必得同一输出。',
       note: (
         <>
-          工具与技能的分界是三条全中：<span className="text-foreground">同输入必得同输出</span>、
+          工具与技能的分界判据为以下三条全部满足：<span className="text-foreground">同输入必得同输出</span>、
           <span className="text-foreground">可被第三方复算</span>、
-          <span className="text-foreground">输出里没有判断只有事实</span>。任一条不满足就写进技能而不是工具。
+          <span className="text-foreground">输出里没有判断只有事实</span>。任一条不满足即归入技能而非工具。
         </>
       ),
     },
@@ -173,22 +173,22 @@ export default function AgentsPage() {
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="accent" className="gap-1.5">
               <Sparkles className="h-3 w-3" />
-              AI 能力在这里
+              AI 能力载体
             </Badge>
-            <Badge variant="outline">五件套 · 机械抽取自仓库</Badge>
+            <Badge variant="outline">五件套 · 构建期机械抽取自仓库</Badge>
           </div>
 
           <h1 className="mt-4 text-3xl font-bold tracking-tight">智能体构成 · 五件套</h1>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            AutoGrader 的智能评阅能力不是页面上的一个按钮，而是 LearnBuddy 上的一个
+            AutoGrader 的智能评阅能力并非页面上的一个按钮，而是 LearnBuddy 上的一个
             <InlineMarkdown text="**专家智能体**" />：
-            它由 Prompt + Skills + Tools + Workflow + Evaluation 五层构成，全部落在本仓库里、可被逐份检查。
-            网页只负责把评阅结果完整呈现出来。
+            它由 Prompt + Skills + Tools + Workflow + Evaluation 五层构成，全部位于本仓库内，可逐份检查。
+            网页仅负责完整呈现评阅结果。
           </p>
-          <Note summary="本页数字怎么来的" className="mt-2">
-            所有数字都在构建期由脚本扫描仓库生成（
+          <Note summary="本页数据的生成方式" className="mt-2">
+            所有数字均在构建期由脚本扫描仓库生成（
             <code className="font-mono">{agentKit.generatedBy}</code>
-            ），不手写、不润色：文件数与条目数永远与磁盘一致。抽取源：
+            ），不手工填写、不做修饰：文件数与条目数与磁盘始终一致。数据抽取源：
             <code className="font-mono">{agentKit.sourceRoot}</code>。
           </Note>
 
@@ -347,14 +347,14 @@ export default function AgentsPage() {
             ))}
           </div>
 
-          <Note summary="指标口径怎么保证一致" className="mt-3">
+          <Note summary="指标口径的一致性保障" className="mt-3">
             <p>
-              口径写死为：<code className="font-mono">{baseline.goldMeta.totalScoreFormula}</code>；
+              口径固定为：<code className="font-mono">{baseline.goldMeta.totalScoreFormula}</code>；
               每个指标都可由原始数据复算。
             </p>
             <p>
               评测页 <Link href="/eval" className="text-primary hover:underline">/eval</Link>{' '}
-              会把这些数字<InlineMarkdown text="**在浏览器里现算一遍**" />，而不是把结果抄在页面上。
+              会把这些数字<InlineMarkdown text="**在浏览器里实时计算**" />，而非将结果预先固化为字面量。
             </p>
           </Note>
         </section>
@@ -363,8 +363,8 @@ export default function AgentsPage() {
         <section className="border-b border-border py-8">
           <SectionTitle
             icon={<Bot className="h-4 w-4" />}
-            title="两个容易混的标记 · 与色彩纪律"
-            hint="needsReview（需人过目，不影响总分）与 pending（无终值，不计入求和）语义正交，必须能一眼分开"
+            title="两个易混淆的标记 · 与色彩使用规范"
+            hint="needsReview（需教师过目，不影响总分）与 pending（无终值，不计入求和）语义正交，必须在视觉上可即时区分"
           />
 
           <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -375,14 +375,14 @@ export default function AgentsPage() {
               </div>
               <ul className="mt-2.5 space-y-1.5 text-[12px] leading-relaxed text-muted-foreground">
                 <li>
-                  <span className="font-mono text-foreground">needsReview</span> —— 需要教师看一眼；
+                  <span className="font-mono text-foreground">needsReview</span> —— 需教师复核确认；
                   <span className="text-foreground">不影响总分</span>。
                 </li>
                 <li>
                   <span className="font-mono text-foreground">pending</span> —— 尚无终值；
                   <span className="text-foreground">不计入求和</span>，其权重计入「已排除」。
                 </li>
-                <li>两者合并会让 12 份历史资产的总分全部改变，故契约强制并存且符号不同。</li>
+                <li>若合并两者，12 份历史资产的总分将全部改变，故契约强制二者并存且符号不同。</li>
               </ul>
             </Card>
 
@@ -397,11 +397,11 @@ export default function AgentsPage() {
                   </Badge>
                 ))}
               </div>
-              <Note summary="为什么不用红绿" className="mt-2.5">
+              <Note summary="不使用红绿的原因" className="mt-2.5">
                 档位、置信度、难度这些<InlineMarkdown text="**数据语义一律不用红绿**" />：序数由
                 <span className="font-mono text-foreground"> ●●○○</span> 这类刻度符号承担，
-                程度由字重与灰阶承担。理由是红绿在色觉障碍下不可辨、在黑白打印与低质量投屏上同样失效；
-                低饱和赭石仅保留给「真的出错」（构建失败、契约校验不通过）。
+                程度由字重与灰阶承担。原因在于红绿在色觉障碍情况下不可辨，在黑白打印与低质量投屏上同样失效；
+                低饱和赭石仅保留给真正的错误状态（构建失败、契约校验不通过）。
               </Note>
             </Card>
           </div>

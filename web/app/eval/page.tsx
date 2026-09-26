@@ -91,12 +91,12 @@ export default function EvalPage() {
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             以教师逐项标注的金标准分为参照，衡量 AI 评分的准确性与稳定性：
             总分 MAE、逐项档位命中率、档位一致率、置信度校准（ECE），以及难度档位与分数区间分布。
-            本页是「AI 评得准不准」的直接答案，也是评阅结果信任度的量化依据。
+            本页直接回答「AI 评分是否准确」，并为评阅结果的可信度提供量化依据。
           </p>
-          <Note summary="这些数字是在浏览器里现算的" className="mt-2">
+          <Note summary="指标由浏览器实时计算" className="mt-2">
             页面上所有指标均由<strong className="font-semibold text-foreground">浏览器在运行时</strong>
-            从原始数据现算 —— 原始输入（金标准档位、AI 档位与置信度、rubric 权重）随页面一同下发，
-            计算只依赖可查看的纯函数，故任何人可在控制台复算或自行核对。
+            从原始数据实时计算 —— 原始输入（金标准档位、AI 档位与置信度、rubric 权重）随页面一同下发，
+            计算仅依赖可查看的纯函数，任何人均可在控制台复算或自行核对。
           </Note>
         </section>
 

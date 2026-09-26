@@ -157,7 +157,7 @@ export function InspectionPanel({ inspection, topSimilarity, peerCount, classNam
             </Badge>
           </span>
         </div>
-        <Note summary="这些核查数据从哪来、边界在哪" className="mt-2">
+        <Note summary="核查数据的来源与边界" className="mt-2">
           <p>
             由 <code className="font-mono">web/lib/inspectors/</code> 的纯函数核查器在
             <span className="font-medium text-foreground">构建期</span>对报告 Markdown 原文计算得出，随静态产物固化；
@@ -453,7 +453,7 @@ export function InspectionPanel({ inspection, topSimilarity, peerCount, classNam
             <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span>
               <span className="font-semibold">相似度高于 {REVIEW_THRESHOLD.toFixed(2)} 需人工复核。</span>
-              该阈值只表示「指纹接近、值得看一眼」，同主题同实验的报告天然会落在这一区间，
+              该阈值仅表示「文本指纹接近、值得人工核对」，同主题同实验的报告天然会落在这一区间，
               <span className="font-semibold">不构成任何抄袭结论</span>，最终判断须由教师结合原创性评分点完成。
             </span>
           </p>

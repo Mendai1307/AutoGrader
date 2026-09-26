@@ -100,8 +100,8 @@ export default function TracePage() {
           <h1 className="mt-4 text-3xl font-bold tracking-tight">工作流溯源</h1>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             智能评阅由 Parser → Evidence → Grader → Reviewer → Feedback 五个 Agent 依次完成，
-            每一步都留下结构化的输入 / 输出摘要与置信度。本页把这条链路完整摊开，
-            让评审可以回答：这个分数是
+            每一步都留下结构化的输入 / 输出摘要与置信度。本页完整呈现这条链路，
+            供评审回答：这个分数是
             <span className="font-semibold text-foreground">基于哪几条证据、经哪一步判定、有没有被复核改过</span>
             得出的。
           </p>
@@ -143,12 +143,12 @@ export default function TracePage() {
                 <ShieldCheck className="h-4 w-4 text-primary" />
                 <CardTitle>复核触发规则：低置信度（&lt; 0.80）自动触发 Reviewer 复核</CardTitle>
               </div>
-              <Note summary="为什么会有复核环节" className="mt-2">
+              <Note summary="复核环节的设计目的" className="mt-2">
                 <p>
-                  Grader 给出的每一项判定都带一个 0–1 的置信度。只要某项置信度低于 0.80，该项就会被置为「需复核」，
+                  Grader 给出的每一项判定都附带一个 0–1 的置信度。只要某项置信度低于 0.80，该项就会被置为「需复核」，
                   并整体转交 Reviewer 环节二次比对证据原文。
                 </p>
-                <p>复核不会凭空补证据，只能维持、上调置信度或改判档位。</p>
+                <p>复核不引入新证据，仅可维持原判、上调置信度或改判档位。</p>
               </Note>
             </CardHeader>
             <CardContent className="p-0">
@@ -213,7 +213,7 @@ export default function TracePage() {
             <>
               {/* ⚠️ 这段原先写「溯源链来自契约示例 _example.json（非真实评阅结果）」—— **与实现不符**：
                   data.ts 的 getTraceExample() 取的是首份通过校验的**真实**结果。已按实际改写并收进二级菜单。 */}
-              <Note summary="这段溯源链的数据来源" className="mb-4">
+              <Note summary="溯源链的数据来源" className="mb-4">
                 <p>
                   以下溯源链取自{' '}
                   <code className="font-mono">
@@ -223,7 +223,7 @@ export default function TracePage() {
                   <Link href="/eval" className="mx-1 underline">
                     一致性评测
                   </Link>
-                  所用的同一份真实评阅结果，不是为演示而写的样板。
+                  所用的同一份真实评阅结果，并非为演示构造的样板数据。
                 </p>
               </Note>
 

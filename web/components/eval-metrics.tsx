@@ -281,9 +281,9 @@ export function EvalDeviationPanel({ input }: { input: EvalMetricsInput }) {
               {usable.length} 份可比 · 容差 ±2
             </Badge>
           </div>
-          <Note summary="怎么读这张图" className="mt-2">
-            <p>向右为 AI 给分偏松、向左为偏严。中间浅色带是 ±2 分容差区间，落在带内即视作同档，带外才需要人工核对。</p>
-            <p>条的长度与位置就是全部信息，不需要依赖颜色。</p>
+          <Note summary="图表阅读说明" className="mt-2">
+            <p>向右表示 AI 给分偏松，向左表示偏严。中间浅色带为 ±2 分容差区间，落在带内即视作同档，带外才需要人工核对。</p>
+            <p>条的长度与位置即全部信息，不依赖颜色。</p>
           </Note>
         </CardHeader>
         <CardContent className="px-4 pb-4 pt-5">
@@ -307,9 +307,9 @@ export function EvalDeviationPanel({ input }: { input: EvalMetricsInput }) {
               0 – 100 分量程
             </Badge>
           </div>
-          <Note summary="怎么读这张图" className="mt-2">
-            <p>空心圆是教师金标准分，实心圆是 AI 加权总分，两点之间的线段就是差距本身。</p>
-            <p>线段最长的几行就是差距最大的几份，不需要读者自己做减法。</p>
+          <Note summary="图表阅读说明" className="mt-2">
+            <p>空心圆表示教师金标准分，实心圆表示 AI 加权总分，两点之间的线段即差距本身。</p>
+            <p>线段最长的行即差距最大的报告，无需读者自行计算差值。</p>
           </Note>
         </CardHeader>
         <CardContent className="px-4 pb-4 pt-5">
@@ -342,9 +342,9 @@ export function EvalCalibrationPanel({ input }: { input: EvalMetricsInput }) {
               {calibration.ece === null ? '暂无可分桶样本' : `ECE = ${calibration.ece.toFixed(2)} · 越低越好`}
             </Badge>
           </div>
-          <Note summary="ECE 怎么算" className="mt-2">
+          <Note summary="ECE 的计算方式" className="mt-2">
             <p>{ECE_DEFINITION}</p>
-            <p>对角线为「说到做到」；实线表示偏自信、虚线表示偏保守；点的大小按该桶样本数。</p>
+            <p>对角线表示置信度与实际命中率完全一致；实线表示偏自信，虚线表示偏保守；点的尺寸与该桶样本数成正比。</p>
           </Note>
         </CardHeader>
         <CardContent className="px-4 pb-1 pt-5">
@@ -464,9 +464,9 @@ export function EvalHitRatePanel({ input }: { input: EvalMetricsInput }) {
             可比评分点 {m.hitComparable} 项
           </Badge>
         </div>
-          <Note summary="命中率怎么定" className="mt-2">
+          <Note summary="命中率的判定规则" className="mt-2">
             <p>{HIT_RATE_DEFINITION}</p>
-            <p>图中虚线为 70% / 90% 参考线：越过 90% 视为稳定，低于 70% 需回到该评分点的判据描述上找原因。</p>
+            <p>图中虚线为 70% / 90% 参考线：超过 90% 视为稳定，低于 70% 应对照该评分点的判据描述核查原因。</p>
           </Note>
         </CardHeader>
       <CardContent className="pt-5">
@@ -537,7 +537,7 @@ export function EvalHitRatePanel({ input }: { input: EvalMetricsInput }) {
       <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-border bg-secondary/20 px-4 py-3 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <Info className="h-3 w-3" />
-          以上全部数字由浏览器在运行时从原始数据现算，非构建期固化值
+          以上全部数字由浏览器在运行时从原始数据实时计算，非构建期固化值
         </span>
         <span>一致率口径：Σ命中 ÷ Σ可比（汇总值，不是逐项平均）</span>
         <span>
@@ -806,7 +806,7 @@ function CompareTable({ input }: { input: EvalMetricsInput }) {
             </TableBody>
             <TableCaption>
               偏差 = AI 加权总分 − 教师金标准分；AI 评分未产出时留空，不做任何插值或估算。
-              本表右侧汇总三项指标，均由浏览器运行时现算。
+              本表右侧汇总三项指标，均由浏览器在运行时实时计算。
             </TableCaption>
           </Table>
         </TableWrapper>

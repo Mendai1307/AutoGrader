@@ -46,7 +46,7 @@ import {
 } from '@/components/ui/table';
 import { Tabs } from '@/components/ui/tabs';
 import { AGENTS, CONFIDENCE_GRADE_META, RESULT_FILE_CONVENTION, STATUS_META, TONE } from '@/lib/constants';
-import { getTraceExample, getResultState, getSampleReports } from '@/lib/data';
+import { getFingerprintCheck, getTraceExample, getResultState, getSampleReports } from '@/lib/data';
 import {
   CONFIDENCE_SEMANTICS,
   CONFIDENCE_THRESHOLD,
@@ -73,11 +73,17 @@ function bandLabel(grade: ConfidenceGrade): string {
   return `0.00 – < ${CONFIDENCE_THRESHOLD.MEDIUM.toFixed(2)}`;
 }
 
-export default function TracePage() {
+/**
+ * /trace 与 /report/[id] 共用同一条指纹复算路径（`getFingerprintCheck`，走 Web Crypto）。
+ * 因此本组件是 async Server Component —— 静态导出时在构建期 await 出结果并写进 HTML，
+ * 运行时不发任何请求。演示的这条溯源链取自首份真实结果，复算的也就是那份的指纹。
+ */
+export default async function TracePage() {
   const example = getTraceExample();
   const reports = getSampleReports();
   const steps = example === null ? [] : [...example.steps].sort((a, b) => a.step - b.step);
   const adjustments = example === null ? [] : example.review.adjustments;
+  const fingerprintCheck = example === null ? null : await getFingerprintCheck(example.report.reportId);
 
   const reportStatuses = reports.map((report) => ({
     report,
@@ -387,6 +393,7 @@ export default function TracePage() {
                       <div className="space-y-4">
                         <ProvenanceBlock
                           provenance={example.provenance}
+                          fingerprintCheck={fingerprintCheck}
                           hint="该块的字段与真实结果文件完全同构；真实结果产出后，每份报告详情页底部都会展示同一结构。"
                         />
 

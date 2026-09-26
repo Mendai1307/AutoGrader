@@ -16,7 +16,7 @@
 
 AutoGrader 不是一个「网页里塞个 AI 调用」的作品。它把 AI 推理放在
 **LearnBuddy 对话侧**（专家智能体在那里运行），产出结构化的 `ReviewResult` JSON 提交进仓库；
-而**浏览器端运行时无第三方AI调用**，只做确定性渲染，以及用纯前端规则引擎复核。
+而**浏览器端运行时零 AI 调用、零后端**（工程依赖中不存在任何第三方大模型 SDK），只做确定性渲染，以及用纯前端规则引擎复核。
 
 这个选择叫 **Compile-time AI**，换来的三件事正是本作品要证明的：
 
@@ -30,19 +30,18 @@ AutoGrader 不是一个「网页里塞个 AI 调用」的作品。它把 AI 推�
 
 | # | 交付物 | 角色 | 状态 |
 |---|---|---|---|
-| 一 | **专家智能体包**（Prompt + Skills + Tools + Workflow + Evaluation） | 能力本体，AI 在这里跑 | ✅ **五件套 + 打包层全部落地**，已通过官方校验可以直接交给learnbuddy本地召唤|
-| 二 | **Web Demo 产品展示页** | 产品形态（在线链接 + 源码仓库） | ✅ **7 个路由全部落地并实测**； 线上链接https://mendai1307.github.io/AutoGrader/ |
-| 三 | **评审材料包**（PPT / 3 分钟视频 / 对话记录归档） | 佐证链 | ✅ **对话记录归档已交付documents\dev_log**（见 §六）；⬜ PPT 与视频待产出 |
+| 一 | **专家智能体包**（Prompt + Skills + Tools + Workflow + Evaluation） | 能力本体，AI 在这里跑 | ✅ **五件套 + 打包层全部落地**，已通过官方校验，可直接交给 LearnBuddy 本地召唤 |
+| 二 | **Web Demo 产品展示页** | 产品形态（在线链接 + 源码仓库） | ✅ **7 个路由全部落地并实测**；线上链接：<https://mendai1307.github.io/AutoGrader/> |
+| 三 | **评审材料包**（PPT / 3 分钟视频 / 对话记录归档） | 佐证链 | 🟡 **对话记录归档（`documents/dev_log/`）+ 作品介绍 PPT（18 页）+ 演示视频台本（v1.0）已交付**；⬜ 成片待剪辑 |
 
-**上一轮（v0.1）资产**在**同级目录** `../AutoGrader`（线上 `https://mendai1307.github.io/AutoGrader/`）：
 5 页面静态站、12 份合成样例 + 教师金标准 + 12 份真实评阅结果（MAE 3.05）。
 本项目以它为**复用基线**，并把「v0.1 资产」移植为 1.2.0 契约下的合规数据（见 §五）。
 
 ## 三、怎么跑、怎么验（三条命令）
 
-工具链只用 **Python 标准库**（无第三方依赖、无网络调用、无 AI 调用）。约定 `python3` 优先、`python` 回退。
+工具链只用 **Python 标准库**，约定 `python3` 优先、`python` 回退。
 
-### 3.1 跑 Web Demo（交付物二）
+### 3.1 本地启动 Web Demo
 
 ```bash
 cd web
@@ -66,7 +65,7 @@ npm run preview:check      # 起静态服务并冒烟
 npm run typecheck          # tsc --noEmit（应 0 错）
 ```
 
-### 3.2 验六件工具与契约（交付物一）
+### 3.2 验六件工具与契约
 
 ```bash
 # 六个工具自测（61 项断言，应全部通过、退出码 0）
@@ -97,7 +96,7 @@ python3 $EV/scripts/regression_gate.py \
   --baseline $EV/baselines/2026-09-26.json --current /tmp/metrics.json --text
 ```
 
-### 3.4 打包专家包（可选）
+### 3.4 打包专家包
 
 ```bash
 python3 backend/autograder-expert/build_expert.py --validate --register
@@ -114,15 +113,7 @@ python3 backend/autograder-expert/build_expert.py --validate --register
 | `/report/[id]` | 评阅结果详情 | **指纹现场复算**（`ProvenanceBlock` 显示「复算一致/不一致」+ 复算值）+ `total` 口径面板（`weightIncluded` / `weightExcluded` / `upperBound` / `isPartial` / 未计入项） |
 | `/upload` | 上传核查 | 浏览器端**零依赖**解析 docx，并复刻工具链 T2 的 13 条规则——**同一份输入，浏览器与智能体侧结论必须一致** |
 | `/eval` | 一致性评测 | 总分 MAE / 逐项命中率 / 档位一致率 / 置信度校准 ECE，**浏览器端现算**（每个数字都能追到一行可查看的 JS）+ 4 张零依赖 SVG 图 |
-| `/trace` | 工作流溯源 | 五 Agent 编排逐环展示，指纹复算结论与 `/report/[id]` **同源** |
-
-**两处刻意的工程取舍（不是缺陷，特此说明）**：
-
-1. **`/eval` 用「分区堆叠」而非页签**——本项是 `output: 'export'` 纯静态站，页签只渲染当前那一个，
-   **非活动页签的内容根本不进 HTML**（实测 12 个 `<svg>` 全是图标、`role="img"` 计 0），
-   等于「图看不到、也核验不了」。改用始终渲染的分区堆叠后，内容可检索、可核验、无 JS 也能看。
-2. **需要「内容始终在 HTML 里」时用原生 `<details>`**——「保持页面简洁」不能退化成「把内容拿掉」；
-   收起时正文仍在静态 HTML 里，渲染核验脚本专门断言这一点。
+| `/trace` | 工作流溯源（导航标签写作「溯源与指纹」） | 五 Agent 编排逐环展示，指纹复算结论与 `/report/[id]` **同源** |
 
 ## 五、硬口径速查（写死，不得改写）
 
@@ -138,7 +129,7 @@ python3 backend/autograder-expert/build_expert.py --validate --register
 
 **契约的机器真源**在 `contract/*.schema.json`，人类可读说明在 `docs/contract.md`（含 13 条不变式）。
 
-## 六、对话记录归档（交付物三 · 已交付）
+## 六、对话记录归档
 
 研发全程的对话已归档至 **`documents/dev_log/`**（对应《步骤路径规划书》**§3.3**）：
 
@@ -158,29 +149,27 @@ python3 backend/autograder-expert/build_expert.py --validate --register
 导出脚本带**完整性断言**：磁盘上每个会话记录文件都必须被登记，否则中止导出——
 **不存在「挑了好看的几轮放进来」的可能**。
 
-## 七、当前进度（如实）
+## 七、当前进度
 
 | 交付物 | 状态 |
 |---|---|
 | **一 · 专家智能体包** | ✅ **全部落地**。五件套已齐；契约冻结 **1.2.0**；六脚本自测 **61 项**全通过；打包层装配成平台合规专家包，**已通过官方 `validate_expert.py` 校验并注册到 my-experts 市场**（专家中心可召唤）。⬜ 唯一遗留：**头像**（`avatars/` 为空，需图像生成，未执行） |
-| **二 · Web Demo** | ✅ **7 个路由全部落地并实测**：`tsc` 0 错、三道门禁全绿、跨端对拍 12/12、渲染核验 38/38、`next build` 静态页 21/21。⬜ **线上链接待发布** |
-| **三 · 评审材料包** | 🟡 **对话记录归档已交付**（§六）。⬜ 作品介绍 PPT、3 分钟 Demo 视频待产出 |
+| **二 · Web Demo** | ✅ **7 个路由全部落地并实测**：`tsc` 0 错、三道门禁全绿、跨端对拍 12/12、渲染核验 38/38、`next build` 静态页 21/21。线上链接：<https://mendai1307.github.io/AutoGrader/> |
+| **三 · 评审材料包** | 🟡 **对话记录归档（39 轮）+ 作品介绍 PPT（18 页，含团队页）+ 演示视频台本（v1.0，180s 分镜 / 字幕 / AI 提示词）已交付**，另有《资产沉淀》四篇（技能 / 流程 / 试错 / 处置）。⬜ 视频成片待剪辑（录屏素材、AI 画面、BGM 均未产出） |
 
 **评测数据（12 份资产 × 教师金标准）**：总分 MAE **3.05**、差档 MAE **8.0**、
-最大偏差 **14.0（`sample-04`）**、档位一致率 **0.74**（106/144）、ECE **0.12** ——
-前三项与 v0.1 公布值**逐值一致**（独立复现，不是照抄）。
+最大偏差 **14.0（`sample-04`）**、档位一致率 **0.74**（106/144）、ECE **0.12**。
 
-## 八、已知未闭合项（如实列出，不遮掩）
+## 八、已知未闭合项
 
 | # | 项 | 说明 |
 |---|---|---|
-| 1 | **线上链接** | 部署工作流（`.github/workflows/deploy.yml`）已就位（Node 22 → 跨端对拍 → 三道门禁 → `preview:check` → deploy-pages），**待用户建仓后取得链接** |
-| 2 | 专家包**头像** | `avatars/` 为空 → 配置指向的 `avatars/expert.png` 暂缺。官方校验器对本项**只告警不报错**，故包仍然有效。生成头像需图像生成工具（产生额外额度消耗），未执行 |
-| 3 | **本机产不出 `out/`** | 宿主 `safe-delete` 拦截所致（**环境问题，非代码问题**）。构建本身成功：`next build` 的编译 ✓ / 类型检查 ✓ / 静态页生成 21/21 ✓ |
-| 4 | 两种编排形态的实跑对照 | `workflow/W2` 给出**可校验的等价性判据**；真正的「两种形态跑同一份报告」需**真实 LearnBuddy 会话** |
-| 5 | **PPT 与 3 分钟视频** | 交付物三尚未产出 |
-| 6 | `LICENSE` | 未添加 |
-| 7 | 三个技能状态 | 模式 1 建标待 **S0 路由扩展**；模式 2 评阅待**批量参数**（需新增契约字段 + 归属 Skill，**当前未设计**）；模式 3 复核**已无外部阻塞** |
+| 1 | 专家包**头像** | `avatars/` 为空 → 配置指向的 `avatars/expert.png` 暂缺。官方校验器对本项**只告警不报错**，故包仍然有效。生成头像需图像生成工具（产生额外额度消耗），未执行 |
+| 2 | **本机产不出 `out/`** | 宿主 `safe-delete` 拦截所致（**环境问题，非代码问题**）。构建本身成功：`next build` 的编译 ✓ / 类型检查 ✓ / 静态页生成 21/21 ✓ |
+| 3 | 两种编排形态的实跑对照 | `workflow/W2` 给出**可校验的等价性判据**；真正的「两种形态跑同一份报告」需**真实 LearnBuddy 会话** |
+| 4 | **3 分钟 Demo 视频** | 台本 v1.0 已产出；**成片待剪辑**——录屏素材、AI 生成画面、BGM 均未产出（线上链接已发布，「录屏会露 `localhost`」这一原有阻塞已解除） |
+| 5 | `LICENSE` | 未添加 |
+
 
 ## 九、目录导航
 
@@ -189,7 +178,10 @@ AutoGrader_rebirth/
 ├── README.md                       #   本文件（评审导向）
 ├── .gitignore                      #   只排除产物与过程，不排除证据
 ├── .github/workflows/deploy.yml    #   交付物二构建与部署（含三道门禁）
-├── materias                        #   演示视频与PPT
+├── materials/                      #   交付物三：评审材料
+│   ├── AutoGrader 作品介绍.pptx     #   作品介绍 PPT（18 页，含团队页）
+│   ├── video/                      #   3 分钟演示视频：台本 v1.0 已产出，成片待剪
+│   └── 资产沉淀/                    #   技能 / 流程 / 试错 / 处置手册（由项目记忆整理）
 ├── documents/                      #   文档与立项材料
 │   ├── 项目总纲与同步状态.md        #    跨对话对齐的唯一入口 —— 开工先读
 │   ├── AUDIT.md                    #   缺陷登记与修复依据的唯一清单
@@ -212,7 +204,7 @@ AutoGrader_rebirth/
     ├── agents/                     #   五件套源
     │   ├── agent/SYSTEM_PROMPT.md  #   Prompt v0.2
     │   ├── skills/                 #   S0–S7 八份规格 + 索引
-    │   ├── tools/                  #   T1–T6 规格 + rules/ + scripts/（6 CLI）+ assets/（四类随包资产）
+    │   ├── tools/                  #   T1–T6 规格 + rules/ + scripts/（6 CLI）+ assets/
     │   ├── workflow/               #   W1 五环 / W2 编排形态 / W3 失败与重试
     │   └── evaluations/            #   metrics.md（口径真源）+ 2 CLI + baselines/
     ├── build_expert.py             #   打包层（自测 21 项）
@@ -225,13 +217,16 @@ AutoGrader_rebirth/
 |---|---|
 | 项目目标、口径、进度、目录约定、对话归档索引 | `documents/项目总纲与同步状态.md` |
 | **研发全程的对话与决策过程** | `documents/dev_log/README.md`（从索引进逐字转录） |
+| **作品介绍 PPT（18 页，含团队页）** | `materials/AutoGrader 作品介绍.pptx` |
+| **3 分钟演示视频台本（v1.0）** | `materials/video/README.md` |
+| **可复用的技能 / 流程 / 试错经验 / 处置手册** | `materials/资产沉淀/README.md` |
 | 契约字段、13 条不变式、总分与指纹口径、字段映射、迁移规则 | `docs/contract.md`（机器真源 `contract/*.schema.json`） |
 | 缺陷清单与修复依据 | `documents/AUDIT.md` |
 | 契约冻结的决策过程（D1–D5） | `documents/契约冻结方案.md` |
-| 平台侧为什么只能走脚本（四条能力通道与取证） | `documents/工具使用说明.md` |
+| 平台侧为什么走脚本 | `documents/工具使用说明.md` |
 | 六个工具 / 八个技能 / 编排 / 评测的规格 | `backend/autograder-expert/agents/{tools,skills,workflow,evaluations}/README.md` |
 | 本地怎么跑、怎么部署 | `web/README.md` |
 
 ---
 
-**团队**：Mendai1307**计算机科学与技术**  Ziqing-Wu1**软件工程**
+**团队**：Mendai1307（**计算机科学与技术**）· Ziqing-Wu1（**软件工程**）

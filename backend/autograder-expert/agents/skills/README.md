@@ -30,8 +30,9 @@
 - `S7 入口 A（复核清单）` 服务于**模式 2 内**的教师复核节点；教师若参与，终判分**回灌 S4 重算**，再进 S6
 - `S7 入口 B（解释回放）` 服务于**模式 3**：**只读、不改判定、不产生新结果、无后置**
 
-> ⚠️ `S0` 的路由规格**尚未扩展到三模式**（当前仍按两条任务链路由）。
-> 缺口与状态见《项目总纲与同步状态.md》第五节「三模式实现状态」。
+> ✅ `S0` 的路由规格**已于 2026-09-26 扩展到三模式**：输出 `taskType ∈ rubric-build | review | replay`，
+> 取值域与契约 `ReviewResult.taskType` **逐字一致**（见 `docs/contract.md` 字段表）。
+> 路由细节与各模式的缺件判据见 [S0-task-router.md](./S0-task-router.md)。
 
 ---
 
@@ -39,14 +40,17 @@
 
 | ID | 名称 | 所属 | 一句话职责 | 文件 |
 |---|---|---|---|---|
-| S0 | 任务识别与路由 | 前置（**三模式路由，待扩展**） | 判断走哪类模式；缺件只问不代做 | [S0-task-router.md](./S0-task-router.md) |
-| S1 | Rubric 构建 | 任务类型 1 | 标准结构化 + 一致性自查；只编码不赋值 | [S1-rubric-builder.md](./S1-rubric-builder.md) |
-| S2 | 报告解析 | 任务类型 2 · 环 1 | 结构 + 原文坐标；只读不改，未解析 ≠ 缺失 | [S2-report-parser.md](./S2-report-parser.md) |
-| S3 | 证据取证与逐点判定 | 任务类型 2 · 环 2 | 证据四元组 + 疑点；无证据不得高置信 | [S3-evidence-grader.md](./S3-evidence-grader.md) |
-| S4 | 总分计算 | 任务类型 2 · 环 3 | 纯算术、可复算；出部分分与 `W_r` | [S4-score-calculator.md](./S4-score-calculator.md) |
-| S5 | 结构装配与自检 | 横向（对内 Reviewer） | 六项校验 + 限定重试；不改写判断内容 | [S5-contract-assembler.md](./S5-contract-assembler.md) |
-| S6 | 评语生成 | 任务类型 2 · 环 4 | 逐句挂证据；两种输入来源输出结构一致 | [S6-feedback-writer.md](./S6-feedback-writer.md) |
-| S7 | 复核与解释 | 教师复核节点 ｜ 模式 3 消费侧 | 两入口：A 复核清单「只给哪里需要你看」；B 解释回放「只回放，不重判」 | [S7-review-checklist.md](./S7-review-checklist.md) |
+| S0 | 任务识别与路由 | 前置（**三模式路由**） | 判断走哪类模式；缺件只问不代做 | [S0-task-router.md](./S0-task-router.md) |
+| S1 | Rubric 构建 | `rubric-build` | 标准结构化 + 一致性自查；只编码不赋值 | [S1-rubric-builder.md](./S1-rubric-builder.md) |
+| S2 | 报告解析 | `review` · 环 1 | 结构 + 原文坐标；只读不改，未解析 ≠ 缺失 | [S2-report-parser.md](./S2-report-parser.md) |
+| S3 | 证据取证与逐点判定 | `review` · 环 2 | 证据四元组 + 疑点；无证据不得高置信 | [S3-evidence-grader.md](./S3-evidence-grader.md) |
+| S4 | 总分计算 | `review` · 环 3 | 纯算术、可复算；出部分分与 `W_r` | [S4-score-calculator.md](./S4-score-calculator.md) |
+| S5 | 结构装配与自检 | `review` · 横向（对内 Reviewer） | 六项校验 + 限定重试；不改写判断内容 | [S5-contract-assembler.md](./S5-contract-assembler.md) |
+| S6 | 评语生成 | `review` · 环 4 | 逐句挂证据；两种输入来源输出结构一致 | [S6-feedback-writer.md](./S6-feedback-writer.md) |
+| S7 | 复核与解释 | `replay`（入口 B）｜ `review` 复核节点（入口 A） | 两入口：A 复核清单「只给哪里需要你看」；B 解释回放「只回放，不重判」 | [S7-review-checklist.md](./S7-review-checklist.md) |
+
+> 「所属」列用契约的 `taskType` 标注（`rubric-build` / `review` / `replay`），
+> 与 S0 的输出取值、与 `ReviewResult.taskType` 的取值域**三者一致**；模式 1 / 2 / 3 的对应关系见 §一。
 
 ---
 

@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 
 import { FivePieceDiagram, type PieceRow } from '@/components/five-piece-diagram';
+import { InlineMarkdown } from '@/components/markdown-view';
 import { Note } from '@/components/note';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -235,7 +236,9 @@ export default function AgentsPage() {
                     {skill.sections.length} 节
                   </span>
                 </div>
-                <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">{skill.summary}</p>
+                <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
+                  <InlineMarkdown text={skill.summary} />
+                </p>
                 <code className="mt-2 block truncate font-mono text-[11px] text-muted-foreground">
                   {skill.file}
                 </code>
@@ -265,7 +268,9 @@ export default function AgentsPage() {
                     {formatNumber(tool.lineCount)} 行
                   </span>
                 </div>
-                <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">{tool.summary}</p>
+                <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
+                  <InlineMarkdown text={tool.summary} />
+                </p>
                 <code className="mt-2 block truncate font-mono text-[11px] text-muted-foreground">
                   {tool.file}
                 </code>
@@ -290,7 +295,9 @@ export default function AgentsPage() {
                   </span>
                   <code className="font-mono text-[11px] text-muted-foreground">{doc.file}</code>
                 </div>
-                <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">{doc.summary}</p>
+                <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">
+                  <InlineMarkdown text={doc.summary} />
+                </p>
               </li>
             ))}
           </ol>

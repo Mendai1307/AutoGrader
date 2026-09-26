@@ -257,6 +257,30 @@ copyFile(path.join(baselineDir, latestBaseline), path.join(PUBLIC_ASSETS, 'eval-
  *   - 计数与文件名一律如实反映磁盘现状（页面据此显示"8 个技能 / 6 个工具"）。
  * ========================================================================== */
 
+/**
+ * 摘要里应当跳过的「非正文」行：空行 / 标题 / 引用 / 分隔线 / 代码围栏 / 表格行。
+ * （元信息表、状态块、目录树都在这一层被挡掉）
+ */
+function isMetaLine(line) {
+  return (
+    line === '' ||
+    line.startsWith('#') ||
+    line.startsWith('>') ||
+    line.startsWith('---') ||
+    line.startsWith('```') ||
+    line.startsWith('|')
+  );
+}
+
+/**
+ * 「这句话还没说完」的行尾标点 —— 只有以它们结尾时才把下一行接上。
+ *
+ * ⚠️ 不能简单地「一路拼到空行为止」：`workflow/W2` 的首段是流程示意图
+ * （`一个 LearnBuddy 会话` / `└─ Parser → Evidence → …`），硬拼会得到一串无意义的字符画。
+ * 只在句读未收尾时续行，既修好了被截断的句子，又不会把结构性文本粘成一行。
+ */
+const CONTINUE_RE = /[，,、；;：:（(「『【“‘"]$/;
+
 /** 读取 md，抽出 title / summary / 二级标题清单 / 行数 */
 function digestDoc(absPath) {
   const text = fs.readFileSync(absPath, 'utf8');
@@ -269,13 +293,21 @@ function digestDoc(absPath) {
     const line = lines[i];
     if (title === '' && /^#\s+/.test(line)) {
       title = line.replace(/^#\s+/, '').trim();
-      // title 之后找第一段非空、非标题、非表格、非引用/分隔线/代码围栏的正文
+      // title 之后找第一段正文（跳过元信息表、状态块、代码围栏等）
       for (let j = i + 1; j < lines.length; j += 1) {
-        const candidate = lines[j].trim();
-        if (candidate === '' || candidate.startsWith('#') || candidate.startsWith('>') ||
-            candidate.startsWith('---') || candidate.startsWith('```') ||
-            candidate.startsWith('|')) continue;
-        summary = candidate;
+        if (isMetaLine(lines[j].trim())) continue;
+
+        // ⚠️ 只取「第一行」会把在换行处被截断的句子搬上页面
+        //    （曾出现 S5「…并做自校验自修复，」以逗号结尾、S7 同理）。
+        //    故按「段」抽取：**仅当当前文本以话没说完的标点结尾时**才续下一行。
+        let merged = lines[j].trim();
+        for (let k = j + 1; k < lines.length && CONTINUE_RE.test(merged); k += 1) {
+          const next = lines[k].trim();
+          if (isMetaLine(next)) break;
+          // 中文行之间直接相接；行尾是 ASCII（英文/代码）时留一个空格，避免把词粘死
+          merged += (/[^\x00-\x7F]$/.test(merged) ? '' : ' ') + next;
+        }
+        summary = merged;
         break;
       }
       continue;

@@ -20,10 +20,20 @@
  *
  * prompt 为什么这么短
  * ---------------------------------------------------------------------------
- * `SYSTEM_PROMPT.md` 有 1.6 万字节，而深链 `prompt` 解码后上限 8000 字符、
- * 整条 URL 还受 Windows 命令行 32767 上限约束 —— **全文内联不可行**。
- * 正解：深链只带「目标 + 任务 + 提示词所在 raw 地址」，全文由智能体用
- * 内置 `WebFetch` 去读。若智能体读不到，prompt 里已写明「直接向用户索取」。
+ * 实测（2026-09-26，数字由 `build_expert.py` 的 `extract_body` 同源算法量出）：
+ *   · `SYSTEM_PROMPT.md` 全文 **8609 字符**  → 深链 `prompt` 解码后上限 **8000 字符**
+ *     → **全文不能内联**。
+ *   · 剥离头部状态块与文末附录后 **7582 字符**（满足 8000），
+ *     但 `encodeURIComponent` 后是 **38805 字符** —— 一个中文字符编码后占 9 个字符
+ *     （`%E4%BD%A0` 这种 `%XX%XX%XX`），整体膨胀约 5 倍，
+ *     仍会撞 Windows 命令行 **32767** 上限 → **「剥离后内联」同样不可行**。
+ * 正解：深链只带「目标 + 任务 + 提示词所在 raw 地址」，全文由智能体用内置 `WebFetch`
+ * 去读，并在 prompt 里明确要求它**先剥离再取用**（文末附录自注「非 Prompt 内容，粘贴时删除」，
+ * 头部状态块是内部维护信息，二者都不属于提示词）。若智能体读不到，prompt 里已写明
+ * 「直接向用户索取」。
+ *
+ * ⚠️ 约束由 `.work/check_render.mjs` 断言（解码后必须 < `DEEP_LINK_PROMPT_LIMIT`）；
+ *    组件内亦保留 `tooLong` 的可见降级 —— **任何今后新增的内联内容都必须先过剥离这一步**。
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -102,6 +112,8 @@ export function buildDeepLinkPrompt(input: {
     lines.push(
       `系统提示词全文（请用内置能力**逐字读取**，不要凭记忆转述）：`,
       `${repoRawBase}/${SYSTEM_PROMPT_REPO_PATH}`,
+      `取用时只保留从「## 0 · 身份」到「# 附录」之前的部分：` +
+        `其后附录自注「非 Prompt 内容，粘贴时删除」，开头的状态块是内部维护信息，二者都不属于提示词，请丢弃。`,
       `该报告原文：${repoRawBase}/${SAMPLE_ASSET_DIR}/${reportId}.md`,
       `教师金标准（供复核对照）：${repoRawBase}/${GOLD_ASSET_DIR}/gold-manifest.json`,
       '若读取失败（例如拿到的是网页外壳而非文件内容），请直接告诉我，我会把提示词粘贴给你。',

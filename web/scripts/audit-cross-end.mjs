@@ -25,7 +25,7 @@
  *
  * 用法：node scripts/audit-cross-end.mjs [--report <t1.json> ...] [--verbose]
  *   不带 --report 时，自动对 `public/assets/samples/*.md` 先跑 T1 再对拍。
- * 退出码：0 全部一致 / 1 有差异 / 2 环境不可用（缺 python3 或工具链）
+ * 退出码：0 全部一致 / 1 有差异 / 2 环境不可用（无可用 Python 解释器，或缺工具链源码）
  */
 
 import fs from 'node:fs';
@@ -75,12 +75,43 @@ for (const [label, file] of [
   }
 }
 
+/**
+ * 挑一个可用的 Python 解释器。
+ *
+ * ⚠️ 必须把「解释器不存在」与「解释器在、但 `-V` 非 0 退出」分开报。
+ * 两者都表现为候选失败，若一律报「找不到 python3 / python」，会把排查方向带偏：
+ * Windows 上 `python` 常被「应用商店别名」占位（进程起得来、退出码非 0），
+ * 此时报「找不到」会让人一直在 PATH 上翻，而真相是别名挡住了真实解释器。
+ */
 const py = (() => {
+  const attempts = [];
+
   for (const candidate of ['python3', 'python']) {
     const probe = spawnSync(candidate, ['-V'], { encoding: 'utf8' });
     if (probe.status === 0) return candidate;
+
+    if (probe.error !== undefined) {
+      // 进程根本没起来：ENOENT = 命令不在 PATH 上
+      const code = probe.error.code ?? probe.error.name;
+      attempts.push(
+        `  · ${candidate}：未能启动（${code}）${code === 'ENOENT' ? ' = 该命令不在 PATH 上' : ''}`,
+      );
+      continue;
+    }
+
+    // 进程起来了但退出码非 0：PATH 上有东西，只是它不能当解释器用
+    const line = `${probe.stderr || probe.stdout || ''}`.trim().split('\n')[0];
+    attempts.push(
+      `  · ${candidate}：**已找到**，但 \`-V\` 退出码 ${probe.status}${line === '' ? '' : ` —— ${line}`}`,
+    );
   }
-  console.error('[audit-cross-end] 环境不可用：找不到 python3 / python');
+
+  console.error('[audit-cross-end] 环境不可用：没有可用的 Python 解释器。逐个探测结果：');
+  for (const a of attempts) console.error(a);
+  console.error('  本脚本需要 Python 3 来执行工具链 T1/T2，因此无法继续。');
+  console.error('  · 上表若出现「已找到但 -V 退出码非 0」，说明 PATH 上确有同名命令，');
+  console.error('    只是它不能用（Windows 常见：`python` 被「应用商店别名」占位）。');
+  console.error('    此时真实解释器可能只以 `py -3` 形式存在 —— 请安装官方 Python 并调整 PATH 顺序。');
   process.exit(2);
 })();
 

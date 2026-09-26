@@ -2,9 +2,10 @@
   "name": "autograder-web",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "AutoGrader 智能评阅平台 · 交付物二 Web Demo（Next.js 静态导出，运行时零 AI 调用 / 零后端 / 零数据库）",
   "engines": {
-    "node": ">=22.6.0"
+    "node": ">=22.18.0"
   },
   "scripts": {
     "dev": "next dev",

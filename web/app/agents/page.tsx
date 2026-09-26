@@ -180,7 +180,8 @@ export default function AgentsPage() {
 
           <h1 className="mt-4 text-3xl font-bold tracking-tight">智能体构成 · 五件套</h1>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            AutoGrader 的智能评阅能力不是页面上的一个按钮，而是 LearnBuddy 上的一个**专家智能体**：
+            AutoGrader 的智能评阅能力不是页面上的一个按钮，而是 LearnBuddy 上的一个
+            <InlineMarkdown text="**专家智能体**" />：
             它由 Prompt + Skills + Tools + Workflow + Evaluation 五层构成，全部落在本仓库里、可被逐份检查。
             网页只负责把评阅结果完整呈现出来。
           </p>
@@ -353,7 +354,7 @@ export default function AgentsPage() {
             </p>
             <p>
               评测页 <Link href="/eval" className="text-primary hover:underline">/eval</Link>{' '}
-              会把这些数字**在浏览器里现算一遍**，而不是把结果抄在页面上。
+              会把这些数字<InlineMarkdown text="**在浏览器里现算一遍**" />，而不是把结果抄在页面上。
             </p>
           </Note>
         </section>
@@ -397,7 +398,7 @@ export default function AgentsPage() {
                 ))}
               </div>
               <Note summary="为什么不用红绿" className="mt-2.5">
-                档位、置信度、难度这些**数据语义一律不用红绿**：序数由
+                档位、置信度、难度这些<InlineMarkdown text="**数据语义一律不用红绿**" />：序数由
                 <span className="font-mono text-foreground"> ●●○○</span> 这类刻度符号承担，
                 程度由字重与灰阶承担。理由是红绿在色觉障碍下不可辨、在黑白打印与低质量投屏上同样失效；
                 低饱和赭石仅保留给「真的出错」（构建失败、契约校验不通过）。

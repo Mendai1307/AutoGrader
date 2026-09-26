@@ -15,6 +15,10 @@
 # ---- 依赖与构建产物 ----
 node_modules/
 .next/
+# 构建目录的「备份 / 暂存」形态：`.next/` 只匹配 .next 本身，
+# 而试构建时会把旧目录改名成 .next.prev / .next.localbak 之类挪走 —— 那些不被 .next/ 覆盖，
+# 会出现在 git status 里、有误提交风险，故单列一条。
+.next.*
 out/
 out-stage/
 *.tsbuildinfo

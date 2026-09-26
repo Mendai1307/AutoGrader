@@ -103,7 +103,7 @@ export function BootCurtain() {
           />
         </div>
         <span className="text-[11px] tracking-[0.14em] text-muted-foreground">
-          确定性渲染 · 运行时零 AI 调用
+          正在载入评阅数据
         </span>
       </div>
 

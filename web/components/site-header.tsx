@@ -32,7 +32,6 @@ export function SiteHeader({ active }: SiteHeaderProps) {
           </span>
           <span className="flex flex-col leading-tight">
             <span className="text-sm font-semibold tracking-tight">{SITE_NAME}</span>
-            <span className="text-[11px] text-muted-foreground">Compile-time AI · 纯静态渲染</span>
           </span>
         </Link>
 

@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+ * AutoGrader · 设计 token（换肤的唯一落点）
+ * ---------------------------------------------------------------------------
+ * 色彩体系 = 单强调色 + 灰阶，取自参考项目 LBEILC/RhineLabUI 的 DESIGN.md：
+ *   暖灰白底 · 近黑正文 · 暖灰辅助文字 · 灰色细线 · 暖棕强调 · 暖杏金选中信号
+ *
+ * 为什么不直接用红/绿表达数据语义：
+ *   v0.1 用 amber / emerald / rose / sky 四组调色板表示档位、置信度与告警，
+ *   与「单强调色 + 灰阶」冲突，且红绿在色觉障碍下不可辨。本版改为
+ *   **字重 + 深浅阶 + 刻度格数 + 符号** 表达，颜色只承担"层级"不承担"结论"。
+ *   --destructive 仅保留给"真的出错"（构建失败、契约校验不通过）。
+ *
+ * 变量必须是 HSL 三元组（不带 hsl()），因为 tailwind.config.ts 写成
+ * `hsl(var(--x))`，透明度修饰（bg-secondary/40 等）依赖这个形式。
+ * =========================================================================== */
+@layer base {
+  :root {
+    /* 底色与正文 —— 暖灰白纸面 + 近黑字 */
+    --background: 38 25% 94%;            /* #F3F0EB */
+    --foreground: 120 11% 4%;            /* #080A08 */
+
+    /* 卡片：比底色亮一档，靠细线而非阴影分隔 */
+    --card: 40 37% 97%;                  /* #FAF8F4 */
+    --card-foreground: 120 11% 4%;
+
+    /* 次级面：比底色暗一档（用于表头、代码块、内嵌面板） */
+    --secondary: 37 24% 89%;             /* #EAE5DD */
+    --secondary-foreground: 34 9% 15%;   /* #2A2723 */
+
+    /* 弱化面与辅助文字 */
+    --muted: 38 22% 90%;                 /* #ECE8E1 */
+    --muted-foreground: 48 4% 45%;       /* #77756D */
+
+    /* 强调：暖棕（唯一强调色），用于链接、当前项、主按钮 */
+    --primary: 31 37% 44%;               /* #9B7247 */
+    --primary-foreground: 36 38% 97%;    /* #FBF9F6 */
+
+    /* 选中信号：暖杏金（比 primary 浅、暖），仅用于"选中/当前/命中" */
+    --accent: 36 44% 60%;                /* #C5A16B */
+    --accent-foreground: 39 25% 13%;     /* #2A2419 */
+
+    /* 真错误专用（构建失败、契约不合规）；不用于档位 */
+    --destructive: 12 41% 39%;           /* #8C4A3A */
+    --destructive-foreground: 36 38% 97%;
+
+    /* 线：border 是常规细线，rule 是强调分隔（排版骨架用） */
+    --border: 41 13% 76%;                /* #C9C4B9 */
+    --input: 41 13% 76%;
+    --rule: 41 9% 64%;                   /* #AAA59A */
+    --ring: 31 37% 44%;
+
+    /* 偏方硬，仪器感 */
+    --radius: 0.375rem;
+
+    /* 动效时长（与参考项目对齐，取其中可复用的几档） */
+    --dur-micro: 180ms;
+    --dur-tab: 150ms;
+    --dur-modal-in: 300ms;
+    --dur-modal-out: 200ms;
+    --dur-roll: 460ms;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    /* 正文 15px 由 tailwind theme.fontSize.base 提供；这里只钉行高与字重 */
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* 数字一律等宽，便于纵向比对分数（参考项目的数字排版纪律） */
+  :where(table, .tnum, code, kbd, pre, samp) {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: hsl(var(--accent) / 0.35);
+  }
+
+  /* 键盘可达性：焦点环用强调色，不用浏览器默认蓝 */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring) / 0.55);
+    outline-offset: 2px;
+  }
+}
+
+/* ===========================================================================
+ * 组件级工具类
+ * =========================================================================== */
+@layer components {
+  /* 等宽数字（显式使用） */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* 强调分隔线：比 border 深一档 */
+  .rule-line {
+    border-color: hsl(var(--rule));
+  }
+
+  /* 长短竖线刻度 —— 参考项目用它替代面板底块表达"当前位置"。
+     用法：<span class="tick-rail" data-active="true" /> */
+  .tick-rail {
+    @apply inline-block w-px align-middle;
+    height: 15px;
+    background: hsl(var(--rule));
+    transition: height var(--dur-micro) cubic-bezier(0.2, 0.6, 0.2, 1),
+      background-color var(--dur-micro) cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+  .tick-rail[data-active='true'] {
+    height: 26px;
+    background: hsl(var(--primary));
+  }
+
+  /* 微过渡统一入口 */
+  .micro {
+    transition-duration: var(--dur-micro);
+    transition-timing-function: cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+
+  /* 数字/文本滚动（460ms），用于分数与编号 */
+  .roll-window {
+    display: inline-block;
+    overflow: hidden;
+    height: 1em;
+    line-height: 1em;
+    vertical-align: -0.12em;
+  }
+  .roll-window > span {
+    display: block;
+    transition: transform var(--dur-roll) cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+}
+
+/* ===========================================================================
+ * 减少动态效果：全局兜底
+ * 参考项目把"减少动态效果"做成一组可配开关；本版按判据只做系统级跟随。
+ * =========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

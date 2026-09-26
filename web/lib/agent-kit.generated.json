@@ -1,0 +1,385 @@
+{
+  "generatedBy": "web/scripts/sync-assets.mjs",
+  "sourceRoot": "backend/autograder-expert/agents",
+  "pieces": {
+    "prompt": {
+      "file": "SYSTEM_PROMPT.md",
+      "title": "AutoGrader Expert · System Prompt",
+      "summary": "你是 **AutoGrader Expert**——面向高校教师的**计算机专业实验报告评阅专家**。",
+      "sections": [
+        "0 · 身份",
+        "1 · 角色边界",
+        "2 · 工作流程",
+        "3 · 评分规则（写死，不得改写）",
+        "4 · 证据要求",
+        "5 · 不确定性处理",
+        "6 · 教师复核机制",
+        "7 · 输出格式",
+        "8 · 禁止事项",
+        "9 · 工具使用",
+        "10 · 失败与降级"
+      ],
+      "lineCount": 295
+    },
+    "skills": [
+      {
+        "id": "S0",
+        "file": "S0-task-router.md",
+        "title": "S0 · 任务识别与路由",
+        "summary": "判断教师本次要做什么，路由到「创建评分标准」（任务类型 1）或「评阅实验报告」（任务类型 2），",
+        "sections": [
+          "目标",
+          "输入",
+          "输出",
+          "执行规则",
+          "常见失败场景",
+          "依赖关系"
+        ],
+        "lineCount": 48
+      },
+      {
+        "id": "S1",
+        "file": "S1-rubric-builder.md",
+        "title": "S1 · Rubric 构建",
+        "summary": "把教师脑中的评分标准转成结构化、可执行、可校验的 Rubric，并在保存前完成一致性自查。",
+        "sections": [
+          "目标",
+          "输入",
+          "输出",
+          "执行规则",
+          "常见失败场景",
+          "依赖关系"
+        ],
+        "lineCount": 53
+      },
+      {
+        "id": "S2",
+        "file": "S2-report-parser.md",
+        "title": "S2 · 报告解析",
+        "summary": "把实验报告转成可定位、可引用的结构体，为后续取证提供原文坐标。",
+        "sections": [
+          "目标",
+          "输入",
+          "输出",
+          "执行规则",
+          "常见失败场景",
+          "依赖关系"
+        ],
+        "lineCount": 60
+      },
+      {
+        "id": "S3",
+        "file": "S3-evidence-grader.md",
+        "title": "S3 · 证据取证与逐点判定",
+        "summary": "为每个评分点找到证据，并给出**建议档位与建议分**，形成「证据包 + 疑点清单」。",
+        "sections": [
+          "目标",
+          "输入",
+          "输出",
+          "执行规则",
+          "常见失败场景",
+          "依赖关系"
+        ],
+        "lineCount": 50
+      },
+      {
+        "id": "S4",
+        "file": "S4-score-calculator.md",
+        "title": "S4 · 总分计算",
+        "summary": "按冻结口径算出总分与等级，结果可被第三方独立复算。",
+        "sections": [
+          "目标",
+          "输入",
+          "输出",
+          "执行规则",
+          "常见失败场景",
+          "依赖关系"
+        ],
+        "lineCount": 61
+      },
+      {
+        "id": "S5",
+        "file": "S5-contract-assembler.md",
+        "title": "S5 · 结构装配与自检",
+        "summary": "把上一步产出装配成合规的 `ReviewResult`，并做自校验自修复，",
+        "sections": [
+          "目标",
+          "输入",
+          "输出",
+          "执行规则",
+          "常见失败场景",
+          "依赖关系"
+        ],
+        "lineCount": 61
+      },
+      {
+        "id": "S6",
+        "file": "S6-feedback-writer.md",
+        "title": "S6 · 评语生成",
+        "summary": "产出基于证据、可执行、非模板化的评语。",
+        "sections": [
+          "目标",
+          "输入",
+          "输出",
+          "执行规则",
+          "常见失败场景",
+          "依赖关系"
+        ],
+        "lineCount": 51
+      },
+      {
+        "id": "S7",
+        "file": "S7-review-checklist.md",
+        "title": "S7 · 复核与解释",
+        "summary": "把**已经记录的判定与证据**按需要的形式送到教师面前——让教师用最少的时间看到最该看的地方，",
+        "sections": [
+          "目标",
+          "两个入口",
+          "执行规则 · 入口 A（复核清单）",
+          "执行规则 · 入口 B（解释回放）——三条硬规则",
+          "常见失败场景",
+          "依赖关系"
+        ],
+        "lineCount": 92
+      }
+    ],
+    "skillsIndex": {
+      "file": "README.md",
+      "title": "AutoGrader Expert · Skills 索引",
+      "summary": "同级目录（`../`）：`agent/`（Prompt）、`tools/`（确定性能力）、`workflow/`（编排规格）、`evaluations/`（评测）。",
+      "sections": [
+        "一、三模式与 Skill 落点",
+        "二、Skill 索引",
+        "三、依赖关系速查",
+        "四、每个技能文件的结构",
+        "五、口径纪律"
+      ],
+      "lineCount": 89
+    },
+    "tools": [
+      {
+        "id": "T1",
+        "file": "T1-document-parser.md",
+        "title": "T1 · 文档解析器",
+        "summary": "把实验报告转成**带坐标的结构对象**，为 S3 的取证提供可回链锚点。",
+        "sections": [
+          "职责",
+          "确定性边界",
+          "两栏文本（`rawText` / `text`）",
+          "DOCX 标题识别",
+          "输入",
+          "输出",
+          "退出码与失败",
+          "依赖与实现约束",
+          "对应 Skill"
+        ],
+        "lineCount": 123
+      },
+      {
+        "id": "T2",
+        "file": "T2-rule-inspector.md",
+        "title": "T2 · 客观核查器",
+        "summary": "按规则集对报告结构对象做**确定性核查**，产出客观事实。",
+        "sections": [
+          "职责",
+          "确定性边界",
+          "规则集：内置默认 + 教师自定义",
+          "输入",
+          "输出",
+          "两条硬纪律",
+          "退出码与失败",
+          "依赖与实现约束",
+          "对应 Skill"
+        ],
+        "lineCount": 136
+      },
+      {
+        "id": "T3",
+        "file": "T3-citation-resolver.md",
+        "title": "T3 · 引用解析器",
+        "summary": "把 Expert 给出的候选引用按坐标**还原为逐字原文**，并判定引用是否忠实。",
+        "sections": [
+          "职责",
+          "为什么必须有它",
+          "确定性边界",
+          "输入",
+          "输出",
+          "退出码与失败",
+          "依赖与实现约束",
+          "对应 Skill"
+        ],
+        "lineCount": 126
+      },
+      {
+        "id": "T4",
+        "file": "T4-deterministic-calculator.md",
+        "title": "T4 · 确定性计算器",
+        "summary": "按冻结口径完成全部**纯算术**：部分分总分、`W_r`、上界、等级映射、复核排序键。",
+        "sections": [
+          "职责",
+          "确定性边界",
+          "输入",
+          "输出",
+          "退出码与失败",
+          "依赖与实现约束",
+          "对应 Skill"
+        ],
+        "lineCount": 105
+      },
+      {
+        "id": "T5",
+        "file": "T5-contract-validator.md",
+        "title": "T5 · 契约校验器",
+        "summary": "对 **Rubric** 与 **ReviewResult** 两类契约做合规性校验与事实性复算，产出**结构化错误清单**。",
+        "sections": [
+          "职责",
+          "确定性边界",
+          "六项检查（与 S5 的六项校验对齐）",
+          "输入",
+          "输出",
+          "退出码与失败",
+          "支持的 Schema 子集",
+          "依赖与实现约束",
+          "前置依赖（已冻结）",
+          "对应 Skill"
+        ],
+        "lineCount": 199
+      },
+      {
+        "id": "T6",
+        "file": "T6-asset-store.md",
+        "title": "T6 · 资产库",
+        "summary": "按条件检索与存取四类资产，为路由与标准构建提供**确定性**的资产入口。",
+        "sections": [
+          "职责",
+          "四类资产",
+          "确定性边界",
+          "输入",
+          "输出",
+          "退出码与失败",
+          "依赖与实现约束",
+          "⚠️ 前置依赖（未定）",
+          "对应 Skill"
+        ],
+        "lineCount": 104
+      }
+    ],
+    "toolsIndex": {
+      "file": "README.md",
+      "title": "AutoGrader Expert · Tools 索引",
+      "summary": "**三条判据——全中才算 Tool：**",
+      "sections": [
+        "一、Tool 与 Skill 的分界判据",
+        "二、目录结构",
+        "三、工具索引",
+        "四、统一 CLI 契约",
+        "五、规则集：内置默认 + 教师自定义",
+        "六、平台封装映射（打包时必须做）",
+        "七、冻结状态与随包契约",
+        "八、入参形状防御（六脚本统一，2026-09-25）",
+        "九、解释器名：`python3` 优先，`python` 回退"
+      ],
+      "lineCount": 195
+    },
+    "workflow": [
+      {
+        "file": "README.md",
+        "title": "Workflow 层 · 索引",
+        "summary": "同级目录（`../`）：`agent/`（Prompt）、`skills/`（方法论）、`tools/`（确定性工具）、`evaluations/`（评测）。",
+        "sections": [
+          "一、目录结构",
+          "二、流水线一览",
+          "三、与三种模式的关系（本层只覆盖「评阅」的那一条）",
+          "四、完成判据对照（对应《步骤路径规划书》1.4）",
+          "五、本层不做什么"
+        ],
+        "lineCount": 68
+      },
+      {
+        "file": "W1-five-agent-pipeline.md",
+        "title": "W1 · 五 Agent 编排规格",
+        "summary": "**五环是「同一份报告的认知流水线」，不是五个独立接口。** 每环只做一件事，",
+        "sections": [
+          "一、总览与映射",
+          "二、逐环规格",
+          "三、环与环之间的交接物",
+          "四、对应 Skill / Tool 的规格"
+        ],
+        "lineCount": 122
+      },
+      {
+        "file": "W2-orchestration-modes.md",
+        "title": "W2 · 编排形态（单会话分步 / 多会话分环）",
+        "summary": "一个 LearnBuddy 会话",
+        "sections": [
+          "一、两种形态",
+          "二、共同硬约束（两种形态都必须满足）",
+          "三、选型判据（只看形态特征，不看工期）",
+          "四、两种形态的等价性要求（怎么证明「都能跑通同一份报告」）"
+        ],
+        "lineCount": 75
+      },
+      {
+        "file": "W3-failure-and-retry.md",
+        "title": "W3 · 失败处理与重试路径",
+        "summary": "**CI 判定口径**：`0` 通过；`1` 视为不通过（需修）；`2` 停下报错（环境或输入问题）；",
+        "sections": [
+          "一、三条不可让步的原则",
+          "二、状态标记词汇表（闭环，不得自造）",
+          "三、逐环失败路径",
+          "四、回退的边界（能退到哪、不能退到哪）",
+          "五、与退出码的映射（CI 怎么看）"
+        ],
+        "lineCount": 70
+      }
+    ],
+    "evaluations": [
+      {
+        "file": "README.md",
+        "title": "Evaluation 层 · 索引",
+        "summary": "同级目录（`../`）：`agent/`（Prompt）、`skills/`（方法论）、`tools/`（确定性工具）、`workflow/`（编排）。",
+        "sections": [
+          "一、目录结构",
+          "二、怎么跑",
+          "三、四个指标速查",
+          "四、完成判据对照（对应《步骤路径规划书》1.5）",
+          "五、与 v0.1 的一致性（独立复现，证明口径没有跑偏）",
+          "六、边界（本层不做的事）"
+        ],
+        "lineCount": 90
+      },
+      {
+        "file": "metrics.md",
+        "title": "Evaluation 层 · 指标定义（口径真源）",
+        "summary": "两者按 **`ReviewResult.report.reportId` ↔ 金标准 `reports[].id`** 关联。",
+        "sections": [
+          "一、输入（两类，均为外部传入，脚本不内置数据）",
+          "二、可比性规则（先定分母，再算指标）",
+          "三、四项指标",
+          "四、输出与退出码",
+          "五、回归门禁（`regression_gate.py`）",
+          "六、与 v0.1 的一致性复核（独立复现）",
+          "七、当前基线"
+        ],
+        "lineCount": 154
+      }
+    ]
+  },
+  "evaluationScripts": [
+    {
+      "file": "evaluate.py",
+      "lineCount": 678
+    },
+    {
+      "file": "regression_gate.py",
+      "lineCount": 281
+    }
+  ],
+  "counts": {
+    "skills": 8,
+    "tools": 6,
+    "workflowDocs": 4,
+    "rules": 13,
+    "samples": 12
+  }
+}

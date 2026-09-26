@@ -1,0 +1,103 @@
+# ============================================================================
+# AutoGrader · 交付物二（Web Demo）构建与部署
+# ----------------------------------------------------------------------------
+# 目标：push 到 main 后自动构建 `web/` 并发布到 GitHub Pages。
+#
+# 三个容易踩的点，这里都显式处理了：
+#
+# 1) **basePath 必须由 CI 传**，不能在 next.config.mjs 里写死默认值。
+#    项目站点（https://<user>.github.io/<repo>/）需要子路径前缀，
+#    而用户站点（仓库名恰为 <user>.github.io）必须没有前缀。
+#    本文件按仓库名自动判定，两种情况都覆盖。
+#
+# 2) **构建前先跑门禁**：`npm run build` 已串联
+#      sync-assets（自包含资产） → contract-check（契约一致性） →
+#      check-fonts（字体子集覆盖） → next build
+#    任一门禁不过就不出产物，避免把一个坏数据/掉字的站点发上去。
+#
+# 3) **跨端一致性对拍**单独跑一步（需要 python3）。它比对浏览器端规则引擎
+#    与工具链 T2 在同一份输入上的输出；这一步是"上传核查与智能体侧结论一致"
+#    这句话的机器证据。
+#
+# 首次部署需在仓库 Settings → Pages 把 Source 设为 "GitHub Actions"。
+# ============================================================================
+
+name: Deploy Web Demo
+
+on:
+  push:
+    branches: [main]
+    # 只在这些路径变化时构建，避免改文档也触发一次部署
+    paths:
+      - 'web/**'
+      - 'backend/autograder-expert/agents/tools/assets/**'
+      - 'backend/autograder-expert/agents/tools/rules/**'
+      - 'backend/autograder-expert/agents/evaluations/baselines/**'
+      - 'contract/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+# GitHub Pages 部署所需的最小权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只允许一个部署；不取消进行中的那个（避免 Pages 卡在中间态）
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  # 用户站点（仓库名 = <owner>.github.io）用根路径；否则用 /<仓库名> 子路径
+  NEXT_PUBLIC_BASE_PATH: ${{ github.event.repository.name == format('{0}.github.io', github.repository_owner) && '' || format('/{0}', github.event.repository.name) }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 配置 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: 安装依赖
+        working-directory: web
+        run: npm ci --no-audit --no-fund
+
+      - name: 跨端一致性对拍（浏览器端规则引擎 ↔ 工具链 T2）
+        run: node web/scripts/audit-cross-end.mjs
+
+      - name: 构建（含 sync-assets / contract-check / check-fonts 三道门禁）
+        working-directory: web
+        run: npm run build
+        env:
+          NEXT_PUBLIC_BASE_PATH: ${{ env.NEXT_PUBLIC_BASE_PATH }}
+
+      - name: 产物自检（静态服务 + 冒烟）
+        working-directory: web
+        run: npm run preview:check
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 发布到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

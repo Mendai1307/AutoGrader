@@ -1,0 +1,43 @@
+{
+  "name": "autograder-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AutoGrader 智能评阅平台 · 交付物二 Web Demo（Next.js 静态导出，运行时零 AI 调用 / 零后端 / 零数据库）",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "node scripts/sync-assets.mjs && node scripts/contract-check.mjs && node scripts/check-fonts.mjs && next build",
+    "preview": "node scripts/serve.mjs",
+    "preview:check": "node scripts/serve.mjs --check",
+    "sync:assets": "node scripts/sync-assets.mjs",
+    "check:contract": "node scripts/contract-check.mjs",
+    "check:fonts": "node scripts/check-fonts.mjs",
+    "audit:cross-end": "node scripts/audit-cross-end.mjs",
+    "sync:fonts": "python3 scripts/sync_fonts.py --from node_modules/misans-webfont",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "lucide-react": "0.474.0",
+    "next": "15.1.12",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "tailwind-merge": "2.6.0",
+    "zod": "3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.7",
+    "@types/react": "19.0.7",
+    "@types/react-dom": "19.0.3",
+    "autoprefixer": "10.4.20",
+    "eslint": "8.57.1",
+    "eslint-config-next": "15.1.12",
+    "postcss": "8.5.1",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.7.3"
+  }
+}

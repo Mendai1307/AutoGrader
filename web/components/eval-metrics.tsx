@@ -37,6 +37,7 @@ import { CalibrationChart } from '@/components/charts/calibration-chart';
 import { DeviationChart } from '@/components/charts/deviation-chart';
 import { HitRateChart } from '@/components/charts/hit-rate-chart';
 import { ScoreComparisonChart } from '@/components/charts/score-comparison-chart';
+import { Note } from '@/components/note';
 import { StatCard } from '@/components/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -280,16 +281,14 @@ export function EvalDeviationPanel({ input }: { input: EvalMetricsInput }) {
               {usable.length} 份可比 · 容差 ±2
             </Badge>
           </div>
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            向右为 AI 给分偏松、向左为偏严。中间浅色带是 ±2 分容差区间 —— 落在带内即视作同档；
-            带外才需要人工核对。**不需要看颜色**：条的长度与位置就是全部信息。
-          </p>
+          <Note summary="怎么读这张图" className="mt-2">
+            <p>向右为 AI 给分偏松、向左为偏严。中间浅色带是 ±2 分容差区间，落在带内即视作同档，带外才需要人工核对。</p>
+            <p>条的长度与位置就是全部信息，不需要依赖颜色。</p>
+          </Note>
         </CardHeader>
         <CardContent className="px-4 pb-4 pt-5">
           {usable.length === 0 ? (
-            <p className="py-6 text-center text-xs text-muted-foreground">
-              尚无 AI 评阅结果，偏差图暂无可比样本 —— 不做任何插值或估算。
-            </p>
+            <p className="py-6 text-center text-xs text-muted-foreground">暂无可比样本。</p>
           ) : (
             <DeviationChart
               rows={usable.map((row) => ({ reportId: row.reportId, delta: row.delta ?? 0 }))}
@@ -308,10 +307,10 @@ export function EvalDeviationPanel({ input }: { input: EvalMetricsInput }) {
               0 – 100 分量程
             </Badge>
           </div>
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            空心圆是教师金标准分、实心圆是 AI 加权总分，**两点之间的线段就是差距本身** ——
-            差距最大的几份，线段最长的几行，不需要读者自己做减法。
-          </p>
+          <Note summary="怎么读这张图" className="mt-2">
+            <p>空心圆是教师金标准分，实心圆是 AI 加权总分，两点之间的线段就是差距本身。</p>
+            <p>线段最长的几行就是差距最大的几份，不需要读者自己做减法。</p>
+          </Note>
         </CardHeader>
         <CardContent className="px-4 pb-4 pt-5">
           <ScoreComparisonChart
@@ -343,13 +342,14 @@ export function EvalCalibrationPanel({ input }: { input: EvalMetricsInput }) {
               {calibration.ece === null ? '暂无可分桶样本' : `ECE = ${calibration.ece.toFixed(2)} · 越低越好`}
             </Badge>
           </div>
-          <p className="text-xs leading-relaxed text-muted-foreground">{ECE_DEFINITION}</p>
+          <Note summary="ECE 怎么算" className="mt-2">
+            <p>{ECE_DEFINITION}</p>
+            <p>对角线为「说到做到」；实线表示偏自信、虚线表示偏保守；点的大小按该桶样本数。</p>
+          </Note>
         </CardHeader>
         <CardContent className="px-4 pb-1 pt-5">
           {points.length === 0 ? (
-            <p className="py-6 text-center text-xs text-muted-foreground">
-              当前没有带置信度的可比评分点，校准曲线无从绘制 —— 本页不显示估算值。
-            </p>
+            <p className="py-6 text-center text-xs text-muted-foreground">暂无可分桶样本。</p>
           ) : (
             <CalibrationChart buckets={calibration.buckets} labels={CONF_BUCKET_LABEL} />
           )}
@@ -406,21 +406,18 @@ export function EvalCalibrationPanel({ input }: { input: EvalMetricsInput }) {
                 ))}
               </TableBody>
               <TableCaption>
-                校准差 = 实际命中率 − 平均置信度：正值表示 AI 偏保守，负值表示偏自信。
-                样本数为 0 的桶不参与加权（不是按 0 计入），因此 ECE 不会被空桶稀释。
+                校准差 = 实际命中率 − 平均置信度；正值偏保守，负值偏自信。空桶不参与加权。
               </TableCaption>
             </Table>
           </TableWrapper>
 
-          <div className="border-t border-border bg-secondary/20 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
-            <div className="font-medium text-foreground">可手工复算的展开式</div>
+          <div className="border-t border-border bg-secondary/20 px-4 py-3">
+            <div className="text-[11px] font-medium text-foreground">可手工复算的展开式</div>
             {calibrationTotal === 0 ? (
-              <p className="mt-1">
-                当前没有带置信度的可比评分点，故 ECE 无可比样本 —— 本页不显示估算值。
-              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">暂无可比样本。</p>
             ) : (
               <>
-                <p className="mt-1 break-all font-mono text-[11px]">
+                <p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">
                   ECE ={' '}
                   {calibration.buckets
                     .filter((b) => b.n > 0 && b.accuracy !== null && b.meanConfidence !== null)
@@ -431,13 +428,16 @@ export function EvalCalibrationPanel({ input }: { input: EvalMetricsInput }) {
                     .join(' + ')}{' '}
                   = <span className="font-semibold text-foreground">{calibration.ece?.toFixed(2)}</span>
                 </p>
-                <p className="mt-1.5">
-                  参与分桶 {calibrationTotal} 个评分点
-                  {calibration.itemsWithoutConfidence === 0
-                    ? '，全部都有置信度'
-                    : `；另有 ${calibration.itemsWithoutConfidence} 个可比评分点未填置信度，已从 ECE 中剔除（不是当作 0）`}
-                  。桶内两个比例均先取 2 位小数再加权，与工具链 evaluate.py 的输出逐值可比。
-                </p>
+                <Note summary="口径细节" className="mt-2">
+                  <p>
+                    参与分桶 {calibrationTotal} 个评分点
+                    {calibration.itemsWithoutConfidence === 0
+                      ? '，全部都有置信度'
+                      : `；另有 ${calibration.itemsWithoutConfidence} 个可比评分点未填置信度，已从 ECE 中剔除（不是当作 0）`}
+                    。
+                  </p>
+                  <p>桶内两个比例均先取 2 位小数再加权，与工具链 evaluate.py 的输出逐值可比。</p>
+                </Note>
               </>
             )}
           </div>
@@ -464,8 +464,11 @@ export function EvalHitRatePanel({ input }: { input: EvalMetricsInput }) {
             可比评分点 {m.hitComparable} 项
           </Badge>
         </div>
-        <p className="text-xs leading-relaxed text-muted-foreground">{HIT_RATE_DEFINITION}</p>
-      </CardHeader>
+          <Note summary="命中率怎么定" className="mt-2">
+            <p>{HIT_RATE_DEFINITION}</p>
+            <p>图中虚线为 70% / 90% 参考线：越过 90% 视为稳定，低于 70% 需回到该评分点的判据描述上找原因。</p>
+          </Note>
+        </CardHeader>
       <CardContent className="pt-5">
         <HitRateChart
           rows={m.itemHits.map((item) => ({
@@ -476,9 +479,6 @@ export function EvalHitRatePanel({ input }: { input: EvalMetricsInput }) {
             comparable: item.comparable,
           }))}
         />
-        <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-          虚线为 70% / 90% 两条参考线：越过 90% 视为稳定，低于 70% 需要回到该评分点的判据描述上找原因。
-        </p>
       </CardContent>
 
       <CardContent className="p-0">
@@ -528,8 +528,7 @@ export function EvalHitRatePanel({ input }: { input: EvalMetricsInput }) {
               ))}
             </TableBody>
             <TableCaption>
-              命中即 AI 判定档位与教师金标准档位完全一致（优秀 / 达标 / 部分达标 / 未达标 四档之一）。
-              权重列与 rubric v{input.rubricVersion} 一致，权重合计 100。条形的深浅阶表示程度，不表示类别。
+              命中即 AI 档位与金标准档位完全一致。权重列与 rubric v{input.rubricVersion} 一致，合计 100。
             </TableCaption>
           </Table>
         </TableWrapper>
@@ -706,18 +705,19 @@ export function EvalEmptyNotice({ input }: { input: EvalMetricsInput }) {
             已生成 0 / {m.reportCount}，评测将在评阅结果产出后自动填充
           </h2>
           <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-            构建期扫描 <code className="font-mono">public/results/</code> 未发现任何{' '}
-            <code className="font-mono">result-{'{reportId}'}.json</code>（目录内以{' '}
-            <code className="font-mono">_</code> 开头的文件为契约格式示例，不计入统计）。
-            因此总分 MAE、档位一致率、ECE 与最大偏差均暂无可比样本 —— 本页不显示任何估算值或占位数字，
-            以免产生无出处的指标。
+            未发现任何 <code className="font-mono">result-{'{reportId}'}.json</code>，
+            故 MAE、档位一致率、ECE 与最大偏差均暂无可比样本 —— 不显示估算值或占位数字。
           </p>
-          <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <span>
+          <Note summary="扫描规则与已有数据" className="mt-2">
+            <p>
+              构建期扫描 <code className="font-mono">public/results/</code>；目录内以{' '}
+              <code className="font-mono">_</code> 开头的文件是契约格式示例，不计入统计。
+            </p>
+            <p>
               教师金标准分 {m.goldScores.length} 份齐全，区间 {formatScore(Math.min(...m.goldScores))}–
-              {formatScore(Math.max(...m.goldScores))}，均值 {formatScore(m.goldAverage)}
-            </span>
-          </p>
+              {formatScore(Math.max(...m.goldScores))}，均值 {formatScore(m.goldAverage)}。
+            </p>
+          </Note>
         </div>
       </div>
     </Card>
@@ -845,40 +845,36 @@ export function EvalDashboard({ input }: { input: EvalMetricsInput }) {
         <EvalStatGrid input={input} />
       </section>
 
-      {/* --------------------------- 口径说明 --------------------------- */}
-      <section className="py-8">
-        <Card className="p-5">
-          <div className="flex items-center gap-2">
-            <Info className="h-4 w-4 text-primary" />
-            <CardTitle className="text-sm">评分口径标注</CardTitle>
-          </div>
-          <dl className="mt-3 grid gap-3 text-xs leading-relaxed md:grid-cols-2">
-            <div className="rounded-md bg-secondary/40 p-3">
-              <dt className="font-medium text-foreground">总分 MAE（平均绝对误差）</dt>
-              <dd className="mt-1 text-muted-foreground">{MAE_DEFINITION}</dd>
+      {/* ------------------ 口径说明（收起，属二级内容） ------------------ */}
+      <section className="pb-8">
+        <Note summary="指标定义与口径（6 条）">
+          <dl className="grid gap-2 md:grid-cols-2">
+            <div>
+              <dt className="font-medium text-foreground">总分 MAE</dt>
+              <dd>{MAE_DEFINITION}</dd>
             </div>
-            <div className="rounded-md bg-secondary/40 p-3">
+            <div>
               <dt className="font-medium text-foreground">逐项命中率</dt>
-              <dd className="mt-1 text-muted-foreground">{HIT_RATE_DEFINITION}</dd>
+              <dd>{HIT_RATE_DEFINITION}</dd>
             </div>
-            <div className="rounded-md bg-secondary/40 p-3">
+            <div>
               <dt className="font-medium text-foreground">档位一致率</dt>
-              <dd className="mt-1 text-muted-foreground">{LEVEL_AGREEMENT_DEFINITION}</dd>
+              <dd>{LEVEL_AGREEMENT_DEFINITION}</dd>
             </div>
-            <div className="rounded-md bg-secondary/40 p-3">
+            <div>
               <dt className="font-medium text-foreground">置信度校准（ECE）</dt>
-              <dd className="mt-1 text-muted-foreground">{ECE_DEFINITION}</dd>
+              <dd>{ECE_DEFINITION}</dd>
             </div>
-            <div className="rounded-md bg-secondary/40 p-3">
+            <div>
               <dt className="font-medium text-foreground">偏差</dt>
-              <dd className="mt-1 text-muted-foreground">{DELTA_DEFINITION}</dd>
+              <dd>{DELTA_DEFINITION}</dd>
             </div>
-            <div className="rounded-md bg-secondary/40 p-3">
+            <div>
               <dt className="font-medium text-foreground">教师金标准分</dt>
-              <dd className="mt-1 text-muted-foreground">{GOLD_SCORE_DEFINITION}</dd>
+              <dd>{GOLD_SCORE_DEFINITION}</dd>
             </div>
           </dl>
-        </Card>
+        </Note>
       </section>
 
       {/* --------------------------- 空态提示 --------------------------- */}

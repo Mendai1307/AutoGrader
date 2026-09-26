@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 
 import { AgentPipeline } from '@/components/agent-pipeline';
+import { Note } from '@/components/note';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { StatCard } from '@/components/stat-card';
@@ -153,12 +154,11 @@ export default function HomePage() {
                 <CardTitle className="text-lg">AI 能力来源声明</CardTitle>
               </div>
               <p className="text-base font-medium leading-relaxed text-foreground">{AI_SOURCE_STATEMENT}</p>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                本作品采用 <span className="font-medium text-foreground">Compile-time AI（编译期 AI）</span>
-                范式：AI 推理在开发期的 LearnBuddy 对话侧完成并固化为仓库内的静态 JSON 资产；
+              <Note summary="Compile-time AI 范式是什么">
+                AI 推理在开发期的 LearnBuddy 对话侧完成并固化为仓库内的静态 JSON 资产；
                 Web 端不复用任何模型、不发起任何网络推理请求，只按契约做确定性渲染。
                 这样做的直接好处是评分口径可复现、可审计、可离线演示，也不会出现「同一份报告两次评阅得到不同分数」。
-              </p>
+              </Note>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 md:grid-cols-3">
@@ -204,10 +204,10 @@ export default function HomePage() {
 
           <AgentPipeline className="mt-6" />
 
-          <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-            说明：虚线框标注的 Reviewer 为条件触发环节——仅当存在置信度 &lt; 0.80 的评分点、
+          <Note summary="虚线框的含义" className="mt-4">
+            虚线框标注的 Reviewer 为条件触发环节——仅当存在置信度 &lt; 0.80 的评分点、
             证据数组为空或档位存在跨两级争议时才会实际执行复核。
-          </p>
+          </Note>
         </section>
 
         {/* ========================== 页面入口 ========================== */}

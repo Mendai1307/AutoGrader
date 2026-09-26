@@ -31,6 +31,7 @@ import { CircleAlert, FileUp, Loader2, Play, RotateCcw, SquareTerminal } from 'l
 
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { Note } from '@/components/note';
 import { Progress } from '@/components/ui/progress';
 import { parseTextDocument, type ParsedDocument, type TextFormat } from '@/lib/parse';
 import { DocxFormatError, DocxUnsupportedError, isDocxSupported, parseDocxDocument } from '@/lib/docx';
@@ -244,8 +245,10 @@ export function UploadInspector({
             支持 <code className="font-mono">.md</code> / <code className="font-mono">.txt</code> /{' '}
             <code className="font-mono">.docx</code>，上限 {MAX_FILE_MB} MB。
             <span className="text-foreground">文件不会离开这台机器</span>
-            —— 解压、切分、核查全部在浏览器本地完成，没有后端、没有 AI 调用、没有网络请求。
           </p>
+          <Note summary="为什么「不会离开这台机器」">
+            解压、切分、核查全部在浏览器本地完成，没有后端、没有 AI 调用、没有网络请求。
+          </Note>
           <div className="flex flex-wrap items-center justify-center gap-2">
             <button
               type="button"
@@ -290,8 +293,7 @@ export function UploadInspector({
             />
             <span className="text-[11px] text-muted-foreground">
               文件名决定解析分支：.md 走 Markdown（识别标题 / 代码围栏），其余按纯文本
-            </span>
-          </div>
+            </span>          </div>
           <textarea
             value={pastedText}
             onChange={(event) => setPastedText(event.target.value)}
@@ -410,7 +412,9 @@ function InspectionResult({ outcome, corpusSize }: { outcome: Outcome; corpusSiz
           <p className="mt-3 text-[11.5px] leading-relaxed text-muted-foreground">
             文件指纹 <code className="break-all font-mono">{document.sourceFile.digest || '（未计算）'}</code>
             ；规则集摘要 <code className="font-mono">{inspection.rulesetDigest.rulesetDigest.slice(0, 22)}…</code>。
-            这两者与工具链 T2 的输出应当逐字相同（构建期由 <code className="font-mono">npm run audit:cross-end</code> 复核）。
+            <Note summary="这两个摘要用来做什么">
+              与工具链 T2 的输出应当逐字相同（构建期由 <code className="font-mono">npm run audit:cross-end</code> 复核）。
+            </Note>
           </p>
         </div>
       </Card>
@@ -427,10 +431,10 @@ function InspectionResult({ outcome, corpusSize }: { outcome: Outcome; corpusSiz
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[11.5px] leading-relaxed text-muted-foreground">
-            「不适用」与「不通过」是两件事：前者是这条规则在当前输入上无法判定，
-            后者才表示核查发现了问题。把两者混为一谈，会把「没解析出来」误报成「学生没写」。
-          </p>
+          <Note summary="「不适用」与「不通过」的区别" className="mt-2">
+            前者是这条规则在当前输入上无法判定，后者才表示核查发现了问题。
+            把两者混为一谈，会把「没解析出来」误报成「学生没写」。
+          </Note>
         </Card>
       )}
 
@@ -457,11 +461,11 @@ function InspectionResult({ outcome, corpusSize }: { outcome: Outcome; corpusSiz
         </ul>
       </Card>
 
-      <p className="text-[11.5px] leading-relaxed text-muted-foreground">
+      <Note summary="相似度不构成抄袭结论">
         相似度是与内置语料库（{corpusSize} 份样例报告）比对得出的**文本指纹接近度**，
         只表示「值得看一眼」，<span className="text-foreground">不构成任何抄袭结论</span>；
         最终判断须由教师结合原创性评分点完成。
-      </p>
+      </Note>
     </div>
   );
 }

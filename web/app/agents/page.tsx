@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 
 import { FivePieceDiagram, type PieceRow } from '@/components/five-piece-diagram';
+import { Note } from '@/components/note';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { StatCard } from '@/components/stat-card';
@@ -182,12 +183,12 @@ export default function AgentsPage() {
             它由 Prompt + Skills + Tools + Workflow + Evaluation 五层构成，全部落在本仓库里、可被逐份检查。
             网页只负责把它的产出**确定性渲染**出来 —— 页面本身不做任何 AI 调用。
           </p>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            本页所有数字都在构建期由脚本扫描仓库生成（
-            <code className="font-mono text-[12px]">{agentKit.generatedBy}</code>
+          <Note summary="本页数字怎么来的" className="mt-2">
+            所有数字都在构建期由脚本扫描仓库生成（
+            <code className="font-mono">{agentKit.generatedBy}</code>
             ），不手写、不润色：文件数与条目数永远与磁盘一致。抽取源：
-            <code className="font-mono text-[12px]">{agentKit.sourceRoot}</code>。
-          </p>
+            <code className="font-mono">{agentKit.sourceRoot}</code>。
+          </Note>
 
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard label="技能（Skills）" value={counts.skills} hint="S0 – S7，固定链路协作" />
@@ -271,12 +272,11 @@ export default function AgentsPage() {
               </Card>
             ))}
           </div>
-          <p className="mt-3 text-[11.5px] leading-relaxed text-muted-foreground">
-            统一退出码：<code className="font-mono">0</code> 正常 ·
-            <code className="ml-1 font-mono">1</code> 有错但校验完整 ·
-            <code className="ml-1 font-mono">2</code> 输入或 schema 不可用 ·
-            <code className="ml-1 font-mono">3</code> 校验不完整（降级运行，CI 视为不通过）。
-          </p>
+          <Note summary="统一退出码" className="mt-3">
+            <code className="font-mono">0</code> 正常 · <code className="font-mono">1</code> 有错但校验完整 ·{' '}
+            <code className="font-mono">2</code> 输入或 schema 不可用 ·{' '}
+            <code className="font-mono">3</code> 校验不完整（降级运行，CI 视为不通过）。
+          </Note>
         </section>
 
         {/* ==================== Workflow 明细 ==================== */}
@@ -344,11 +344,16 @@ export default function AgentsPage() {
             ))}
           </div>
 
-          <p className="mt-3 text-[11.5px] leading-relaxed text-muted-foreground">
-            指标口径写死为：<code className="font-mono">{baseline.goldMeta.totalScoreFormula}</code>
-            ；每个指标都可由原始数据复算，评测页 <Link href="/eval" className="text-primary hover:underline">/eval</Link>{' '}
-            会把这些数字**在浏览器里现算一遍**，而不是把结果抄在页面上。
-          </p>
+          <Note summary="指标口径怎么保证一致" className="mt-3">
+            <p>
+              口径写死为：<code className="font-mono">{baseline.goldMeta.totalScoreFormula}</code>；
+              每个指标都可由原始数据复算。
+            </p>
+            <p>
+              评测页 <Link href="/eval" className="text-primary hover:underline">/eval</Link>{' '}
+              会把这些数字**在浏览器里现算一遍**，而不是把结果抄在页面上。
+            </p>
+          </Note>
         </section>
 
         {/* ==================== 档位图例（顺带说明色彩纪律） ==================== */}
@@ -374,9 +379,7 @@ export default function AgentsPage() {
                   <span className="font-mono text-foreground">pending</span> —— 尚无终值；
                   <span className="text-foreground">不计入求和</span>，其权重计入「已排除」。
                 </li>
-                <li>
-                  两者合并会让 12 份历史资产的总分全部改变，因此契约强制它们并存且符号不同。
-                </li>
+                <li>两者合并会让 12 份历史资产的总分全部改变，故契约强制并存且符号不同。</li>
               </ul>
             </Card>
 
@@ -391,12 +394,12 @@ export default function AgentsPage() {
                   </Badge>
                 ))}
               </div>
-              <p className="mt-2.5 text-[12px] leading-relaxed text-muted-foreground">
+              <Note summary="为什么不用红绿" className="mt-2.5">
                 档位、置信度、难度这些**数据语义一律不用红绿**：序数由
                 <span className="font-mono text-foreground"> ●●○○</span> 这类刻度符号承担，
                 程度由字重与灰阶承担。理由是红绿在色觉障碍下不可辨、在黑白打印与低质量投屏上同样失效；
                 低饱和赭石仅保留给「真的出错」（构建失败、契约校验不通过）。
-              </p>
+              </Note>
             </Card>
           </div>
         </section>

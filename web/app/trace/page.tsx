@@ -3,9 +3,10 @@
  * ---------------------------------------------------------------------------
  * 回答「AI 是不是黑箱」：把五 Agent 流水线每一步的中间产物摊开给评审看。
  *
- * 示例数据来源：public/results/_example.json —— 它是契约格式示例，
- * **不是任何真实报告的评阅结果**，本页据此渲染一条完整的溯源链样例，
- * 并在页面上明确标注这一事实，避免被误读为真实评分。
+ * 示例数据来源：`lib/data.ts` 的 `getTraceExample()` —— 它返回
+ * **首份通过契约校验的真实评阅结果**（public/results/result-*.json 中按序遍历的第一个），
+ * 本页据此渲染一条完整的溯源链样例。原先此处的注释写作「契约示例 _example.json
+ * （非真实评阅结果）」，与实现不符，已于 2026-09-26 按实际改写。
  *
  * 同时展示「低置信度（< 0.80）自动触发 Reviewer 复核」的规则与阈值表。
  */
@@ -25,6 +26,7 @@ import {
 
 import { AgentIcon } from '@/components/agent-pipeline';
 import { EmptyState } from '@/components/empty-state';
+import { Note } from '@/components/note';
 import { ProvenanceBlock } from '@/components/provenance-block';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -120,7 +122,7 @@ export default function TracePage() {
             <StatCard
               label="溯源链示例步骤"
               value={steps.length}
-              hint="来自契约示例 _example.json（非真实评阅结果）"
+              hint="取自首份通过校验的真实结果"
               icon={<ScrollText className="h-3.5 w-3.5" />}
             />
             <StatCard
@@ -141,11 +143,13 @@ export default function TracePage() {
                 <ShieldCheck className="h-4 w-4 text-primary" />
                 <CardTitle>复核触发规则：低置信度（&lt; 0.80）自动触发 Reviewer 复核</CardTitle>
               </div>
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                Grader 给出的每一项判定都带一个 0–1 的置信度。只要某项置信度低于 0.80，
-                该项就会被置为「需复核」并整体转交 Reviewer 环节二次比对证据原文；
-                复核不会凭空补证据，只能维持、上调置信度或改判档位。
-              </p>
+              <Note summary="为什么会有复核环节" className="mt-2">
+                <p>
+                  Grader 给出的每一项判定都带一个 0–1 的置信度。只要某项置信度低于 0.80，该项就会被置为「需复核」，
+                  并整体转交 Reviewer 环节二次比对证据原文。
+                </p>
+                <p>复核不会凭空补证据，只能维持、上调置信度或改判档位。</p>
+              </Note>
             </CardHeader>
             <CardContent className="p-0">
               <TableWrapper>
@@ -184,8 +188,7 @@ export default function TracePage() {
                     ))}
                   </TableBody>
                   <TableCaption>
-                    除置信度外，以下情形同样置「需复核」：该项证据数组为空；该项档位存在跨两级争议。
-                    复核后置信度仍低于 0.60 的项，界面必须显著标注并建议教师人工确认。
+                    证据数组为空、档位存在跨两级争议，同样置「需复核」；复核后仍低于 0.60 的项须显著标注。
                   </TableCaption>
                 </Table>
               </TableWrapper>
@@ -198,29 +201,31 @@ export default function TracePage() {
           {example === null ? (
             <EmptyState
               tone="warning"
-              title="契约示例不可用"
+              title="暂无可用的溯源样例"
               description={
                 <>
-                  未能从 <code className="font-mono">public/results/_example.json</code>{' '}
-                  读取到合法的 ReviewResult 示例（文件缺失或未通过契约校验），因此无法渲染溯源链示例。
-                  这不影响真实评阅结果的读取与展示。
+                  <code className="font-mono">public/results/</code> 下还没有任何通过契约校验的评阅结果，
+                  因此无法渲染溯源链示例。评阅结果产出后本页会自动填充。
                 </>
               }
             />
           ) : (
             <>
-              <Card className={cn('mb-4 p-4', TONE.notice.card)}>
-                <div className="flex items-start gap-3">
-                  <TriangleAlert className={cn('mt-0.5 h-4 w-4 shrink-0', TONE.notice.icon)} />
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    <span className="font-semibold text-foreground">数据来源说明：</span>
-                    以下溯源链来自 <code className="font-mono">public/results/_example.json</code>，
-                    它是本系统的<span className="font-semibold">契约格式示例</span>（报告《{example.report.title}》），
-                    不是任何一份样例报告的评阅结果，也不参与 <Link href="/eval" className="underline">一致性评测</Link>。
-                    它的作用是展示一条完整的、字段齐全的溯源链长什么样。
-                  </p>
-                </div>
-              </Card>
+              {/* ⚠️ 这段原先写「溯源链来自契约示例 _example.json（非真实评阅结果）」—— **与实现不符**：
+                  data.ts 的 getTraceExample() 取的是首份通过校验的**真实**结果。已按实际改写并收进二级菜单。 */}
+              <Note summary="这段溯源链的数据来源" className="mb-4">
+                <p>
+                  以下溯源链取自{' '}
+                  <code className="font-mono">
+                    public/results/result-{example.report.reportId}.json
+                  </code>
+                  （报告《{example.report.title}》），即与
+                  <Link href="/eval" className="mx-1 underline">
+                    一致性评测
+                  </Link>
+                  所用的同一份真实评阅结果，不是为演示而写的样板。
+                </p>
+              </Note>
 
               <Tabs
                 defaultValue="steps"

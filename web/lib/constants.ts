@@ -295,6 +295,14 @@ export const PARTIAL_SCORE_NOTE =
 /** 分数复算容差 */
 export const SCORE_TOLERANCE = 0.01;
 
+/** total 块口径表的字段标签（页面与文档共用同一套措辞） */
+export const TOTAL_FORMULA_LABELS = {
+  included: '已计入权重',
+  excluded: '未计入权重',
+  upperBound: '上界',
+  partial: '是否部分分',
+} as const;
+
 /* ==========================================================================
  * 深链唤起 LearnBuddy（2.6）
  * ==========================================================================

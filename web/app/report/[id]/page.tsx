@@ -42,6 +42,7 @@ import { DeepLinkButton } from '@/components/deep-link-button';
 import { EmptyState } from '@/components/empty-state';
 import { InspectionPanel } from '@/components/inspection-panel';
 import { MarkdownView } from '@/components/markdown-view';
+import { Note } from '@/components/note';
 import { ProvenanceBlock } from '@/components/provenance-block';
 import { ScoreItemCard } from '@/components/score-item-card';
 import { SiteFooter } from '@/components/site-footer';
@@ -60,6 +61,7 @@ import {
   TONE,
   TONE_META,
   TOTAL_FORMULA,
+  TOTAL_FORMULA_LABELS,
   UPPER_BOUND_NOTE,
   deltaTone,
 } from '@/lib/constants';
@@ -221,10 +223,10 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
               </div>
             </div>
 
-            <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground/90">
+            <Note summary="样例数据说明" className="mt-4">
               样例数据为合成脱敏内容：学生一律使用泛指代号，学校统一写作「某某大学计算机学院」，
               不含任何真实姓名、学号或学校名。
-            </p>
+            </Note>
           </Card>
 
           {/* 分数面板 */}
@@ -259,19 +261,19 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                     </div>
                     <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px]">
                       <div className="flex items-baseline justify-between gap-2">
-                        <dt className="text-muted-foreground">已计入权重</dt>
+                        <dt className="text-muted-foreground">{TOTAL_FORMULA_LABELS.included}</dt>
                         <dd className="font-semibold tabular-nums">{audit.weightIncluded}</dd>
                       </div>
                       <div className="flex items-baseline justify-between gap-2">
-                        <dt className="text-muted-foreground">未计入权重</dt>
+                        <dt className="text-muted-foreground">{TOTAL_FORMULA_LABELS.excluded}</dt>
                         <dd className="font-semibold tabular-nums">{audit.weightExcluded}</dd>
                       </div>
                       <div className="flex items-baseline justify-between gap-2">
-                        <dt className="text-muted-foreground">上界</dt>
+                        <dt className="text-muted-foreground">{TOTAL_FORMULA_LABELS.upperBound}</dt>
                         <dd className="font-semibold tabular-nums">{audit.upperBound}</dd>
                       </div>
                       <div className="flex items-baseline justify-between gap-2">
-                        <dt className="text-muted-foreground">是否部分分</dt>
+                        <dt className="text-muted-foreground">{TOTAL_FORMULA_LABELS.partial}</dt>
                         <dd className="font-semibold">{audit.isPartial ? '是（下界）' : '否（满权重）'}</dd>
                       </div>
                       {audit.declaredTotal?.grade == null ? null : (
@@ -281,18 +283,18 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                         </div>
                       )}
                     </dl>
-                    <p className="mt-2 border-t border-border pt-2 text-[11px] leading-relaxed text-muted-foreground">
-                      {TOTAL_FORMULA}
-                    </p>
-                    <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{UPPER_BOUND_NOTE}</p>
-                    {audit.isPartial ? (
-                      <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-                        {PARTIAL_SCORE_NOTE}
-                        {audit.excludedIds.length === 0
-                          ? null
-                          : `（本次未计入：${audit.excludedIds.join('、')}）`}
-                      </p>
-                    ) : null}
+                    <Note summary="口径细节（公式 / 上界 / 部分分）" className="mt-2">
+                      <p>{TOTAL_FORMULA}</p>
+                      <p>{UPPER_BOUND_NOTE}</p>
+                      {audit.isPartial ? (
+                        <p>
+                          {PARTIAL_SCORE_NOTE}
+                          {audit.excludedIds.length === 0
+                            ? null
+                            : `（本次未计入：${audit.excludedIds.join('、')}）`}
+                        </p>
+                      ) : null}
+                    </Note>
                   </div>
                 )}
 
@@ -380,19 +382,22 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                   </p>
                 )}
 
-                <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  <span className="font-medium text-foreground">分数自证（构建期复算）：</span>
-                  先逐项核验「得分 = 满分 × 档位系数」
-                  {summary.itemFailures.length === 0
-                    ? `，全部 ${state.data.scores.length} 项在 0.01 容差内一致；`
-                    : `，其中 ${summary.itemFailures.length} 项（${summary.itemFailures.join(' / ')}）不一致；`}
-                  再按加权口径复算总分并与结果文件中声明的 totalScore 比对。两项自证同时成立，
-                  即说明本页显示的每一个分数都由档位系数机械推出，而非事后手工填写。
-                  该复算由 <code className="font-mono">lib/schema.ts</code> 的{' '}
-                  <code className="font-mono">verifyItemScore()</code> /{' '}
-                  <code className="font-mono">verifyTotalScore()</code> 在构建期完成并固化进静态 HTML，
-                  运行时不做任何计算、不发任何请求；浏览器端 Web Crypto 复算指纹仍未实现（见 README 第十一节）。
-                </p>
+                <Note summary="分数自证（构建期复算）">
+                  <p>
+                    先逐项核验「得分 = 满分 × 档位系数」
+                    {summary.itemFailures.length === 0
+                      ? `，全部 ${state.data.scores.length} 项在 0.01 容差内一致；`
+                      : `，其中 ${summary.itemFailures.length} 项（${summary.itemFailures.join(' / ')}）不一致；`}
+                    再按加权口径复算总分并与结果文件中声明的 totalScore 比对。两项自证同时成立，
+                    即说明本页显示的每一个分数都由档位系数机械推出，而非事后手工填写。
+                  </p>
+                  <p>
+                    复算由 <code className="font-mono">lib/schema.ts</code> 的{' '}
+                    <code className="font-mono">verifyItemScore()</code> /{' '}
+                    <code className="font-mono">verifyTotalScore()</code> 在构建期完成并固化进静态 HTML，
+                    运行时不做任何计算、不发任何请求；浏览器端 Web Crypto 复算指纹仍未实现（见 README 第十一节）。
+                  </p>
+                </Note>
 
                 <p className="text-[11px] leading-relaxed text-muted-foreground">
                   rubric v{state.data.rubricVersion} · schema {state.data.schemaVersion} · {AI_SOURCE_STATEMENT}
@@ -436,10 +441,10 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                   </div>
                 </dl>
 
-                <p className="text-[11px] leading-relaxed text-muted-foreground">
+                <Note summary="金标准分是怎么来的">
                   金标准分由教师按同一 rubric 档位标准逐项人工标注后，用与 AI 完全相同的加权口径核算，
                   因此可直接作为一致性评测的参照。
-                </p>
+                </Note>
               </div>
             )}
           </Card>
@@ -454,10 +459,9 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                 <h2 className={cn('text-sm font-semibold', TONE.bad.text)}>
                   {state.file} 存在，但未通过 ReviewResult 契约校验，因此不予渲染
                 </h2>
-                <p className="mt-1 text-xs leading-relaxed text-foreground">
+                <Note summary="为什么不渲染不合格结果">
                   按契约约定，结构校验与口径校验都不通过时不得渲染结果，避免把不合规的分数展示给教师。
-                  以下为校验器给出的问题清单：
-                </p>
+                </Note>
                 <ul className="mt-2 space-y-1">
                   {state.issues.map((issue, index) => (
                     <li key={`${issue.path}-${index}`} className="font-mono text-[11px] leading-relaxed text-foreground/80">
@@ -480,10 +484,8 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
               description={
                 <>
                   本份报告的评阅结果尚未产出：构建期在 <code className="font-mono">public/results/</code> 下未找到{' '}
-                  <code className="font-mono">result-{report.id}.json</code>
-                  （目录内以 <code className="font-mono">_</code> 开头的文件是契约示例，不计为真实结果）。
-                  因此本页不展示任何 AI 分数，避免出现无出处的数字。待五 Agent 流水线产出结果 JSON 并提交进仓库后，
-                  本页会自动渲染逐项评分明细、评语与溯源信息。
+                  <code className="font-mono">result-{report.id}.json</code>，因此本页不展示任何 AI 分数，
+                  避免出现无出处的数字。结果 JSON 提交进仓库后，本页会自动渲染评分明细、评语与溯源信息。
                 </>
               }
             >
@@ -513,6 +515,9 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                   icon={<Sigma className="h-3.5 w-3.5" />}
                 />
               </div>
+              <Note summary="扫描规则" className="mt-3">
+                目录内以 <code className="font-mono">_</code> 开头的文件是契约示例，不计为真实结果。
+              </Note>
             </EmptyState>
 
             <Card className="p-5">
@@ -523,15 +528,15 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
               <ul className="mt-3 grid gap-2 text-xs leading-relaxed text-muted-foreground md:grid-cols-2">
                 <li className="rounded-md bg-secondary/40 p-3">
                   <span className="font-medium text-foreground">逐项评分明细</span>
-                  ：每个评分点的档位、得分 / 满分、扣分理由、判定置信度与是否触发复核。
+                  ：档位、得分 / 满分、扣分理由、置信度与是否触发复核。
                 </li>
                 <li className="rounded-md bg-secondary/40 p-3">
                   <span className="font-medium text-foreground">证据引用原文</span>
-                  ：每条证据的类型、章节 / 行号 / 图号定位与逐字摘录，可直接回到报告原文核对。
+                  ：类型、章节 / 行号 / 图号定位与逐字摘录，可回到原文核对。
                 </li>
                 <li className="rounded-md bg-secondary/40 p-3">
                   <span className="font-medium text-foreground">复核记录</span>
-                  ：Reviewer 对低置信度项的复核意见与置信度变化（before → after）。
+                  ：Reviewer 的复核意见与置信度变化（before → after）。
                 </li>
                 <li className="rounded-md bg-secondary/40 p-3">
                   <span className="font-medium text-foreground">面向学生的评语</span>
@@ -659,10 +664,10 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                       人工标注 · 非 AI 输出
                     </Badge>
                   </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  <Note summary="这条基线怎么用">
                     这是教师按 rubric 档位标准逐项标注的应有得分，也是 AI 结果产出后一致性评测的参照。
                     它不代表 AI 判定，本页不会将其当作评阅结果展示。
-                  </p>
+                  </Note>
 
                   <ul className="mt-4 space-y-2">
                     {goldItems.map((item) => {
@@ -725,10 +730,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                       · Rubric v{rubric.version} 共 {rubric.items.length} 个评分点，权重合计{' '}
                       {rubric.items.reduce((sum, item) => sum + item.weight, 0)}，与 manifest 一致。
                     </li>
-                    <li>
-                      · 教师金标准分 {formatScore(report.goldTotalScore)} 分可先行用于一致性评测的分布展示；MAE 与逐项命中率
-                      在结果产出后自动填充。
-                    </li>
+                    <li>· 教师金标准分 {formatScore(report.goldTotalScore)} 分可先行用于分布展示。</li>
                     <li>· 结果文件命名约定：{RESULT_FILE_CONVENTION}，提交后重新构建即自动渲染。</li>
                   </ul>
                 </Card>

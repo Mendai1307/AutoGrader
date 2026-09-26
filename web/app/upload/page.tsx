@@ -65,11 +65,6 @@ export default function UploadPage() {
             章节完整性、代码块与关键 API 命中、统计特征、查重指纹。
             全过程在这台机器的浏览器里完成 —— 文件不上传、不联网、不经过任何模型。
           </p>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            核查器只陈述事实，不评价论证是否充分、不判断代码是否正确、
-            <span className="text-foreground">不给出抄袭结论</span>。
-            它给出的每一条事实都带取值、阈值与原文锚点，可被第三方逐条复算。
-          </p>
 
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard
@@ -79,7 +74,7 @@ export default function UploadPage() {
             />
             <StatCard label="查重语料" value={corpus.length} hint="份样例报告，与页面同源" />
             <StatCard label="支持格式" value="md / txt / docx" hint="PDF 不提供：浏览器端无法保证口径一致" />
-            <StatCard label="跨端对拍" value="12 / 12" hint="构建期逐条比对 T1 + T2，11 项全绿" />
+            <StatCard label="跨端对拍" value="12 / 12" hint="构建期逐条比对 T1 + T2，12 份全绿" />
           </div>
         </section>
 
@@ -132,17 +127,20 @@ export default function UploadPage() {
               <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-muted-foreground">
                 <li>
                   <span className="text-foreground">不支持 PDF</span>：PDF 没有可靠的结构标记，
-                  浏览器端抽取无法与工具链保持同一口径，所以不提供该入口，而不是给一个"大概能用"的结果。
+                  浏览器端抽取无法与工具链保持同一口径，故不提供该入口，而不是给一个"大概能用"的结果。
                 </li>
                 <li>
-                  docx 依赖浏览器的 <code className="font-mono">DecompressionStream('deflate-raw')</code>
+                  docx 需 <code className="font-mono">DecompressionStream('deflate-raw')</code>
                   （Chrome/Edge 103+、Safari 16.4+、Firefox 113+）；不支持时提示改用 md / txt。
                 </li>
                 <li>
-                  <span className="text-foreground">没有做 Web Worker</span>：
-                  docx 解析依赖 <code className="font-mono">DOMParser</code>，而 Worker 作用域里没有它，
-                  无法把这条最重的路径搬到后台线程；因此改为「超过 8 MB 直接拒绝并说明」，
-                  避免主线程长时间无响应。
+                  <span className="text-foreground">没有做 Web Worker</span>：docx 解析依赖{' '}
+                  <code className="font-mono">DOMParser</code>，Worker 作用域里没有它；
+                  故改为「超过 8 MB 直接拒绝并说明」。
+                </li>
+                <li>
+                  核查器只陈述事实，不评价论证、不判断代码对错、
+                  <span className="text-foreground">不给出抄袭结论</span>；每条事实都带取值、阈值与原文锚点。
                 </li>
                 <li>
                   查重语料是 12 份**样例报告**，不是"全部学生作业"——
@@ -159,11 +157,11 @@ export default function UploadPage() {
             <Link href="/eval" className="text-primary hover:underline">
               一致性评测
             </Link>
-            页；想先看一份完整评阅结果？去{' '}
+            ；想先看一份完整评阅结果？去{' '}
             <Link href="/grade" className="text-primary hover:underline">
               评阅工作台
             </Link>
-            页挑一份样例。
+            挑一份样例。
           </p>
         </section>
       </main>

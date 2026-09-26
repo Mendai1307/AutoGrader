@@ -27,6 +27,7 @@ import {
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Note } from '@/components/note';
 import { Progress } from '@/components/ui/progress';
 import {
   countFindingsByLevel,
@@ -156,12 +157,20 @@ export function InspectionPanel({ inspection, topSimilarity, peerCount, classNam
             </Badge>
           </span>
         </div>
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          以下数据由 <code className="font-mono">web/lib/inspectors/</code> 的纯函数核查器在
-          <span className="font-medium text-foreground">构建期</span>对报告 Markdown 原文计算得出，随静态产物固化；
-          运行时零 AI 调用、零网络请求、零后端。核查器只陈述机器可确切判定的事实——章节、代码、统计量、
-          图表引用、查重指纹，<span className="font-medium text-foreground">不判断代码是否正确、不评价论证是否充分、不给出抄袭结论</span>。
-        </p>
+        <Note summary="这些核查数据从哪来、边界在哪" className="mt-2">
+          <p>
+            由 <code className="font-mono">web/lib/inspectors/</code> 的纯函数核查器在
+            <span className="font-medium text-foreground">构建期</span>对报告 Markdown 原文计算得出，随静态产物固化；
+            运行时零 AI 调用、零网络请求、零后端。
+          </p>
+          <p>
+            核查器只陈述机器可确切判定的事实——章节、代码、统计量、图表引用、查重指纹，
+            <span className="font-medium text-foreground">
+              不判断代码是否正确、不评价论证是否充分、不给出抄袭结论
+            </span>
+            。
+          </p>
+        </Note>
       </CardHeader>
 
       <CardContent className="space-y-5 pt-5">

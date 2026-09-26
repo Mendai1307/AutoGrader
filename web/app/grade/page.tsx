@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { ArrowRight, FileText, ImageOff, LayoutGrid, ScrollText, Sigma, SquareCode } from 'lucide-react';
 
 import { SiteFooter } from '@/components/site-footer';
+import { Note } from '@/components/note';
 import { SiteHeader } from '@/components/site-header';
 import { StatCard } from '@/components/stat-card';
 import { Badge } from '@/components/ui/badge';
@@ -192,12 +193,12 @@ export default function GradePage() {
             })}
           </div>
 
-          <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
-            状态判定规则：构建期扫描 <code className="font-mono">public/results/</code> 目录，按约定文件名{' '}
+          <Note summary="状态判定规则" className="mt-6">
+            构建期扫描 <code className="font-mono">public/results/</code> 目录，按约定文件名{' '}
             <code className="font-mono">{RESULT_FILE_CONVENTION}</code> 查找；以 <code className="font-mono">_</code>{' '}
             开头的文件（如 <code className="font-mono">_example.json</code>）是契约格式示例，不作为任何报告的真实结果参与统计。
             结果文件缺失或未通过契约校验时，详情页会以「评阅结果待生成」空态降级展示，不会报错或白屏。
-          </p>
+          </Note>
         </section>
       </main>
 

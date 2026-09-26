@@ -82,18 +82,34 @@ autograder-expert/
 
 | # | 项 | 说明 |
 |---|---|---|
-| 1 | **头像（待补，推荐 prompt 见 §六）** | `avatars/` 目前为空（仅有 `.gitkeep`），配置中指向的 `avatars/expert.png` **暂缺**。官方校验器对本项**只告警不报错**，故专家包仍然有效、可正常召唤 |
-| 2 | **随包资产内容的标签** | 样板是契约形状的 Rubric（`additionalProperties: false`），**不能携带 `tags` 字段**，故 `--tag` 过滤对样板无效；详见 `skills/autograder-tools/assets/README.md` |
-| 3 | **两种编排形态的实跑对照** | 规格已齐（W2 给出可校验判据），实跑需真实 LearnBuddy 会话 |
+| 1 | **随包资产内容的标签** | 样板是契约形状的 Rubric（`additionalProperties: false`），**不能携带 `tags` 字段**，故 `--tag` 过滤对样板无效；详见 `skills/autograder-tools/assets/README.md` |
+| 2 | **两种编排形态的实跑对照** | 规格已齐（W2 给出可校验判据），实跑需真实 LearnBuddy 会话 |
 
-## 六、如何补头像（本环境缺图像生成工具）
+> **头像已于 2026-09-26 提交**（`avatars/expert.png`，512×512 PNG），故从本表移除，详见 §六。
 
-**背景（如实记录）**：本回合尝试调用图像生成工具补头像时，环境返回
-`Tool "ImageGen" is not available in the current environment or configuration` ——
-即**工具在本环境不可用**，不是参数写错。故按官方头像规范的「生成失败处理」条款，
-在此留下**可直接使用的推荐 prompt**。
+## 六、头像（已提交）
 
-### 补法（两选一）
+**当前头像**：`avatars/expert.png` —— **512×512 PNG**（≈386 KB，符合 ≤500KB），
+由**用户提供**的原图转换而来（原图 216×216 WebP，其扩展名被误写作 `.jpg`，转换时以文件头为准）。
+
+**规格依据**：`expert-manager/references/avatar-spec.md` —— PNG/JPG · **512×512** · 单张 ≤500KB。
+
+**装配方式**：映射写在仓库的 `packaging/expert.manifest.json` 的 `avatar` 段（`target` 必须与
+`pluginJson.avatar` 一致，否则官方校验器会告警），由 `build_expert.py` 复制进包；
+**源侧文件缺失时直接报错**，不静默跳过 —— 静默跳过会让「头像已提交」变成一个假象。
+
+### 想换一张？
+
+放任意 **512×512 的方形 PNG/JPG（≤500KB）** 到 `backend/autograder-expert/avatars/expert.png`，
+重跑 `python3 build_expert.py --validate --register` 即可 ——
+头像只影响展示，**不影响专家的能力与调用**。
+
+### 附：两种补法（换图时参考）
+
+> **背景（如实记录）**：本环境**不可用图像生成工具**（实测返回
+> `Tool "ImageGen" is not available in the current environment or configuration`，
+> 即工具不可用、不是参数写错），故当初按官方头像规范的「生成失败处理」条款留下下面的 prompt。
+> **⚠️ 当前头像由用户提供，并不是用这段 prompt 生成的** —— 保留它只为换图时有个合规起点。
 
 **A. 用任意图像生成工具生成后放入**（推荐）
 

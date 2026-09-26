@@ -193,8 +193,24 @@ def build(manifest: dict, target: str, dry_run: bool = False) -> list:
     put(".codebuddy-plugin/plugin.json",
         json.dumps(plugin_json, ensure_ascii=False, indent=2) + "\n")
 
-    # ---- 2. README.md + 头像位 ----
+    # ---- 2. README.md + 头像 ----
     put_copy("README.md", os.path.join(src_root, manifest["readme"]["source"]))
+
+    # 头像：映射在 manifest.avatar（target 必须与 pluginJson.avatar 一致，否则官方校验器会告警）
+    # 规格见 expert-manager/references/avatar-spec.md：PNG/JPG · 512×512 · ≤500KB。
+    # 源侧不存在时**报错而不是静默跳过** —— 静默跳过会让「头像已提交」成为一个假象。
+    avatar = manifest.get("avatar")
+    if avatar:
+        declared = manifest["pluginJson"].get("avatar", "")
+        if declared != avatar["target"]:
+            raise BuildError("manifest.avatar.target(%r) 与 pluginJson.avatar(%r) 不一致"
+                             % (avatar["target"], declared))
+        avatar_src = os.path.join(src_root, avatar["source"])
+        if not os.path.exists(avatar_src):
+            raise BuildError("头像源文件不存在：%s\n  规格与生成方式见 packaging/PLUGIN_README.md"
+                             % avatar_src)
+        put_copy(avatar["target"], avatar_src)
+
     written.append("avatars/.gitkeep")
     if not dry_run:
         os.makedirs(os.path.join(target, "avatars"), exist_ok=True)

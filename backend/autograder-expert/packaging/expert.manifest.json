@@ -183,5 +183,10 @@
     }
   ],
 
-  "readme": { "source": "packaging/PLUGIN_README.md" }
+  "readme": { "source": "packaging/PLUGIN_README.md" },
+
+  "avatar": {
+    "target": "avatars/expert.png",
+    "source": "avatars/expert.png"
+  }
 }

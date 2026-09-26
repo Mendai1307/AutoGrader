@@ -189,6 +189,7 @@ AutoGrader_rebirth/
 ├── README.md                       # 本文件（评审导向）
 ├── .gitignore                      # 只排除产物与过程，不排除证据
 ├── .github/workflows/deploy.yml    # 交付物二构建与部署（含三道门禁）
+├── materias                        #演示视频与PPT
 ├── documents/                      # 文档与立项材料
 │   ├── 项目总纲与同步状态.md        #   跨对话对齐的唯一入口 —— 开工先读
 │   ├── AUDIT.md                    #   缺陷登记与修复依据的唯一清单

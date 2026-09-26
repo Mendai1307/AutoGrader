@@ -5,7 +5,7 @@
 粤港澳大湾区 AI Coding 创新大赛（LearnBuddy 版）· 方向一「AI + 教学管理助手」。
 选题定义：支持计算机专业实验报告自动解析、评分点逐项核查、成绩评语智能生成的智能评阅教学平台。
 
-> **本 README 的性质**：**评审导向**。只写本仓库里已存在、可实测的事实，未完成项一律显式标注。
+> **本 README 的性质**：**评审导向**。
 > 每条关键论断都给出「去哪验」，便于评委独立复核。
 
 ---
@@ -14,9 +14,9 @@
 
 **AI 跑在 LearnBuddy 里，产品放在浏览器里，证据留在仓库和对话记录里。**
 
-AutoGrader 不是一个「网页里塞个 AI 调用」的作品。它刻意把 AI 推理放在
+AutoGrader 不是一个「网页里塞个 AI 调用」的作品。它把 AI 推理放在
 **LearnBuddy 对话侧**（专家智能体在那里运行），产出结构化的 `ReviewResult` JSON 提交进仓库；
-而**浏览器端运行时零 AI 调用、零后端**，只做两件事：确定性渲染，以及用纯前端规则引擎复核。
+而**浏览器端运行时无第三方AI调用**，只做确定性渲染，以及用纯前端规则引擎复核。
 
 这个选择叫 **Compile-time AI**，换来的三件事正是本作品要证明的：
 
@@ -30,9 +30,9 @@ AutoGrader 不是一个「网页里塞个 AI 调用」的作品。它刻意把 A
 
 | # | 交付物 | 角色 | 状态 |
 |---|---|---|---|
-| 一 | **专家智能体包**（Prompt + Skills + Tools + Workflow + Evaluation） | 能力本体，AI 在这里跑 | ✅ **五件套 + 打包层全部落地**，已通过官方校验并注册到市场 |
-| 二 | **Web Demo 产品展示页** | 产品形态（在线链接 + 源码仓库） | ✅ **7 个路由全部落地并实测**；⬜ 线上链接待发布 |
-| 三 | **评审材料包**（PPT / 3 分钟视频 / 对话记录归档） | 佐证链 | 🟡 **对话记录归档已交付**（见 §六）；⬜ PPT 与视频待产出 |
+| 一 | **专家智能体包**（Prompt + Skills + Tools + Workflow + Evaluation） | 能力本体，AI 在这里跑 | ✅ **五件套 + 打包层全部落地**，已通过官方校验可以直接交给learnbuddy本地召唤|
+| 二 | **Web Demo 产品展示页** | 产品形态（在线链接 + 源码仓库） | ✅ **7 个路由全部落地并实测**； 线上链接https://mendai1307.github.io/AutoGrader/ |
+| 三 | **评审材料包**（PPT / 3 分钟视频 / 对话记录归档） | 佐证链 | ✅ **对话记录归档已交付documents\dev_log**（见 §六）；⬜ PPT 与视频待产出 |
 
 **上一轮（v0.1）资产**在**同级目录** `../AutoGrader`（线上 `https://mendai1307.github.io/AutoGrader/`）：
 5 页面静态站、12 份合成样例 + 教师金标准 + 12 份真实评阅结果（MAE 3.05）。
@@ -185,36 +185,36 @@ python3 backend/autograder-expert/build_expert.py --validate --register
 ## 九、目录导航
 
 ```
-AutoGrader_rebirth/
-├── README.md                       # 本文件（评审导向）
-├── .gitignore                      # 只排除产物与过程，不排除证据
-├── .github/workflows/deploy.yml    # 交付物二构建与部署（含三道门禁）
-├── materias                        #演示视频与PPT
-├── documents/                      # 文档与立项材料
-│   ├── 项目总纲与同步状态.md        #   跨对话对齐的唯一入口 —— 开工先读
+AutoGrader_rebirth/ 
+├── README.md                       #   本文件（评审导向）
+├── .gitignore                      #   只排除产物与过程，不排除证据
+├── .github/workflows/deploy.yml    #   交付物二构建与部署（含三道门禁）
+├── materias                        #   演示视频与PPT
+├── documents/                      #   文档与立项材料
+│   ├── 项目总纲与同步状态.md        #    跨对话对齐的唯一入口 —— 开工先读
 │   ├── AUDIT.md                    #   缺陷登记与修复依据的唯一清单
 │   ├── 契约冻结方案.md              #   契约冻结的决策方案（D1–D5 已裁决）
 │   ├── 工具使用说明.md              #   平台侧「工具调用通道」的四条路径取证
-│   ├── dev_log/                    #   ✅ 对话记录归档（§3.3）：README + 索引 + 9 份逐字转录
+│   ├── dev_log/                    #   对话记录归档（§3.3）：README + 索引 + 9 份逐字转录
 │   └── v1.0 / v1.1 docx            #   立项材料：v1.0 原样存档 + v1.1 修订版 + 口径变更说明
-├── contract/                       # ✅ 契约层（机器可读真源）
+├── contract/                       #   契约层（机器可读真源）
 │   ├── ReviewResult.schema.json    #   JSON Schema draft-07，additionalProperties:false
 │   ├── Rubric.schema.json
 │   ├── fingerprint.py              #   结果指纹算法（Python 侧）
 │   └── fingerprint.mjs             #   同一算法的 JS 侧对照实现
-├── docs/contract.md                # ✅ 契约说明（字段表 / 口径 / 13 条不变式 / 映射表 / 迁移规则）
-├── web/                            # 交付物二：Web Demo（Next 15 静态导出）
+├── docs/contract.md                #   契约说明（字段表 / 口径 / 13 条不变式 / 映射表 / 迁移规则）
+├── web/                            #   交付物二：Web Demo（Next 15 静态导出）
 │   ├── app/                        #   7 个路由
 │   ├── components/                 #   可复用原语（note / charts / eval-metrics / deep-link-button …）
 │   ├── scripts/                    #   三道门禁 + 跨端对拍 + 静态服务 + 字体子集
 │   └── public/results/             #   12 份评阅结果 JSON（v0.1 副本 + 回填 total）
-└── backend/autograder-expert/      # 交付物一：专家智能体包
+└── backend/autograder-expert/      #   交付物一：专家智能体包
     ├── agents/                     #   五件套源
-    │   ├── agent/SYSTEM_PROMPT.md  #     Prompt v0.2
-    │   ├── skills/                 #     S0–S7 八份规格 + 索引
-    │   ├── tools/                  #     T1–T6 规格 + rules/ + scripts/（6 CLI）+ assets/（四类随包资产）
-    │   ├── workflow/               #     W1 五环 / W2 编排形态 / W3 失败与重试
-    │   └── evaluations/            #     metrics.md（口径真源）+ 2 CLI + baselines/
+    │   ├── agent/SYSTEM_PROMPT.md  #   Prompt v0.2
+    │   ├── skills/                 #   S0–S7 八份规格 + 索引
+    │   ├── tools/                  #   T1–T6 规格 + rules/ + scripts/（6 CLI）+ assets/（四类随包资产）
+    │   ├── workflow/               #   W1 五环 / W2 编排形态 / W3 失败与重试
+    │   └── evaluations/            #   metrics.md（口径真源）+ 2 CLI + baselines/
     ├── build_expert.py             #   打包层（自测 21 项）
     └── packaging/                  #   expert.manifest.json（映射真源）+ PLUGIN_README.md
 ```
@@ -234,4 +234,4 @@ AutoGrader_rebirth/
 
 ---
 
-**团队**：2 人（**软件工程** + **计算机科学与技术**），「2 个及以上不同专业/院系」
+**团队**：Mendai1307**计算机科学与技术**  Ziqing-Wu1**软件工程**

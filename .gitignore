@@ -52,3 +52,7 @@ backend/autograder-expert/packaging/dist/
 
 # ---- Next 自动生成 ----
 web/next-env.d.ts
+
+# ---- Python 字节码（本机编译产物，跨机器无用）----
+__pycache__/
+*.pyc

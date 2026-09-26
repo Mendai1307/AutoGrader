@@ -1,1 +1,0 @@
-{"items": [{"pointId": "R1", "blockId": null}, {"pointId": "R2", "anchor": "999.999"}, {"pointId": "R3", "quote": "这句在报告里不存在，用来触发 quote-mismatch"}]}

@@ -1,4 +1,0 @@
-{"items":[
- {"pointId":"P1","anchor":"1.2","quote":"本实验通过 malloc 申请堆内存，验证内存分配行为。"},
- {"pointId":"P2","anchor":"1.2","quote":"本实验通过 malloc 申请了堆内存。"}
-]}

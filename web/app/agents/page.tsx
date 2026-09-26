@@ -33,7 +33,7 @@ import { StatCard } from '@/components/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import agentKitJson from '@/lib/agent-kit.generated.json';
-import { AI_SOURCE_STATEMENT, LEVEL_META } from '@/lib/constants';
+import { LEVEL_META } from '@/lib/constants';
 import { getEvalBaseline } from '@/lib/data';
 import { cn, formatNumber } from '@/lib/utils';
 
@@ -181,7 +181,7 @@ export default function AgentsPage() {
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             AutoGrader 的智能评阅能力不是页面上的一个按钮，而是 LearnBuddy 上的一个**专家智能体**：
             它由 Prompt + Skills + Tools + Workflow + Evaluation 五层构成，全部落在本仓库里、可被逐份检查。
-            网页只负责把它的产出**确定性渲染**出来 —— 页面本身不做任何 AI 调用。
+            网页只负责把评阅结果完整呈现出来。
           </p>
           <Note summary="本页数字怎么来的" className="mt-2">
             所有数字都在构建期由脚本扫描仓库生成（
@@ -272,11 +272,6 @@ export default function AgentsPage() {
               </Card>
             ))}
           </div>
-          <Note summary="统一退出码" className="mt-3">
-            <code className="font-mono">0</code> 正常 · <code className="font-mono">1</code> 有错但校验完整 ·{' '}
-            <code className="font-mono">2</code> 输入或 schema 不可用 ·{' '}
-            <code className="font-mono">3</code> 校验不完整（降级运行，CI 视为不通过）。
-          </Note>
         </section>
 
         {/* ==================== Workflow 明细 ==================== */}
@@ -405,7 +400,6 @@ export default function AgentsPage() {
         </section>
 
         <section className="py-8">
-          <p className="text-[12px] leading-relaxed text-muted-foreground">{AI_SOURCE_STATEMENT}</p>
         </section>
       </main>
 

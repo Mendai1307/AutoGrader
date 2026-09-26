@@ -19,7 +19,6 @@ import { StatCard } from '@/components/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import {
-  AI_SOURCE_STATEMENT,
   RESULT_FILE_CONVENTION,
   STATUS_META,
   TIER_META,
@@ -77,7 +76,7 @@ export default function GradePage() {
               label="已有评阅结果"
               value={`${generatedIds.size} / ${reports.length}`}
               valueClassName={generatedIds.size === 0 ? TONE.notice.text : TONE.ok.text}
-              hint={`按约定读取 public/results/${RESULT_FILE_CONVENTION}`}
+              hint="已产出评阅结果的报告数量"
               icon={<ScrollText className="h-3.5 w-3.5" />}
             />
             <StatCard
@@ -112,7 +111,6 @@ export default function GradePage() {
         <section className="py-8">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <h2 className="text-lg font-semibold tracking-tight">样例报告清单</h2>
-            <p className="text-xs text-muted-foreground">{AI_SOURCE_STATEMENT}</p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -177,10 +175,7 @@ export default function GradePage() {
                         {truncate(report.summary, 62)}
                       </p>
 
-                      <div className="mt-auto flex items-center justify-between gap-2 pt-3.5">
-                        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
-                          result-{report.id}.json
-                        </code>
+                      <div className="mt-auto flex items-center justify-end gap-2 pt-3.5">
                         <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
                           查看详情
                           <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />

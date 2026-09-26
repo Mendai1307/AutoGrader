@@ -97,7 +97,7 @@ export default function HomePage() {
         <section className="border-b border-border py-12">
           <Badge variant="outline" className="gap-1.5">
             <ShieldCheck className="h-3 w-3" />
-            Compile-time AI · 编译期推理 / 运行时零 AI 调用
+            AI 离线评阅 · 结果可溯源
           </Badge>
 
           <h1 className="mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">{SITE_NAME}</h1>

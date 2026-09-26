@@ -38,9 +38,9 @@ export interface NavItem {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { href: '/', label: '首页', description: '产品定位与流水线总览' },
+  { href: '/upload', label: '上传核查', description: '上传报告即时做确定性核查' },
   { href: '/agents', label: '智能体构成', description: 'Prompt / Skills / Tools / Workflow / Evaluation 五件套' },
   { href: '/grade', label: '评阅工作台', description: '样例报告与评阅状态' },
-  { href: '/upload', label: '上传核查', description: '上传报告即时做确定性核查' },
   { href: '/eval', label: '一致性评测', description: 'AI 评分与教师金标准分对比' },
   { href: '/trace', label: '溯源与指纹', description: '中间产物、契约不变式与结果指纹' },
 ];

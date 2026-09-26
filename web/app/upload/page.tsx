@@ -14,14 +14,14 @@
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Info, ShieldCheck, SquareTerminal } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
+import { Note } from '@/components/note';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { StatCard } from '@/components/stat-card';
 import { UploadInspector } from '@/components/upload-inspector';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
 import { getCorpusFiles, getReportMarkdown } from '@/lib/data';
 import { DEFAULT_RULE_COUNT, DEFAULT_RULE_SET } from '@/lib/rules.generated';
 
@@ -56,14 +56,13 @@ export default function UploadPage() {
               浏览器本地计算
             </Badge>
             <Badge variant="outline">与工具链 T2 同源实现</Badge>
-            <Badge variant="outline">零后端 · 零 AI 调用</Badge>
           </div>
 
           <h1 className="mt-4 text-3xl font-bold tracking-tight">上传核查 · 确定性事实</h1>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground">
             上传或粘贴一份实验报告，立刻得到四类**机器可确切判定的事实**：
             章节完整性、代码块与关键 API 命中、统计特征、查重指纹。
-            全过程在这台机器的浏览器里完成 —— 文件不上传、不联网、不经过任何模型。
+            全过程在本机浏览器内完成，文件不上传。
           </p>
 
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -90,65 +89,23 @@ export default function UploadPage() {
 
         {/* ==================== 能力边界与实现说明 ==================== */}
         <section className="border-b border-border py-8">
-          <div className="flex flex-wrap items-baseline gap-2">
-            <SquareTerminal className="h-4 w-4 text-primary" />
-            <h2 className="text-lg font-semibold tracking-tight">这一页怎么做出来的</h2>
-          </div>
-
-          <div className="mt-3 grid gap-3 md:grid-cols-2">
-            <Card className="p-4">
-              <h3 className="flex items-center gap-1.5 text-[13px] font-semibold">
-                <Info className="h-3.5 w-3.5 text-primary" />
-                与工具链同源，不是"另一套差不多"
-              </h3>
-              <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-muted-foreground">
-                <li>
-                  解析：<code className="font-mono">lib/parse.ts</code>（md / txt）与{' '}
-                  <code className="font-mono">lib/docx.ts</code>（docx）是{' '}
-                  <code className="font-mono">document_parser.py</code>（T1）的移植；
-                </li>
-                <li>
-                  核查：<code className="font-mono">lib/rules-engine.ts</code> 是{' '}
-                  <code className="font-mono">rule_inspector.py</code>（T2）的移植，
-                  连事实文案模板与规则集摘要算法都照搬；
-                </li>
-                <li>
-                  构建期门禁 <code className="font-mono">npm run audit:cross-end</code>：
-                  同一份输入分别喂两侧，逐条比对结构块、统计、事实、阈值、锚点与规则集摘要。
-                </li>
-              </ul>
-            </Card>
-
-            <Card className="p-4">
-              <h3 className="flex items-center gap-1.5 text-[13px] font-semibold">
-                <Info className="h-3.5 w-3.5 text-primary" />
-                如实说明的能力边界
-              </h3>
-              <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-muted-foreground">
-                <li>
-                  <span className="text-foreground">不支持 PDF</span>：PDF 没有可靠的结构标记，
-                  浏览器端抽取无法与工具链保持同一口径，故不提供该入口，而不是给一个"大概能用"的结果。
-                </li>
-                <li>
-                  docx 需 <code className="font-mono">DecompressionStream('deflate-raw')</code>
-                  （Chrome/Edge 103+、Safari 16.4+、Firefox 113+）；不支持时提示改用 md / txt。
-                </li>
-                <li>
-                  <span className="text-foreground">没有做 Web Worker</span>：docx 解析依赖{' '}
-                  <code className="font-mono">DOMParser</code>，Worker 作用域里没有它；
-                  故改为「超过 8 MB 直接拒绝并说明」。
-                </li>
-                <li>
-                  核查器只陈述事实，不评价论证、不判断代码对错、
-                  <span className="text-foreground">不给出抄袭结论</span>；每条事实都带取值、阈值与原文锚点。
-                </li>
-                <li>
-                  查重语料是 12 份**样例报告**，不是"全部学生作业"——
-                  相似度只表示文本指纹接近，不构成抄袭结论。
-                </li>
-              </ul>
-            </Card>
-          </div>
+          <Note summary="这一页怎么做出来的 · 实现与能力边界">
+            <p>
+              <span className="font-medium text-foreground">与工具链同源：</span>
+              解析与核查逻辑是评阅工具链（T1 文档解析 / T2 规则核查）的同源移植，
+              两端输出经构建期逐条比对，口径一致。
+            </p>
+            <p>
+              <span className="font-medium text-foreground">能力边界：</span>
+              不支持 PDF（无可靠结构标记，无法保证口径一致）；docx 需较新的 Chrome / Edge / Safari / Firefox，
+              不支持时会提示改用 md / txt；超过 8 MB 的文件直接拒绝。
+            </p>
+            <p>
+              核查器只陈述事实，不评价论证、不判断代码对错、不给出抄袭结论；
+              每条事实都带取值、阈值与原文锚点。查重语料为 12 份样例报告，
+              相似度只表示文本指纹接近，不构成抄袭结论。
+            </p>
+          </Note>
         </section>
 
         <section className="py-8">

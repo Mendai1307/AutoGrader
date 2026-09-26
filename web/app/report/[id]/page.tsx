@@ -52,7 +52,6 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import {
-  AI_SOURCE_STATEMENT,
   LEVEL_META,
   PARTIAL_SCORE_NOTE,
   RESULT_FILE_CONVENTION,
@@ -391,17 +390,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
                     再按加权口径复算总分并与结果文件中声明的 totalScore 比对。两项自证同时成立，
                     即说明本页显示的每一个分数都由档位系数机械推出，而非事后手工填写。
                   </p>
-                  <p>
-                    复算由 <code className="font-mono">lib/schema.ts</code> 的{' '}
-                    <code className="font-mono">verifyItemScore()</code> /{' '}
-                    <code className="font-mono">verifyTotalScore()</code> 在构建期完成并固化进静态 HTML，
-                    运行时不做任何计算、不发任何请求；浏览器端 Web Crypto 复算指纹仍未实现（见 README 第十一节）。
-                  </p>
                 </Note>
-
-                <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  rubric v{state.data.rubricVersion} · schema {state.data.schemaVersion} · {AI_SOURCE_STATEMENT}
-                </p>
               </div>
             ) : (
               <div className="space-y-4">
